@@ -11,6 +11,10 @@
       "destination": "/dia-25.html"
     },
     {
+      "source": "/apuracao",
+      "destination": "/apuracao.html"
+    },
+    {
       "source": "/",
       "destination": "/api/home"
     },

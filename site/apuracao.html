@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Apuração do 2º turno 2026 ao vivo: Lula × Flávio · Central 2º Turno</title>
+<meta name="description" content="Resultado do 2º turno de 2026 ao vivo, direto dos dados oficiais do TSE: votos de Lula e Flávio Bolsonaro e porcentagem de urnas apuradas.">
+<link rel="canonical" href="https://central-2turno.vercel.app/apuracao">
+<meta name="theme-color" content="#0C0C10">
+<script defer src="/_vercel/insights/script.js"></script>
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Apuração do 2º turno ao vivo">
+<meta property="og:description" content="Lula × Flávio, direto dos dados do TSE. Atualiza sozinho.">
+<meta property="og:image" content="https://central-2turno.vercel.app/og.png">
+<meta property="og:url" content="https://central-2turno.vercel.app/apuracao">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0C0C10;--card:#16161D;--card2:#1E1E27;--line:#22222A;--line2:#33333D;--ink:#F2F2F5;--soft:#B5B5C2;--mute:#8A8A99;--red:#E5243B;--blue:#2B6CEB;--green:#1FA855;--neutral:#4A4A57}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Figtree',system-ui,sans-serif;line-height:1.45}
+a{color:inherit}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 120px}
+.display{font-family:'Bricolage Grotesque','Figtree',sans-serif;font-weight:800;letter-spacing:-.02em}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);margin-bottom:18px}
+header img{height:34px;width:auto;display:block}
+.vivo{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:800;color:var(--soft)}
+.vivo i{width:10px;height:10px;border-radius:50%;background:var(--mute)}
+.vivo.on i{background:#FF4D5E;box-shadow:0 0 0 0 rgba(255,77,94,.7);animation:pulsa 1.6s infinite}
+@keyframes pulsa{70%{box-shadow:0 0 0 10px rgba(255,77,94,0)}100%{box-shadow:0 0 0 0 rgba(255,77,94,0)}}
+@media (prefers-reduced-motion:reduce){.vivo.on i{animation:none}}
+h1{font-size:34px;line-height:1.05;margin:8px 0 6px}
+.sub{color:var(--soft);margin:0 0 18px}
+.teste{background:#3a2a05;border:1px solid #6b4e0b;color:#ffd27a;border-radius:12px;padding:10px 14px;font-weight:700;font-size:14px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px}
+.urnas .linha{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px}
+.urnas b{font-size:26px}
+.track{height:12px;border-radius:999px;background:var(--card2);overflow:hidden;display:flex}
+.track i{display:block;height:100%}
+.duelo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin:14px 0}
+.cand{border-radius:20px;padding:18px;color:#fff;display:flex;flex-direction:column;gap:4px;min-height:170px}
+.cand.l{background:linear-gradient(160deg,#E5243B,#a3182a)}
+.cand.f{background:linear-gradient(160deg,#2B6CEB,#1b4aa8)}
+.cand .num{font-weight:800;font-size:15px;opacity:.9}
+.cand .nome{font-weight:800;font-size:20px}
+.cand .pct{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:56px;line-height:1;margin-top:auto;letter-spacing:-.03em;font-size:clamp(34px,11vw,56px)}
+.cand .votos{font-weight:600;opacity:.9}
+.cand .eleito{display:inline-block;align-self:flex-start;background:#fff;color:#0C0C10;border-radius:999px;padding:3px 12px;font-weight:800;font-size:13px}
+.split{height:18px;border-radius:999px;overflow:hidden;display:flex;margin:4px 0 8px;background:var(--card2)}
+.split i{display:block;height:100%;transition:width .6s}
+.meio{position:relative}
+.meio:after{content:"";position:absolute;left:50%;top:-4px;bottom:-4px;width:2px;background:#fff;opacity:.7}
+.info{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;color:var(--soft);font-size:14px}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:14px;border:1px solid var(--line2);background:var(--card2);color:var(--ink);font-weight:800;font-size:15px;text-decoration:none;cursor:pointer;font-family:inherit}
+.espera{text-align:center;padding:30px 18px}
+.espera .rel{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:48px;letter-spacing:-.02em;margin:8px 0}
+.nota{font-size:13px;color:var(--mute);margin-top:22px}
+.nota a{color:var(--soft)}
+.dock{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 35%);display:flex;justify-content:center}
+.zap{display:flex;align-items:center;justify-content:center;width:100%;max-width:788px;min-height:52px;border-radius:14px;background:var(--green);color:#06140b;font-weight:800;font-size:17px;text-decoration:none}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);font-weight:700;padding:10px 16px;border-radius:12px;opacity:0;transition:.2s;pointer-events:none}
+#toast.on{opacity:1}
+@media (min-width:760px){h1{font-size:52px}.cand .pct{font-size:80px}.cand{min-height:220px;padding:24px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a href="/" aria-label="Central 2º Turno, página inicial"><img src="/logo.png" alt="Central 2º Turno" width="720" height="264"></a>
+    <span class="vivo" id="vivo"><i></i><span id="vivoTxt">Ao vivo</span></span>
+  </header>
+
+  <h1 class="display">Apuração do 2º turno</h1>
+  <p class="sub">Direto dos dados oficiais do TSE. A página atualiza sozinha.</p>
+  <div class="teste" id="aviso" hidden></div>
+
+  <div id="app"><div class="card espera">Carregando…</div></div>
+
+  <p class="nota">Fonte: <a href="https://resultados.tse.jus.br/oficial/app/index.html" target="_blank" rel="noopener">Resultados, do TSE</a>. A porcentagem é sobre os votos válidos (sem brancos e nulos), como o TSE divulga. Central 2º Turno, por Mounólogo, sem vínculo com partido ou candidato.</p>
+</div>
+<div class="dock"><a class="zap" href="https://whatsapp.com/channel/0029VbE4MzWGE56inhQOZq0u" target="_blank" rel="noopener">Seguir no WhatsApp</a></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  var params = new URLSearchParams(location.search);
+  var TESTE = params.get('teste') === '1';
+  var ELE = TESTE ? '6257' : '6258';
+  var FIM_VOTACAO = Date.parse('2026-10-25T17:00:00-03:00');
+  var app = document.getElementById('app');
+  var ultimo = null, timer = null;
+
+  function marca(ev) { try { fetch('https://wzosdmigdqhpvarydmfs.supabase.co/rest/v1/rpc/registrar', { method: 'POST', keepalive: true, headers: { apikey: 'sb_publishable_SuykHQL2DE0NG1LgneA6bw_bhhS_l6s', 'Content-Type': 'application/json' }, body: JSON.stringify({ ev: ev }) }).catch(function () {}); } catch (e) {} }
+  try { if (!sessionStorage.getItem('ev-visita:apuracao')) { sessionStorage.setItem('ev-visita:apuracao', '1'); marca('visita:apuracao'); } } catch (e) {}
+  document.addEventListener('click', function (e) { if (e.target.closest('a[href*="whatsapp.com/channel"]')) marca('seguir:apuracao'); }, true);
+
+  function fi(n) { return Math.round(n).toLocaleString('pt-BR'); }
+  function f2(n) { return (Math.round(n * 100) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function toast(m) { var t = document.getElementById('toast'); t.textContent = m; t.className = 'on'; setTimeout(function () { t.className = ''; }, 2200); }
+  function vivo(on, txt) { var v = document.getElementById('vivo'); v.className = 'vivo' + (on ? ' on' : ''); document.getElementById('vivoTxt').textContent = txt; }
+
+  if (TESTE) { var av = document.getElementById('aviso'); av.hidden = false; av.textContent = 'Modo teste: mostrando os dados reais do 1º turno, só pra ver a página funcionando.'; }
+
+  function espera() {
+    var falta = FIM_VOTACAO - Date.now();
+    if (falta <= 0) {
+      vivo(true, 'Esperando o TSE');
+      app.innerHTML = '<div class="card espera"><div class="display" style="font-size:22px">A votação acabou.</div><p style="color:var(--soft)">Os primeiros números do TSE costumam aparecer alguns minutos depois das 17h. Esta página atualiza sozinha.</p></div>';
+      return;
+    }
+    var d = Math.floor(falta / 86400000), h = Math.floor(falta % 86400000 / 3600000), m = Math.floor(falta % 3600000 / 60000), s = Math.floor(falta % 60000 / 1000);
+    var rel = d > 0 ? d + (d === 1 ? ' dia' : ' dias') + ' e ' + h + 'h' : String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    vivo(false, 'Domingo, 25/10, às 17h');
+    app.innerHTML = '<div class="card espera"><div style="color:var(--soft);font-weight:700">A apuração começa quando a votação acaba, às 17h (Brasília), daqui a</div><div class="rel">' + rel + '</div>' +
+      '<p style="color:var(--soft)">Deixa esta página salva. No domingo ela mostra os números do TSE assim que saírem.</p>' +
+      '<div class="btns" style="justify-content:center"><a class="btn" href="/dia-25">Tudo pra votar no dia 25</a><a class="btn" href="?teste=1">Ver como fica (teste)</a></div></div>';
+  }
+
+  function pinta(d) {
+    var L = d.cands.find(function (c) { return c.n === '13'; }) || { vap: 0, pvap: 0, nome: 'Lula' };
+    var F = d.cands.find(function (c) { return c.n === '22'; }) || { vap: 0, pvap: 0, nome: 'Flávio Bolsonaro' };
+    var soma = (L.pvap + F.pvap) || 100;
+    var wl = L.pvap / soma * 100, wf = F.pvap / soma * 100;
+    var dif = Math.abs(L.vap - F.vap), frente = L.vap === F.vap ? null : (L.vap > F.vap ? 'Lula' : 'Flávio');
+    var eleito = function (c) { return /eleito/i.test(String(c.st || '')) && !/n[aã]o/i.test(String(c.st || '')) ? '<span class="eleito">Eleito</span>' : ''; };
+    var fim = d.pst >= 100;
+    vivo(!fim, fim ? 'Apuração encerrada' : 'Ao vivo · atualiza a cada 30 s');
+    ultimo = { L: L, F: F, pst: d.pst };
+    app.innerHTML =
+      '<div class="card urnas"><div class="linha"><span style="font-weight:700;color:var(--soft)">Urnas apuradas</span><b class="display">' + f2(d.pst) + '%</b></div>' +
+      '<div class="track"><i style="width:' + Math.min(100, d.pst) + '%;background:var(--ink)"></i></div>' +
+      '<div class="info" style="margin-top:8px"><span>' + fi(d.st) + ' de ' + fi(d.ts) + ' seções</span><span>Atualizado pelo TSE às ' + esc(d.ht || '–') + '</span></div></div>' +
+      '<div class="duelo">' +
+        '<div class="cand l"><span class="num">13</span><span class="nome">' + esc(TESTE ? L.nome : 'Lula') + '</span>' + eleito(L) + '<span class="pct">' + f2(L.pvap) + '%</span><span class="votos">' + fi(L.vap) + ' votos</span></div>' +
+        '<div class="cand f"><span class="num">22</span><span class="nome">' + esc(TESTE ? F.nome : 'Flávio Bolsonaro') + '</span>' + eleito(F) + '<span class="pct">' + f2(F.pvap) + '%</span><span class="votos">' + fi(F.vap) + ' votos</span></div>' +
+      '</div>' +
+      '<div class="meio"><div class="split"><i style="width:' + wl + '%;background:var(--red)"></i><i style="width:' + wf + '%;background:var(--blue)"></i></div></div>' +
+      '<div class="info"><span>' + (frente ? frente + ' na frente por ' + fi(dif) + ' votos' : 'Empate') + '</span><span>Brancos e nulos: ' + fi(d.vb + d.tvn) + '</span></div>' +
+      '<div class="btns"><button class="btn" id="btnShare">Compartilhar o placar</button><a class="btn" href="/">Ver as notícias</a></div>';
+    document.getElementById('btnShare').onclick = compartilha;
+  }
+
+  function compartilha() {
+    if (!ultimo) return;
+    marca('compartilhar:apuracao');
+    var t = 'Apuração do 2º turno (' + f2(ultimo.pst) + '% das urnas):\n13 Lula: ' + f2(ultimo.L.pvap) + '%\n22 Flávio: ' + f2(ultimo.F.pvap) + '%\n\nAo vivo: ' + location.origin + '/apuracao\n\nSiga o canal no WhatsApp: https://whatsapp.com/channel/0029VbE4MzWGE56inhQOZq0u';
+    if (navigator.share) navigator.share({ text: t }).catch(function () {});
+    else if (navigator.clipboard) { navigator.clipboard.writeText(t); toast('Copiado.'); }
+  }
+
+  function busca() {
+    clearTimeout(timer);
+    if (!TESTE && Date.now() < FIM_VOTACAO - 60000) { espera(); timer = setTimeout(busca, 1000); return; }
+    fetch('/api/apuracao?ele=' + ELE, { cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d.aguardando || !d.cands || !d.cands.length) espera();
+        else pinta(d);
+      })
+      .catch(function () { vivo(false, 'Sem conexão com o TSE, tentando de novo'); })
+      .then(function () { timer = setTimeout(busca, document.hidden ? 120000 : 30000); });
+  }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) busca(); });
+  busca();
+})();
+</script>
+</body>
+</html>
