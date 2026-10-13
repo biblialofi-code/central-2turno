@@ -41,7 +41,8 @@ header{position:sticky;top:0;z-index:5;background:rgba(12,12,16,.94);backdrop-fi
 .seg.lado button[data-v="22"][aria-pressed="true"]{background:var(--blue);color:#fff}
 .seg.lado button[data-v="ambos"][aria-pressed="true"]{background:var(--neutral);color:#fff}
 .seg.small button{min-height:38px;font-size:14px}
-.main-tabs{margin-bottom:14px}
+.main-tabs{margin-bottom:14px;flex-wrap:wrap}
+.main-tabs button{flex:1 1 30%;padding:0 6px}
 .bar{display:flex;gap:8px;margin:12px 0}
 .bar .seg{flex:1}
 .count{display:inline-block;min-width:20px;padding:0 6px;margin-left:4px;border-radius:999px;background:var(--line2);font-size:12px;line-height:20px}
@@ -178,7 +179,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--soft)}
   function painel() {
     app.innerHTML =
       '<div class="seg main-tabs" id="abas">' +
-      [['noticias', 'Notícias'], ['videos', 'Vídeos'], ['livros', 'Livros'], ['anuncios', 'Anúncios']].map(function (a) {
+      [['noticias', 'Notícias'], ['videos', 'Vídeos'], ['livros', 'Livros'], ['anuncios', 'Anúncios'], ['comentarios', 'Comentários']].map(function (a) {
         return '<button data-aba="' + a[0] + '" aria-pressed="' + (st.aba === a[0]) + '">' + a[1] + '</button>';
       }).join('') + '</div><div id="corpo"></div>';
     $('abas').onclick = function (e) {
@@ -189,7 +190,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--soft)}
     };
     abrir();
   }
-  function abrir() { if (st.aba === 'noticias') noticias(); else tabela(st.aba); }
+  function abrir() { if (st.aba === 'noticias') noticias(); else if (st.aba === 'comentarios') comentariosAdm(); else tabela(st.aba); }
 
   // ---------- NOTÍCIAS ----------
   var STATUS = [['pendente', 'Pendentes'], ['aprovado', 'No ar'], ['descartado', 'Descartadas']];
@@ -318,6 +319,51 @@ input:focus,select:focus,textarea:focus{border-color:var(--soft)}
     } catch (err) { falhou(err); }
   });
   function some(card) { card.style.transition = '.2s'; card.style.opacity = '0'; setTimeout(function () { card.remove(); if ($('lista') && !$('lista').querySelector('article')) $('lista').innerHTML = '<p class="empty">Nada aqui.</p>'; }, 200); }
+
+  // ---------- COMENTÁRIOS (moderação) ----------
+  var stc = { filtro: 'todos' };
+  async function comentariosAdm() {
+    var corpo = $('corpo');
+    corpo.innerHTML = '<div class="seg small" id="cTabs">' + [['todos', 'Últimos'], ['denunciados', 'Denunciados'], ['ocultos', 'Ocultos']].map(function (f) {
+      return '<button data-f="' + f[0] + '" aria-pressed="' + (stc.filtro === f[0]) + '">' + f[1] + '</button>'; }).join('') + '</div>' +
+      '<div id="lista" style="margin-top:12px"><p class="empty">Carregando…</p></div>';
+    $('cTabs').onclick = function (e) { var b = e.target.closest('[data-f]'); if (!b) return; stc.filtro = b.dataset.f; comentariosAdm(); };
+    var q = sb.from('comentarios').select('id,noticia_id,nome,texto,oculto,denuncias,criado_em,noticias(manchete)').order('criado_em', { ascending: false }).limit(150);
+    if (stc.filtro === 'denunciados') q = q.gt('denuncias', 0);
+    if (stc.filtro === 'ocultos') q = q.eq('oculto', true);
+    var r = await q;
+    if (r.error) return falhou(r.error);
+    var lista = $('lista');
+    if (!r.data.length) { lista.innerHTML = '<p class="empty">Nada aqui.</p>'; return; }
+    lista.innerHTML = r.data.map(function (c) {
+      return '<article class="card" data-cid="' + c.id + '" data-oculto="' + c.oculto + '">' +
+        '<div class="meta"><b style="color:var(--ink)">' + esc(c.nome) + '</b><span>' + ha(c.criado_em) + '</span>' +
+        (c.denuncias ? '<span class="chip" style="background:var(--danger)">' + c.denuncias + (c.denuncias === 1 ? ' denúncia' : ' denúncias') + '</span>' : '') +
+        (c.oculto ? '<span class="chip off">Oculto</span>' : '') + '</div>' +
+        '<p style="margin:0 0 8px;white-space:pre-wrap;font-size:16px">' + esc(c.texto) + '</p>' +
+        '<a class="hint" href="/n/' + c.noticia_id + '" target="_blank" rel="noopener" style="display:block">Em: ' + esc(c.noticias ? c.noticias.manchete : '#' + c.noticia_id) + '</a>' +
+        '<div class="row"><button class="btn" data-c="oculto">' + (c.oculto ? 'Mostrar de novo' : 'Ocultar') + '</button>' +
+        '<button class="btn danger" data-c="apagar">Apagar</button></div></article>';
+    }).join('');
+    lista.onclick = async function (e) {
+      var b = e.target.closest('[data-c]'); if (!b) return;
+      var card = b.closest('[data-cid]'), id = card.dataset.cid;
+      try {
+        if (b.dataset.c === 'oculto') {
+          var vai = card.dataset.oculto !== 'true';
+          var r2 = await sb.from('comentarios').update(vai ? { oculto: true } : { oculto: false, denuncias: 0 }).eq('id', id).select('id');
+          if (r2.error) throw r2.error;
+          toast(vai ? 'Ocultado' : 'Aparecendo de novo'); comentariosAdm();
+        }
+        if (b.dataset.c === 'apagar') {
+          if (!armado(b)) return;
+          var r3 = await sb.from('comentarios').delete().eq('id', id).select('id');
+          if (r3.error) throw r3.error; if (!r3.data.length) throw new Error('não deixou apagar');
+          some(card); toast('Apagado');
+        }
+      } catch (err) { falhou(err); }
+    };
+  }
 
   // ---------- VÍDEOS E LIVROS (formulário + lista) ----------
   var TABELAS = {

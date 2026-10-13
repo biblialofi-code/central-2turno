@@ -117,6 +117,18 @@ body.modo-noticia .hero,body.modo-noticia #secTabs,body.modo-noticia #secFeed,bo
 .artigo .resumo{font-size:19px;line-height:1.45;color:var(--ink);margin:0}
 .artigo .actions .btn-read{min-height:52px;font-size:16px}
 .outro{margin-top:22px;display:flex;flex-direction:column;gap:12px}
+.coms{margin-top:22px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.coms h2{font-size:22px;margin:0}
+.coms textarea{width:100%;min-height:96px;border-radius:12px;border:1px solid var(--line2);background:var(--card2);color:var(--ink);padding:12px 14px;font-family:inherit;font-size:16px;resize:vertical}
+.coms textarea:focus{outline:2px solid var(--blue);outline-offset:1px}
+.com{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.com .quem{font-size:14px;font-weight:800;display:flex;gap:8px;align-items:baseline}
+.com .quem span{font-weight:600;color:var(--mute);font-size:13px}
+.com .txt{font-size:16px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
+.com .acoes{display:flex;gap:14px}
+.com .acoes button{background:none;border:0;color:var(--mute);font-weight:700;font-size:13px;cursor:pointer;padding:4px 0;min-height:32px}
+.coms .aviso{font-size:13px;color:var(--mute)}
+.coms .erro{color:#FF8A96;font-size:14px;font-weight:700}
 .card .foto{margin:-16px -16px 2px;aspect-ratio:16/9;overflow:hidden;border-radius:17px 17px 0 0;background:var(--card2)}
 .card .foto img{width:100%;height:100%;object-fit:cover}
 .actions{display:flex;gap:8px;margin-top:2px}
@@ -646,6 +658,8 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   var pronto = null; // imagem já gerada, se o celular pedir um segundo toque
   function compartilhar(texto, cardOpts, semAssinatura) {
     var msg = semAssinatura ? texto : texto + assinatura();
+    // todo compartilhamento leva o link pra seguir o canal
+    if (C.CANAL_URL && msg.indexOf(C.CANAL_URL) < 0) msg += '\n\nSiga o canal no WhatsApp: ' + C.CANAL_URL;
     if (pronto && pronto.msg === msg && navigator.canShare && navigator.canShare({ files: [pronto.file] })) {
       var f0 = pronto.file; pronto = null;
       return navigator.share({ files: [f0], text: msg }).catch(function () {});
@@ -876,11 +890,88 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       '<p class="resumo">' + esc(n.resumo) + '</p>' +
       '<div class="actions"><a class="btn-read" href="' + esc(safeUrl(n.link)) + '" target="_blank" rel="noopener">Ler no ' + esc(n.veiculo) + '</a>' +
       '<button class="btn-icon" data-share="' + n.id + '" aria-label="Compartilhar">' + ICONE_SHARE + '</button></div>' +
-      '</div></article><div id="outroLado"></div>';
+      '</div></article><section class="coms" id="coms" aria-label="Comentários"></section><div id="outroLado"></div>';
     pintaOutroLado();
+    carregaComentarios(n.id);
     marcaLida(n);
     if (ORIGEM && n.imagem) carregaImg('/api/img?id=' + n.id, 8000); // deixa a foto pronta pro compartilhar
   }
+  /* ---------- comentários (só quem tem conta) ---------- */
+  var comentarios = [];
+  function comentarioHtml(c) {
+    var meu = sessao && sessao.user && c.usuario === sessao.user.id;
+    return '<div class="com" data-com="' + c.id + '"><div class="quem">' + esc(c.nome || 'Leitor') + '<span>' + ha(c.criado_em) + '</span></div>' +
+      '<div class="txt">' + esc(c.texto) + '</div>' +
+      (sessao ? '<div class="acoes">' + (meu ? '<button data-com-apagar="' + c.id + '">Apagar</button>' : '<button data-com-denunciar="' + c.id + '">Denunciar</button>') + '</div>' : '') +
+      '</div>';
+  }
+  function pintaComentarios() {
+    var alvo = $('coms'); if (!alvo || !noticiaAberta) return;
+    if (!configurado) { alvo.hidden = true; return; }
+    var form;
+    if (sessao && perfil) {
+      form = '<form id="fCom" style="display:flex;flex-direction:column;gap:8px">' +
+        '<textarea id="comTexto" maxlength="500" placeholder="O que você achou? Sem ofensa." aria-label="Seu comentário"></textarea>' +
+        '<div id="comErro" class="erro" role="alert"></div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span class="aviso" id="comConta">0/500</span>' +
+        '<button class="btn-white" type="submit" id="comEnviar" style="min-height:44px;padding:0 22px;font-size:15px">Comentar</button></div></form>';
+    } else if (sessao) {
+      form = '<div class="aviso">Termina seu cadastro pra comentar.</div><button class="btn-white" data-tela-perfil="cadastro" style="min-height:44px;font-size:15px">Terminar cadastro</button>';
+    } else {
+      form = '<div style="display:flex;flex-direction:column;gap:8px"><div class="aviso">Pra comentar, entra com sua conta. Sem senha, é pelo e-mail.</div>' +
+        '<button class="btn-white" data-tela-perfil="cadastro" style="min-height:44px;font-size:15px">Criar conta</button>' +
+        '<button class="link-btn" data-tela-perfil="entrar">Já tenho conta</button></div>';
+    }
+    alvo.hidden = false;
+    alvo.innerHTML = '<h2 class="display">Comentários' + (comentarios.length ? ' (' + comentarios.length + ')' : '') + '</h2>' + form +
+      (comentarios.length ? '<div id="comLista">' + comentarios.map(comentarioHtml).join('') + '</div>' : '<div class="aviso" id="comLista">Ninguém comentou ainda.</div>');
+  }
+  function carregaComentarios(id) {
+    comentarios = [];
+    pintaComentarios();
+    if (!configurado) return;
+    get('comentarios?select=id,usuario,nome,texto,criado_em&noticia_id=eq.' + Number(id) + '&order=criado_em.asc&limit=300')
+      .then(function (rows) { if (noticiaAberta && String(noticiaAberta.id) === String(id)) { comentarios = rows || []; pintaComentarios(); } })
+      .catch(function () { var a = $('coms'); if (a) a.hidden = true; });
+  }
+  $('secArtigo').addEventListener('input', function (e) {
+    if (e.target.id === 'comTexto') $('comConta').textContent = e.target.value.length + '/500';
+  });
+  $('secArtigo').addEventListener('submit', function (e) {
+    if (e.target.id !== 'fCom') return;
+    e.preventDefault();
+    var texto = $('comTexto').value.trim(), btn = $('comEnviar');
+    if (texto.length < 2) { $('comErro').textContent = 'Escreve um pouco mais.'; return; }
+    btn.disabled = true; $('comErro').textContent = '';
+    sb.from('comentarios').insert({ noticia_id: Number(noticiaAberta.id), usuario: sessao.user.id, texto: texto })
+      .select('id,usuario,nome,texto,criado_em').single()
+      .then(function (r) {
+        btn.disabled = false;
+        if (r.error) { $('comErro').textContent = /segundos/.test(r.error.message) ? 'Espera uns segundos pra comentar de novo.' : /conta/.test(r.error.message) ? 'Termina seu cadastro pra comentar.' : 'Não deu pra comentar agora. Tenta de novo.'; return; }
+        comentarios.push(r.data); pintaComentarios();
+      });
+  });
+  $('secArtigo').addEventListener('click', function (e) {
+    var t = e.target.closest('[data-tela-perfil]');
+    if (t) { e.preventDefault(); abrePerfil(t.getAttribute('data-tela-perfil')); return; }
+    var ap = e.target.closest('[data-com-apagar]');
+    if (ap) {
+      var id = ap.getAttribute('data-com-apagar');
+      sb.from('comentarios').delete().eq('id', id).then(function (r) {
+        if (r.error) return toast('Não deu pra apagar agora.');
+        comentarios = comentarios.filter(function (c) { return String(c.id) !== id; }); pintaComentarios(); toast('Comentário apagado.');
+      });
+      return;
+    }
+    var dn = e.target.closest('[data-com-denunciar]');
+    if (dn) {
+      sb.rpc('denunciar', { comentario: Number(dn.getAttribute('data-com-denunciar')) }).then(function (r) {
+        if (r.error) return toast('Não deu pra denunciar agora.');
+        dn.textContent = 'Denunciado'; dn.disabled = true; toast('Denúncia enviada.');
+      });
+    }
+  });
+
   function pintaOutroLado() {
     var n = noticiaAberta, alvo = $('outroLado');
     if (!n || !alvo) return;
@@ -1242,7 +1333,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       sb.auth.signInWithOtp({
         email: email,
         options: {
-          emailRedirectTo: SITE, shouldCreateUser: true,
+          emailRedirectTo: ORIGEM ? ORIGEM + location.pathname : SITE, shouldCreateUser: true,
           data: { nome: nome, whatsapp: zap, aceita_historico: true, aceita_mounologo: $('cMou').checked,
                   hist: Object.keys(historico).slice(-200).map(Number) }
         }
@@ -1268,7 +1359,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       var email = $('eEmail').value.trim().toLowerCase();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { $('eErro').textContent = 'Esse e-mail parece errado.'; return; }
       $('eEnviar').disabled = true; $('eEnviar').textContent = 'Enviando…';
-      sb.auth.signInWithOtp({ email: email, options: { emailRedirectTo: SITE, shouldCreateUser: false } })
+      sb.auth.signInWithOtp({ email: email, options: { emailRedirectTo: ORIGEM ? ORIGEM + location.pathname : SITE, shouldCreateUser: false } })
         .then(function (r) {
           if (r.error) throw r.error;
           telaEnviado(email);
@@ -1346,7 +1437,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       }).select().single().then(function (x) { return x.data || null; });
     }).then(function (p) {
       perfil = p;
-      pintaBotaoPerfil(); checaConvite();
+      pintaBotaoPerfil(); checaConvite(); pintaComentarios();
       if (!perfil || !perfil.aceita_historico) return;
       // sobe o que foi lido antes de criar a conta (deste aparelho e do aparelho do cadastro)
       var ids = {};
@@ -1367,7 +1458,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       if (s && (ev === 'SIGNED_IN' || ev === 'INITIAL_SESSION')) {
         setTimeout(function () { aoEntrar(s, veioDoLink && ev === 'SIGNED_IN'); veioDoLink = false; }, 0);
       }
-      if (!s) { perfil = null; entrandoCom = null; pintaBotaoPerfil(); checaConvite(); }
+      if (!s) { perfil = null; entrandoCom = null; pintaBotaoPerfil(); checaConvite(); pintaComentarios(); }
     });
   }
 
