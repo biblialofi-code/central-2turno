@@ -38,8 +38,8 @@ window.CONFIG = {
   INTERESSE_MIN: 200,
 
   // Na página inicial: quantas notícias de cada lado aparecem antes do botão "Mais notícias"
-  NOTICIAS_POR_LADO: 6,
-  NOTICIAS_GERAL: 4,
+  NOTICIAS_POR_LADO: 3,
+  NOTICIAS_GERAL: 2,
 
   // Data e hora em que a votação começa (horário de Brasília)
   ELEICAO: '2026-10-25T08:00:00-03:00',
@@ -643,12 +643,12 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   /* ---------- feed ---------- */
   var noticias = [], aba = 'all', abertos = {};
   var NOME = { '13': 'do Lula', '22': 'do Flávio', ambos: 'gerais' };
-  function limiteDe(l) { return l === 'ambos' ? (C.NOTICIAS_GERAL || 4) : (C.NOTICIAS_POR_LADO || 6); }
+  function limiteDe(l) { return l === 'ambos' ? (C.NOTICIAS_GERAL || 2) : (C.NOTICIAS_POR_LADO || 3); }
   function corta(l, arr) { return abertos[l] ? arr : arr.slice(0, limiteDe(l)); }
   function botaoMais(l, arr) {
     var resto = arr.length - limiteDe(l);
     if (abertos[l] || resto <= 0) return '';
-    return '<button class="mais ' + (l === '13' ? 'r' : l === '22' ? 'b' : '') + '" data-mais="' + l + '">Mais notícias ' + NOME[l] + ' <span>(' + resto + ')</span></button>';
+    return '<button class="mais ' + (l === '13' ? 'r' : l === '22' ? 'b' : '') + '" data-mais="' + l + '">' + (l === 'ambos' ? 'Ver mais' : 'Mais notícias ' + NOME[l]) + ' <span>(' + resto + ')</span></button>';
   }
   document.querySelectorAll('.tabs button').forEach(function (b) {
     b.onclick = function () {
