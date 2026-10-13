@@ -1,7 +1,11 @@
 {
   "outputDirectory": "site",
-  "cleanUrls": true,
+  "cleanUrls": false,
   "rewrites": [
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
     {
       "source": "/",
       "destination": "/api/home"
