@@ -274,7 +274,7 @@
         "url": "=https://api.telegram.org/bot{{ $('Config').first().json.TELEGRAM_TOKEN }}/sendMessage",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ chat_id: $('Config').first().json.MEU_CHAT_ID, text: '#' + $json.id + ' · ' + ($json.lado === 'ambos' ? '13 e 22' : $json.lado) + ' · ' + $json.tipo + ' · ' + $json.veiculo + '\\n\\n' + $json.manchete + '\\n\\nResumo: ' + $json.resumo + ($json.registro_tse ? '\\nRegistro TSE: ' + $json.registro_tse : '') + '\\n\\n' + $json.link, disable_web_page_preview: true, reply_markup: { inline_keyboard: [ [ { text: 'Aprovar', callback_data: 'ok:' + $json.id }, { text: 'Descartar', callback_data: 'x:' + $json.id } ] ] } }) }}",
+        "jsonBody": "={{ JSON.stringify({ chat_id: $('Config').first().json.MEU_CHAT_ID, text: '#' + $json.id + ' · ' + ({ '13': '13', '22': '22' }[$json.lado] || 'Geral') + ' · ' + $json.tipo + ' · ' + $json.veiculo + '\\n\\n' + $json.manchete + '\\n\\nResumo: ' + $json.resumo + ($json.registro_tse ? '\\nRegistro TSE: ' + $json.registro_tse : '') + '\\n\\n' + $json.link + '\\n\\nToque no lado certo pra aprovar.', disable_web_page_preview: true, reply_markup: { inline_keyboard: [ [ { text: ($json.lado === '13' ? '✓ ' : '') + '13', callback_data: 'ok13:' + $json.id }, { text: ($json.lado === '22' ? '✓ ' : '') + '22', callback_data: 'ok22:' + $json.id }, { text: (['13','22'].includes($json.lado) ? '' : '✓ ') + 'Geral', callback_data: 'okg:' + $json.id } ], [ { text: 'Descartar', callback_data: 'x:' + $json.id } ] ] } }) }}",
         "options": {
           "batching": {
             "batch": {

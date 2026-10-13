@@ -468,7 +468,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     var t = $('toast'); t.textContent = msg; t.classList.add('show');
     clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove('show'); }, 2800);
   }
-  function rotuloLado(l) { return l === '13' ? '13 · Lula' : l === '22' ? '22 · Flávio' : '13 e 22'; }
+  function rotuloLado(l) { return l === '13' ? '13 · Lula' : l === '22' ? '22 · Flávio' : 'Geral'; }
   function classeLado(l) { return l === '13' ? 't13' : l === '22' ? 't22' : 'tamb'; }
   function corLado(l) { return l === '13' ? RED : l === '22' ? BLUE : NEUTRAL; }
 
@@ -656,7 +656,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       var de22 = lista.filter(function (n) { return n.lado === '22'; });
       var vazio = function (l) { return '<div class="empty">Nenhuma notícia do ' + l + ' aprovada ainda.</div>'; };
       $('feed').innerHTML =
-        (ambos.length ? '<div class="split-head" style="margin-bottom:12px">Sobre os dois</div><div class="feed-grid">' + ambos.map(cardHtml).join('') + '</div>' : '') +
+        (ambos.length ? '<div class="split-head" style="margin-bottom:12px">Geral</div><div class="feed-grid">' + ambos.map(cardHtml).join('') + '</div>' : '') +
         '<div class="split">' +
         '<div><div class="split-head r">Notícias do 13</div>' + (de13.length ? de13.map(cardHtml).join('') : vazio('13')) + '</div>' +
         '<div><div class="split-head b">Notícias do 22</div>' + (de22.length ? de22.map(cardHtml).join('') : vazio('22')) + '</div>' +
@@ -973,7 +973,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       '<div><b>' + s.seq + '</b><span>' + (s.seq === 1 ? 'dia seguido' : 'dias seguidos') + '</span></div></div>' +
       '<div><div class="kicker" style="margin-bottom:8px">O que você leu de cada lado</div>' +
       '<div class="track"><i style="width:' + p13 + '%;background:var(--red)"></i><i style="width:' + pAmb + '%;background:var(--neutral)"></i><i style="width:' + p22 + '%;background:var(--blue)"></i></div>' +
-      '<div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-top:6px;color:var(--soft)"><span>13: ' + s.a + '</span><span>os dois: ' + s.amb + '</span><span>22: ' + s.b + '</span></div></div>' +
+      '<div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-top:6px;color:var(--soft)"><span>13: ' + s.a + '</span><span>geral: ' + s.amb + '</span><span>22: ' + s.b + '</span></div></div>' +
       '<div><div class="kicker" style="margin-bottom:8px">Assuntos que você mais leu</div><div class="temas">' +
       temas.map(function (t) {
         return '<div class="tema"><span>' + esc(t[0]) + '</span><div class="track"><i style="width:' + Math.round(t[1] / max * 100) + '%;background:var(--heat)"></i></div><b style="text-align:right">' + t[1] + '</b></div>';
