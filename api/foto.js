@@ -14,6 +14,8 @@
 //   SUPABASE_URL, SUPABASE_SERVICE_KEY, FOTO_SEGREDO
 //   WAHA_URL (ex.: https://waha.seudominio.com), WAHA_KEY, WAHA_CANAL (xxxx@newsletter), WAHA_SESSION (opcional, padrão "default")
 //   SITE_URL (opcional, padrão https://central-2turno.vercel.app)
+//   TELEGRAM_TOKEN, TELEGRAM_CHAT: manda pro seu Telegram a imagem da Central + o texto do post,
+//   pra você encaminhar pro canal (caminho sem risco, enquanto o WAHA não está ligado)
 
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36';
 const SB = process.env.SUPABASE_URL;
@@ -150,6 +152,30 @@ async function postarNoCanal(id) {
   }
 }
 
+// ---------- 4) imagem + texto do post no seu Telegram ----------
+const { desenha, baixaFoto } = require('../lib/card.js');
+function escHtml(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+async function mandarProTelegram(id) {
+  const tok = process.env.TELEGRAM_TOKEN, chat = process.env.TELEGRAM_CHAT;
+  if (!tok || !chat) return 'telegram não configurado';
+  const n = (await sb('noticias?select=id,lado,veiculo,manchete,resumo,imagem,status&id=eq.' + id))[0];
+  if (!n || n.status !== 'aprovado') return 'não está aprovada';
+  const site = (process.env.SITE_URL || 'https://central-2turno.vercel.app').replace(/\/$/, '');
+  const png = await desenha(n, await baixaFoto(n.imagem), site.replace(/^https?:\/\//, ''));
+  const fd = new FormData();
+  fd.append('chat_id', chat);
+  fd.append('caption', '#' + id + ' pro canal. O texto vem embaixo: toca nele pra copiar.');
+  fd.append('photo', new Blob([png], { type: 'image/png' }), 'central-' + id + '.png');
+  const r1 = await fetch('https://api.telegram.org/bot' + tok + '/sendPhoto', { method: 'POST', body: fd, signal: comTempo(20000) });
+  if (!r1.ok) throw new Error('Telegram foto ' + r1.status + ': ' + (await r1.text()).slice(0, 150));
+  const r2 = await fetch('https://api.telegram.org/bot' + tok + '/sendMessage', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: comTempo(10000),
+    body: JSON.stringify({ chat_id: chat, text: '<pre>' + escHtml(textoDoPost(n, site)) + '</pre>', parse_mode: 'HTML', disable_web_page_preview: true })
+  });
+  if (!r2.ok) throw new Error('Telegram texto ' + r2.status);
+  return 'enviada';
+}
+
 async function souAdmin(token) {
   if (!token) return false;
   const r = await fetch(SB + '/rest/v1/rpc/sou_admin', {
@@ -175,7 +201,9 @@ module.exports = async (req, res) => {
       const feito = await processar(linhas[0]);
       let canal;
       try { canal = await postarNoCanal(id); } catch (e) { canal = 'erro: ' + String(e.message || e); }
-      return res.status(200).json({ ...feito, canal });
+      let telegram;
+      try { telegram = await mandarProTelegram(id); } catch (e) { telegram = 'erro: ' + String(e.message || e); }
+      return res.status(200).json({ ...feito, canal, telegram });
     }
 
     // 2) botão do admin: até 8 por vez, das mais novas pras mais velhas
