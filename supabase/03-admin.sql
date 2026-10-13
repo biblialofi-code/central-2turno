@@ -60,3 +60,6 @@ insert into admins (email) values ('SEU_EMAIL_AQUI') on conflict do nothing;
 
 -- Ver quem é admin:     select * from admins;
 -- Tirar alguém:         delete from admins where email = 'fulano@x.com';
+
+-- Faz a API enxergar a função nova na hora
+notify pgrst, 'reload schema';
