@@ -1,5 +1,12 @@
 {
   "outputDirectory": "site",
   "cleanUrls": true,
-  "functions": { "api/foto.js": { "maxDuration": 60 } }
+  "rewrites": [
+    { "source": "/n/:id", "destination": "/api/n?id=:id" }
+  ],
+  "functions": {
+    "api/foto.js": { "maxDuration": 60 },
+    "api/n.js": { "includeFiles": "site/index.html" },
+    "api/img.js": { "includeFiles": "site/index.html" }
+  }
 }

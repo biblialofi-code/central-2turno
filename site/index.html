@@ -34,8 +34,6 @@ window.CONFIG = {
 
   // Termômetro: quantos toques no dia enchem a barra
   TERMOMETRO_MAX: 300,
-  // Barra de interesse só aparece depois de tantas leituras no dia
-  INTERESSE_MIN: 200,
 
   // Na página inicial: quantas notícias de cada lado aparecem antes do botão "Mais notícias"
   NOTICIAS_POR_LADO: 3,
@@ -65,6 +63,7 @@ window.CONFIG = {
   --heat:#FF9A3C; --green:#1FA855; --neutral:#4A4A57;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:'Figtree',system-ui,sans-serif;line-height:1.4}
 a{color:inherit}
@@ -104,6 +103,20 @@ section{padding:20px 16px 8px}
 .card h3{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:21px;line-height:1.15;margin:0;letter-spacing:-.01em}
 .card p{margin:0;font-size:15px;color:var(--soft)}
 .card p strong{color:var(--ink)}
+.card{cursor:pointer}
+.card h3 a{color:inherit;text-decoration:none}
+#secArtigo{display:none;order:1}
+body.modo-noticia #secArtigo{display:block}
+body.modo-noticia .hero,body.modo-noticia #secTabs,body.modo-noticia #secFeed,body.modo-noticia #secVideos,body.modo-noticia #secLivros{display:none}
+.voltar{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--soft);font-weight:700;text-decoration:none;margin:6px 0 4px}
+.artigo{background:var(--card);border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.artigo .foto-g{aspect-ratio:16/9;background:var(--card2)}
+.artigo .foto-g img{width:100%;height:100%;object-fit:cover;display:block}
+.artigo .corpo{padding:20px;display:flex;flex-direction:column;gap:14px}
+.artigo h1{font-size:30px;line-height:1.08;margin:0}
+.artigo .resumo{font-size:19px;line-height:1.45;color:var(--ink);margin:0}
+.artigo .actions .btn-read{min-height:52px;font-size:16px}
+.outro{margin-top:22px;display:flex;flex-direction:column;gap:12px}
 .card .foto{margin:-16px -16px 2px;aspect-ratio:16/9;overflow:hidden;border-radius:17px 17px 0 0;background:var(--card2)}
 .card .foto img{width:100%;height:100%;object-fit:cover}
 .actions{display:flex;gap:8px;margin-top:2px}
@@ -171,7 +184,7 @@ section{padding:20px 16px 8px}
 .wrap{display:flex;flex-direction:column}
 .topbar{order:-3} .hero{order:-2}
 .col-main,.col-side{display:contents}
-#secTabs{order:1} #secFeed{order:2} #secSelo{order:3} #secVideos{order:4} #secLivros{order:5}
+#secTabs{order:1} #secFeed{order:2} #secArtigo{order:1} #secSelo{order:3} #secVideos{order:4} #secLivros{order:5}
 #secClima{order:6} #secInteresse{order:7} #secPesquisas{order:8} #secKit{order:9}
 footer{order:20} .dock{order:21}
 .top-cta{display:flex;align-items:center;gap:10px}
@@ -254,6 +267,8 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   .toast{bottom:32px}
   #secAdLateral{display:block}
 }
+@media (max-width:1023px){ body.modo-noticia #secClima,body.modo-noticia #secInteresse,body.modo-noticia #secPesquisas{display:none} }
+@media (min-width:1024px){ .artigo h1{font-size:40px} .artigo .corpo{padding:28px} }
 </style>
 </head>
 <body>
@@ -280,6 +295,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   </div>
 
   <main class="col-main">
+  <section id="secArtigo" aria-live="polite"></section>
   <div class="tabs-wrap" id="secTabs">
     <div class="tabs" role="tablist" aria-label="Filtrar notícias">
       <button role="tab" data-tab="all" aria-selected="true">Tudo</button>
@@ -370,9 +386,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
 
   <section id="secInteresse">
     <div class="box">
-      <div class="display" style="font-size:22px">O que mais estão lendo</div>
-      <div style="font-size:13px;color:var(--mute)"><strong style="color:var(--soft)">Não é pesquisa.</strong> Conta leituras, não votos.</div>
-      <div id="interesse"></div>
+      <div class="display" style="font-size:22px">Mais lidas do dia</div>
       <div style="display:flex;flex-direction:column;gap:8px" id="maisLidas"></div>
     </div>
   </section>
@@ -504,7 +518,10 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   }
 
   /* ---------- compartilhar (imagem 9:16 gerada no celular) ---------- */
-  var SITE = location.href.split('#')[0].split('?')[0];
+  var ORIGEM = /^https?:$/.test(location.protocol) ? location.origin : '';
+  var SITE = ORIGEM ? ORIGEM + '/' : location.href.split('#')[0].split('?')[0];
+  var TITULO_HOME = 'Central 2º Turno · por Mounólogo';
+  function linkNoticia(id) { return ORIGEM + '/n/' + id; }
   function assinatura() { return '\n\nCentral 2º Turno, por Mounólogo\n' + SITE; }
 
   function quebra(ctx, texto, largura) {
@@ -517,9 +534,19 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     if (atual) linhas.push(atual);
     return linhas;
   }
+  function carregaImg(src, ms) {
+    return new Promise(function (res) {
+      if (!src) return res(null);
+      var im = new Image(), t = setTimeout(function () { res(null); }, ms || 2500);
+      im.onload = function () { clearTimeout(t); res(im); };
+      im.onerror = function () { clearTimeout(t); res(null); };
+      im.src = src;
+    });
+  }
   function desenhaCard(o) {
-    // o = { kicker, kickerCor, titulo, corpo, numero, faixa: true|false }
-    return document.fonts.ready.then(function () {
+    // o = { kicker, kickerCor, titulo, corpo, faixa, foto, rodape }
+    return Promise.all([document.fonts.ready, carregaImg(o.foto)]).then(function (r) {
+      if (r[1]) return desenhaCardFoto(o, r[1]);
       var W = 1080, H = 1920, cv = document.createElement('canvas');
       cv.width = W; cv.height = H;
       var c = cv.getContext('2d');
@@ -563,18 +590,66 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       // rodapé
       var site = location.host || 'central 2º turno';
       c.fillStyle = o.faixa ? 'rgba(255,255,255,.9)' : '#B5B5C2'; c.font = '700 40px Figtree, sans-serif';
-      c.fillText('As notícias do 13 e do 22 no mesmo lugar', x, H - 220);
+      c.fillText(o.rodape || 'As notícias do Lula e do Flávio num lugar só', x, H - 220);
       c.fillStyle = o.faixa ? 'rgba(255,255,255,.75)' : '#8A8A99'; c.font = '600 38px Figtree, sans-serif';
       c.fillText(site + ' · por Mounólogo', x, H - 160);
       return new Promise(function (res) { cv.toBlob(res, 'image/png'); });
     });
   }
+  // versão com a foto da matéria em cima
+  function desenhaCardFoto(o, im) {
+    var W = 1080, H = 1920, cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    var c = cv.getContext('2d');
+    c.fillStyle = '#0C0C10'; c.fillRect(0, 0, W, H);
+    var x = 84, larg = W - 2 * x;
+    c.fillStyle = '#F2F2F5'; c.font = '800 54px "Bricolage Grotesque", sans-serif';
+    c.fillText('central', x, 140);
+    var wc = c.measureText('central ').width;
+    c.fillStyle = '#8A8A99'; c.font = '600 54px "Bricolage Grotesque", sans-serif';
+    c.fillText('2º turno', x + wc, 140);
+    // foto 1080x760, cortada pra preencher
+    var fy = 200, fh = 760, esc = Math.max(W / im.width, fh / im.height);
+    var sw = W / esc, sh = fh / esc, sx = (im.width - sw) / 2, sy = (im.height - sh) / 2;
+    c.drawImage(im, sx, sy, sw, sh, 0, fy, W, fh);
+    var g = c.createLinearGradient(0, fy + fh - 220, 0, fy + fh);
+    g.addColorStop(0, 'rgba(12,12,16,0)'); g.addColorStop(1, 'rgba(12,12,16,1)');
+    c.fillStyle = g; c.fillRect(0, fy + fh - 220, W, 220);
+    c.fillStyle = o.kickerCor || NEUTRAL; c.fillRect(0, fy, W, 14);
+    var y = fy + fh + 10;
+    if (o.kicker) {
+      c.font = '800 40px Figtree, sans-serif';
+      var kw = c.measureText(o.kicker).width + 56;
+      c.fillStyle = o.kickerCor || NEUTRAL; roundRect(c, x, y, kw, 76, 38); c.fill();
+      c.fillStyle = '#fff'; c.fillText(o.kicker, x + 28, y + 52);
+      y += 116;
+    }
+    c.fillStyle = '#FFFFFF'; c.font = '800 80px "Bricolage Grotesque", sans-serif';
+    var linT = quebra(c, o.titulo, larg).slice(0, 5);
+    linT.forEach(function (l) { c.fillText(l, x, y + 70); y += 90; });
+    if (o.corpo) {
+      y += 26; c.fillStyle = '#B5B5C2'; c.font = '500 44px Figtree, sans-serif';
+      var sobra = Math.max(1, Math.floor((H - 260 - y) / 60));
+      quebra(c, o.corpo, larg).slice(0, Math.min(4, sobra)).forEach(function (l) { c.fillText(l, x, y + 44); y += 60; });
+    }
+    c.fillStyle = RED; c.fillRect(0, H - 18, W / 2, 18); c.fillStyle = BLUE; c.fillRect(W / 2, H - 18, W / 2, 18);
+    c.fillStyle = '#F2F2F5'; c.font = '700 42px Figtree, sans-serif';
+    c.fillText(o.rodape || 'Leia na Central 2º Turno', x, H - 150);
+    c.fillStyle = '#8A8A99'; c.font = '600 38px Figtree, sans-serif';
+    c.fillText((location.host || 'central 2º turno') + ' · por Mounólogo', x, H - 96);
+    return new Promise(function (res) { cv.toBlob(res, 'image/png'); });
+  }
   function roundRect(c, x, y, w, h, r) {
     c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
     c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
   }
-  function compartilhar(texto, cardOpts) {
-    var msg = texto + assinatura();
+  var pronto = null; // imagem já gerada, se o celular pedir um segundo toque
+  function compartilhar(texto, cardOpts, semAssinatura) {
+    var msg = semAssinatura ? texto : texto + assinatura();
+    if (pronto && pronto.msg === msg && navigator.canShare && navigator.canShare({ files: [pronto.file] })) {
+      var f0 = pronto.file; pronto = null;
+      return navigator.share({ files: [f0], text: msg }).catch(function () {});
+    }
     var semImagem = function () {
       if (navigator.share) return navigator.share({ text: msg }).catch(function () {});
       if (navigator.clipboard) { navigator.clipboard.writeText(msg); toast('Copiado.'); return; }
@@ -584,7 +659,10 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     desenhaCard(cardOpts).then(function (blob) {
       var file = new File([blob], 'central-2-turno.png', { type: 'image/png' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        return navigator.share({ files: [file], text: msg }).catch(function () {});
+        return navigator.share({ files: [file], text: msg }).catch(function (err) {
+          // alguns celulares só deixam compartilhar logo depois do toque; a imagem fica pronta pro próximo
+          if (err && err.name === 'NotAllowedError') { pronto = { msg: msg, file: file }; toast('Imagem pronta. Toca de novo pra compartilhar.'); }
+        });
       }
       // computador: baixa a imagem e copia o texto
       var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'central-2-turno.png';
@@ -699,13 +777,13 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       var lida = !!lidas[n.id];
       var foto = n.imagem && /^https:\/\//.test(n.imagem)
         ? '<div class="foto"><img src="' + esc(n.imagem) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></div>' : '';
-      return '<article class="card">' + foto +
+      return '<article class="card" data-abrir="' + n.id + '">' + foto +
         '<div class="meta"><span class="tag ' + classeLado(n.lado) + '">' + rotuloLado(n.lado) + '</span>' +
         '<span class="src">' + esc(n.veiculo) + ' · ' + ha(n.publicado_em || n.aprovado_em) + '</span></div>' +
-        '<h3>' + esc(n.manchete) + '</h3>' +
+        '<h3><a href="' + esc(linkNoticia(n.id)) + '" data-abrir="' + n.id + '">' + esc(n.manchete) + '</a></h3>' +
         '<p>' + esc(n.resumo) + '</p>' +
         '<div class="actions">' +
-        '<a class="btn-read' + (lida ? ' lida' : '') + '" href="' + esc(safeUrl(n.link)) + '" target="_blank" rel="noopener" data-ler="' + n.id + '">' + (lida ? 'Lida' : 'Ler no jornal') + '</a>' +
+        '<a class="btn-read' + (lida ? ' lida' : '') + '" href="' + esc(linkNoticia(n.id)) + '" data-abrir="' + n.id + '">' + (lida ? 'Lida' : 'Ver notícia') + '</a>' +
         '<button class="btn-icon" data-share="' + n.id + '" aria-label="Compartilhar esta notícia">' +
         '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v13"/><path d="M7 8l5-5 5 5"/><path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>' +
         '</button></div></article>';
@@ -720,30 +798,104 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       if (t) { t.click(); var alvo = $('secTabs') || $('feed'); window.scrollTo({ top: alvo.getBoundingClientRect().top + window.scrollY - 70, behavior: 'smooth' }); }
       return;
     }
-    var ler = e.target.closest('[data-ler]');
-    if (ler) {
-      var id = ler.getAttribute('data-ler');
-      var n = noticias.find(function (x) { return String(x.id) === id; });
-      if (n) registraLeitura(n);
-      if (n && !lidas[id]) {
-        lidas[id] = n.lado; ls(chaveLidas, lidas);
-        if (configurado) rpc('ler', { noticia_id: Number(id) }, true).catch(function () {});
-        // atualiza só o botão (não redesenha o feed, pra não recarregar anúncio)
-        setTimeout(function () {
-          ler.classList.add('lida'); ler.textContent = 'Lida · abrir de novo';
-          pintaSelo(); carregaInteresse();
-        }, 300);
-      }
-      return; // o link abre normalmente
-    }
-    var sh = e.target.closest('[data-share]');
-    if (sh) {
-      var n2 = noticias.find(function (x) { return String(x.id) === sh.getAttribute('data-share'); });
-      if (!n2) return;
-      compartilhar(n2.manchete + '\n' + n2.resumo + '\nFonte: ' + n2.veiculo + ' · ' + n2.link,
-        { kicker: rotuloLado(n2.lado), kickerCor: corLado(n2.lado), titulo: n2.manchete, corpo: n2.resumo + ' (' + n2.veiculo + ')' });
-    }
+    cliqueNoticia(e);
   });
+  /* ---------- página da notícia (/n/ID) ---------- */
+  var noticiaAberta = null;
+  function acharNoticia(id) {
+    id = String(id);
+    return noticias.find(function (x) { return String(x.id) === id; }) ||
+      (noticiaAberta && String(noticiaAberta.id) === id ? noticiaAberta : null) ||
+      (window.NOTICIA && String(window.NOTICIA.id) === id ? window.NOTICIA : null);
+  }
+  function compartilharNoticia(n) {
+    var link = ORIGEM ? linkNoticia(n.id) : SITE;
+    compartilhar(n.manchete + '\n\n' + link,
+      { kicker: rotuloLado(n.lado), kickerCor: corLado(n.lado), titulo: n.manchete, corpo: n.resumo,
+        foto: ORIGEM && n.imagem ? '/api/img?id=' + n.id : null, rodape: 'Leia na Central 2º Turno' }, true);
+  }
+  function cliqueNoticia(e) {
+    var sh = e.target.closest('[data-share]');
+    if (sh) { var n2 = acharNoticia(sh.getAttribute('data-share')); if (n2) compartilharNoticia(n2); return; }
+    var vt = e.target.closest('[data-voltar]');
+    if (vt) { e.preventDefault(); fecharNoticia(true); return; }
+    if (e.target.closest('a[target="_blank"]')) return;          // "Ler no jornal" abre normal
+    var ab = e.target.closest('[data-abrir]');
+    if (ab) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; // abrir em nova aba
+      e.preventDefault(); abrirNoticia(ab.getAttribute('data-abrir'), true);
+    }
+  }
+  $('secArtigo').addEventListener('click', cliqueNoticia);
+  function marcaLida(n) {
+    registraLeitura(n);
+    if (!lidas[n.id]) {
+      lidas[n.id] = n.lado; ls(chaveLidas, lidas);
+      if (configurado) rpc('ler', { noticia_id: Number(n.id) }, true).catch(function () {});
+      pintaSelo(); setTimeout(carregaInteresse, 800);
+    }
+  }
+  function abrirNoticia(id, empurra) {
+    if (empurra && ORIGEM) history.pushState({ n: id }, '', '/n/' + id);
+    document.body.classList.add('modo-noticia');
+    window.scrollTo(0, 0);
+    var n = acharNoticia(id);
+    if (n) return pintaNoticia(n);
+    if (window.NOTICIA_ID && String(window.NOTICIA_ID) === String(id) && window.NOTICIA === null) return naoAchou();
+    $('secArtigo').innerHTML = '<div class="empty">Carregando…</div>';
+    if (!configurado) return naoAchou();
+    get('noticias?select=*&status=eq.aprovado&id=eq.' + Number(id))
+      .then(function (r) { if (r[0]) pintaNoticia(r[0]); else naoAchou(); }).catch(naoAchou);
+  }
+  function naoAchou() {
+    noticiaAberta = null;
+    $('secArtigo').innerHTML = '<a class="voltar" href="/" data-voltar>← Todas as notícias</a><div class="empty">Essa notícia não tá mais aqui.</div>';
+  }
+  function fecharNoticia(empurra) {
+    if (empurra && ORIGEM) history.pushState({}, '', '/');
+    document.body.classList.remove('modo-noticia');
+    noticiaAberta = null; document.title = TITULO_HOME;
+    pintaFeed(); window.scrollTo(0, 0);
+  }
+  window.addEventListener('popstate', function () {
+    var m = location.pathname.match(/^\/n\/(\d+)/);
+    if (m) abrirNoticia(m[1], false); else if (noticiaAberta || document.body.classList.contains('modo-noticia')) fecharNoticia(false);
+  });
+  var ICONE_SHARE = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v13"/><path d="M7 8l5-5 5 5"/><path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>';
+  function pintaNoticia(n) {
+    noticiaAberta = n;
+    document.title = n.manchete + ' · Central 2º Turno';
+    var foto = n.imagem && /^https:\/\//.test(n.imagem)
+      ? '<div class="foto-g"><img src="' + esc(n.imagem) + '" alt="" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></div>' : '';
+    $('secArtigo').innerHTML =
+      '<a class="voltar" href="/" data-voltar>← Todas as notícias</a>' +
+      '<article class="artigo">' + foto + '<div class="corpo">' +
+      '<div class="meta"><span class="tag ' + classeLado(n.lado) + '">' + rotuloLado(n.lado) + '</span>' +
+      '<span class="src">' + esc(n.veiculo) + ' · ' + ha(n.publicado_em || n.aprovado_em) + '</span></div>' +
+      '<h1 class="display">' + esc(n.manchete) + '</h1>' +
+      '<p class="resumo">' + esc(n.resumo) + '</p>' +
+      '<div class="actions"><a class="btn-read" href="' + esc(safeUrl(n.link)) + '" target="_blank" rel="noopener">Ler no ' + esc(n.veiculo) + '</a>' +
+      '<button class="btn-icon" data-share="' + n.id + '" aria-label="Compartilhar">' + ICONE_SHARE + '</button></div>' +
+      '</div></article><div id="outroLado"></div>';
+    pintaOutroLado();
+    marcaLida(n);
+    if (ORIGEM && n.imagem) carregaImg('/api/img?id=' + n.id, 8000); // deixa a foto pronta pro compartilhar
+  }
+  function pintaOutroLado() {
+    var n = noticiaAberta, alvo = $('outroLado');
+    if (!n || !alvo) return;
+    var resto = noticias.filter(function (x) { return String(x.id) !== String(n.id); });
+    var do13 = resto.filter(function (x) { return x.lado === '13'; }), do22 = resto.filter(function (x) { return x.lado === '22'; });
+    var titulo, cls, lista;
+    if (n.lado === '13') { titulo = 'E do lado do Flávio'; cls = 'b'; lista = do22.slice(0, 2); }
+    else if (n.lado === '22') { titulo = 'E do lado do Lula'; cls = 'r'; lista = do13.slice(0, 2); }
+    else { titulo = 'Dos dois lados'; cls = ''; lista = do13.slice(0, 1).concat(do22.slice(0, 1)); }
+    alvo.innerHTML = lista.length
+      ? '<div class="outro"><div class="split-head ' + cls + '">' + titulo + '</div>' + lista.map(cardHtml).join('') +
+        '<a class="mais" href="/" data-voltar>Ver todas as notícias</a></div>'
+      : '<div class="outro"><a class="mais" href="/" data-voltar>Ver todas as notícias</a></div>';
+  }
+
   function carregaNoticias() {
     if (!configurado) { pintaFeed(); return; }
     get('noticias?select=*' +
@@ -752,7 +904,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
         var hora = function (r) { return r.publicado_em || r.aprovado_em || ''; };
         rows.sort(function (x, y) { return hora(y) < hora(x) ? -1 : hora(y) > hora(x) ? 1 : 0; });  // mais nova primeiro, pela hora da matéria
         noticias = rows.filter(function (r) { return r.tipo !== 'pesquisa'; }).slice(0, 40);
-        pintaFeed();
+        pintaFeed(); pintaOutroLado();
         var pesq = rows.filter(function (r) { return r.tipo === 'pesquisa'; }).slice(0, 3);
         if (pesq.length) {
           $('secPesquisas').hidden = false;
@@ -881,29 +1033,19 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
 
   /* ---------- interesse + mais lidas ---------- */
   function carregaInteresse() {
-    if (!configurado) { $('interesse').innerHTML = '<div style="font-size:14px;color:var(--soft)">Ainda sem dados.</div>'; return; }
-    get('interesse_dia?select=lado,cliques&dia=eq.' + hoje()).then(function (rows) {
-      var a = 0, b = 0;
-      rows.forEach(function (r) { if (r.lado === '13') a = r.cliques; if (r.lado === '22') b = r.cliques; });
-      var tot = a + b;
-      if (tot < C.INTERESSE_MIN) {
-        $('interesse').innerHTML = '<div style="font-size:14px;color:var(--soft)">Aparece depois de ' + C.INTERESSE_MIN + ' leituras no dia. Até agora: ' + tot + '.</div>';
-        return;
-      }
-      var p = Math.round(a / tot * 100);
-      $('interesse').innerHTML =
-        '<div class="track"><i style="width:' + p + '%;background:var(--red)"></i><i style="width:' + (100 - p) + '%;background:var(--blue)"></i></div>' +
-        '<div style="display:flex;justify-content:space-between;font-size:14px;font-weight:800;margin-top:8px"><span>13 · ' + p + '%</span><span>' + (100 - p) + '% · 22</span></div>' +
-        '<div style="font-size:12px;color:var(--mute);margin-top:4px">' + tot + ' leituras hoje</div>';
-    }).catch(function () {});
+    $('secInteresse').hidden = true;
+    if (!configurado) return;
     var base = 'noticias?select=id,manchete,veiculo,link&status=eq.aprovado&tipo=eq.noticia&cliques=gt.0&aprovado_em=gte.' + inicioDoDiaISO() + '&order=cliques.desc&limit=1&lado=in.';
     Promise.all([get(base + '(13,ambos)'), get(base + '(22,ambos)')]).then(function (r) {
-      var html = '';
-      if (r[0][0]) html += '<a class="top r" href="' + esc(safeUrl(r[0][0].link)) + '" target="_blank" rel="noopener"><span class="kicker" style="font-size:11px">Mais lida do 13</span><span style="font-weight:700;font-size:15px">' + esc(r[0][0].manchete) + '</span></a>';
-      if (r[1][0]) html += '<a class="top b" href="' + esc(safeUrl(r[1][0].link)) + '" target="_blank" rel="noopener"><span class="kicker" style="font-size:11px">Mais lida do 22</span><span style="font-weight:700;font-size:15px">' + esc(r[1][0].manchete) + '</span></a>';
+      var item = function (n, cls, rot) {
+        return '<a class="top ' + cls + '" href="' + esc(linkNoticia(n.id)) + '" data-abrir="' + n.id + '"><span class="kicker" style="font-size:11px">' + rot + '</span><span style="font-weight:700;font-size:15px">' + esc(n.manchete) + '</span></a>';
+      };
+      var html = (r[0][0] ? item(r[0][0], 'r', 'Do Lula') : '') + (r[1][0] && (!r[0][0] || r[1][0].id !== r[0][0].id) ? item(r[1][0], 'b', 'Do Flávio') : '');
       $('maisLidas').innerHTML = html;
+      $('secInteresse').hidden = !html;
     }).catch(function () {});
   }
+  $('maisLidas').addEventListener('click', cliqueNoticia);
 
   /* ---------- anúncios ---------- */
   var anuncios = [];
@@ -1232,6 +1374,11 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   /* ---------- começa ---------- */
   checaConvite();
   pintaSelo();
+  (function () { // entrou direto por /n/ID
+    var m = location.pathname.match(/^\/n\/(\d+)/);
+    var id = window.NOTICIA_ID || (m && m[1]);
+    if (id) abrirNoticia(id, false);
+  })();
   carregaNoticias();
   carregaVideos();
   carregaLivros();
