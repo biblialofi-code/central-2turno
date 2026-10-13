@@ -1,0 +1,1198 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Central 2º Turno · por Mounólogo</title>
+<meta name="description" content="As notícias do 13 e do 22 no mesmo lugar. Resumo de 1 frase, link pro jornal, mesmo espaço pros dois lados.">
+<meta name="theme-color" content="#0C0C10">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Central 2º Turno">
+<meta property="og:description" content="As notícias do 13 e do 22 no mesmo lugar. Leia os dois lados em 1 minuto por dia.">
+<meta property="og:image" content="https://central-2turno.netlify.app/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script>
+/* ============================================================
+   CONFIGURAÇÃO — preencha antes de publicar
+   ============================================================ */
+window.CONFIG = {
+  // Supabase > Project Settings > API
+  SUPABASE_URL: 'https://wzosdmigdqhpvarydmfs.supabase.co',
+  // A chave PÚBLICA (anon ou publishable). NUNCA a secreta (service_role).
+  SUPABASE_KEY: 'sb_publishable_SuykHQL2DE0NG1LgneA6bw_bhhS_l6s',
+
+  // Link do canal no WhatsApp
+  CANAL_URL: 'https://whatsapp.com/channel/0029VbE4MzWGE56inhQOZq0u',
+
+  // Link da página de cada candidatura no DivulgaCand do TSE
+  PLANO_13: 'https://www.tse.jus.br/eleicoes/eleicoes-2026-content/propostas-de-governo-dos-candidatos-ao-cargo-de-presidente-da-republica-eleicoes-2026/lula-propostas-de-governo',
+  PLANO_22: 'https://www.tse.jus.br/eleicoes/eleicoes-2026-content/propostas-de-governo-dos-candidatos-ao-cargo-de-presidente-da-republica-eleicoes-2026/flavio-bolsonaro',
+
+  // Termômetro: quantos toques no dia enchem a barra
+  TERMOMETRO_MAX: 300,
+  // Barra de interesse só aparece depois de tantas leituras no dia
+  INTERESSE_MIN: 200,
+
+  // Data e hora em que a votação começa (horário de Brasília)
+  ELEICAO: '2026-10-25T08:00:00-03:00',
+
+  // E-mail que aparece na página de privacidade, pra pessoa falar com você
+  CONTATO_PRIVACIDADE: 'COLOQUE_SEU_EMAIL',
+
+  // Anúncios da casa (aparecem enquanto o AdSense não estiver ligado).
+  // Troque, apague ou adicione. "imagem" é opcional.
+  ANUNCIOS: [
+    { titulo: 'Mounólogo', texto: 'O podcast das perguntas que a igreja evita. Novo episódio toda semana.', botao: 'Ouvir no Spotify', link: 'https://open.spotify.com/', imagem: '' },
+    { titulo: 'Pra ler depois da eleição', texto: 'Livros pra entender por que a gente discorda tanto.', botao: 'Ver os livros', link: '#secLivros', imagem: '' }
+  ],
+
+  // Google AdSense: deixe vazio até o Google aprovar o site.
+  // Quando aprovar, cole o "ca-pub-..." e os números dos dois blocos de anúncio.
+  ADSENSE_CLIENT: '',
+  ADSENSE_SLOT_FEED: '',
+  ADSENSE_SLOT_LATERAL: ''
+};
+</script>
+
+<style>
+:root{
+  --bg:#0C0C10; --card:#16161D; --card2:#1E1E27; --line:#22222A; --line2:#33333D;
+  --ink:#F2F2F5; --soft:#B5B5C2; --mute:#8A8A99;
+  --red:#E5243B; --blue:#2B6CEB; --red-ink:#FF7A88; --blue-ink:#7FB0FF;
+  --heat:#FF9A3C; --green:#1FA855; --neutral:#4A4A57;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Figtree',system-ui,sans-serif;line-height:1.4}
+a{color:inherit}
+button{font-family:inherit}
+img{max-width:100%;display:block}
+.wrap{max-width:480px;margin:0 auto;position:relative;min-height:100vh}
+.display{font-family:'Bricolage Grotesque','Figtree',sans-serif;font-weight:800;letter-spacing:-.02em}
+
+/* topo */
+.topbar{position:sticky;top:0;z-index:20;background:var(--bg);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}
+.brand{font-size:20px}
+.brand span{color:var(--mute);font-weight:600}
+.pill{background:#1C1C24;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700;white-space:nowrap}
+
+.hero{padding:28px 16px 18px}
+.hero .bar{display:flex;height:6px;border-radius:3px;overflow:hidden;width:72px;margin-bottom:18px}
+.hero .bar i{flex:1}
+.hero h1{font-size:44px;line-height:.98;margin:0}
+.hero p{font-size:18px;margin:14px 0 0;color:var(--soft)}
+
+/* filtro */
+.tabs-wrap{position:sticky;top:57px;z-index:15;background:var(--bg);padding:8px 16px 12px}
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:#1C1C24;border-radius:12px;padding:4px;gap:4px}
+.tabs button{border:0;border-radius:9px;min-height:44px;font-weight:800;font-size:15px;cursor:pointer;background:transparent;color:var(--soft)}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.tabs button[data-tab="13"][aria-selected="true"]{background:var(--red);color:#fff}
+.tabs button[data-tab="22"][aria-selected="true"]{background:var(--blue);color:#fff}
+
+/* cards */
+section{padding:20px 16px 8px}
+.feed{display:flex;flex-direction:column;gap:12px;padding-top:4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tag{color:#fff;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:800;white-space:nowrap}
+.tag.t13{background:var(--red)} .tag.t22{background:var(--blue)} .tag.tamb{background:var(--neutral)}
+.src{font-size:12px;color:var(--mute);font-weight:600;text-align:right}
+.card h3{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:21px;line-height:1.15;margin:0;letter-spacing:-.01em}
+.card p{margin:0;font-size:15px;color:var(--soft)}
+.card p strong{color:var(--ink)}
+.actions{display:flex;gap:8px;margin-top:2px}
+.btn-read{flex:1;display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:12px;background:#33333D;color:#fff;text-decoration:none;font-weight:800;font-size:15px}
+.btn-read.lida{background:#2A2A33;color:var(--soft)}
+.btn-icon{flex:0 0 52px;min-height:44px;border-radius:12px;border:1px solid var(--line2);background:transparent;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.empty{background:var(--card);border:1px dashed var(--line2);border-radius:18px;padding:20px;color:var(--soft);font-size:15px;text-align:center}
+.h2{font-size:26px;line-height:1.05;margin:0}
+.sub{margin:8px 0 0;font-size:15px;color:var(--soft)}
+.kicker{font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--mute);text-transform:uppercase}
+
+/* selo */
+.selo{border-radius:22px;padding:20px;background:#22222C;display:flex;flex-direction:column;gap:14px}
+.selo.on{background:linear-gradient(90deg,var(--red) 0 50%,var(--blue) 50% 100%)}
+.selo .t{font-size:30px;line-height:1.02;margin:0}
+.selo .nums{display:flex;gap:10px}
+.selo .nums div{flex:1;background:rgba(0,0,0,.28);border-radius:14px;padding:12px}
+.selo .nums b{display:block;font-family:'Bricolage Grotesque',sans-serif;font-size:34px;line-height:1}
+.selo .nums span{font-size:13px;font-weight:700;opacity:.9}
+.btn-white{min-height:48px;border:0;border-radius:14px;background:#fff;color:var(--bg);font-weight:800;font-size:16px;cursor:pointer}
+
+/* vídeos */
+.chips{display:flex;gap:8px;overflow-x:auto;padding:14px 16px 4px;margin:0 -16px;scrollbar-width:none}
+.chips::-webkit-scrollbar,.rail::-webkit-scrollbar{display:none}
+.chips button{flex:0 0 auto;min-height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--line2);background:transparent;color:var(--soft);font-weight:700;font-size:14px;cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:12px 16px 6px;margin:0 -16px;scrollbar-width:none}
+.vcard{flex:0 0 82%;scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
+.thumb{position:relative;aspect-ratio:16/9;background:#23232C;border:0;padding:0;cursor:pointer;width:100%;display:block}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb .play{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;background:rgba(255,255,255,.92);color:var(--bg);display:flex;align-items:center;justify-content:center}
+.thumb .cat{position:absolute;left:10px;top:10px;background:rgba(0,0,0,.75);color:#fff;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700}
+.thumb iframe{width:100%;height:100%;border:0;display:block}
+.vbody{padding:14px;display:flex;flex-direction:column;gap:8px}
+.vbody .ti{font-weight:800;font-size:16px;line-height:1.3}
+.nota{background:var(--card2);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.nota div{font-size:14px;color:#D7D7E0}
+.btn-moment{align-self:flex-start;display:flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:999px;background:#2A2A33;border:0;color:var(--ink);font-size:13px;font-weight:800;cursor:pointer}
+.planos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+.planos a{min-height:48px;border-radius:12px;text-decoration:none;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;text-align:center;padding:6px}
+
+/* livros */
+.bcard{flex:0 0 64%;scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.cover{aspect-ratio:2/3;border-radius:10px;background:#23232C;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--mute);font-size:12px;font-weight:800}
+.cover img{width:100%;height:100%;object-fit:cover}
+.btn-light{margin-top:auto;min-height:44px;border-radius:12px;background:var(--ink);color:var(--bg);text-decoration:none;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+.list{display:flex;flex-direction:column;gap:8px}
+.row{text-decoration:none;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:44px}
+.row small{display:block;font-size:14px;color:var(--soft)}
+
+/* blocos */
+.box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.track{height:14px;border-radius:7px;background:#26262F;overflow:hidden;display:flex}
+.track i{display:block;height:100%;transition:width .25s ease}
+.btn-heat{min-height:52px;border:0;border-radius:14px;background:var(--heat);color:var(--bg);font-weight:800;font-size:17px;cursor:pointer}
+.top{text-decoration:none;background:var(--card2);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:2px}
+.top.r{border-left:4px solid var(--red)} .top.b{border-left:4px solid var(--blue)}
+
+/* ordem no celular: main e aside "somem" e as seções seguem esta ordem */
+.wrap{display:flex;flex-direction:column}
+.topbar{order:-3} .hero{order:-2}
+.col-main,.col-side{display:contents}
+#secTabs{order:1} #secFeed{order:2} #secSelo{order:3} #secVideos{order:4} #secLivros{order:5}
+#secClima{order:6} #secInteresse{order:7} #secPesquisas{order:8} #secKit{order:9}
+footer{order:20} .dock{order:21}
+.top-cta{display:flex;align-items:center;gap:10px}
+.top-cta a{display:none}
+.split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+.split>div{display:flex;flex-direction:column;gap:12px}
+.split-head{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:22px;padding:4px 2px 2px;border-bottom:4px solid var(--neutral)}
+.split-head.r{border-color:var(--red)} .split-head.b{border-color:var(--blue)}
+.feed-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px}
+
+footer{padding:24px 16px 120px;font-size:13px;color:var(--mute);display:flex;flex-direction:column;gap:6px}
+footer b{color:var(--soft)}
+
+/* barra de baixo */
+.dock{position:sticky;bottom:0;z-index:20;padding:12px 16px calc(16px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 70%,rgba(12,12,16,0));display:flex;gap:10px}
+.btn-wa{flex:1;min-height:54px;border-radius:16px;background:var(--green);color:var(--bg);text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:800;font-size:17px}
+.dock .btn-icon{flex:0 0 54px;min-height:54px;border-radius:16px;background:var(--card)}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);max-width:440px;width:calc(100% - 32px);background:var(--ink);color:var(--bg);border-radius:12px;padding:12px 14px;font-weight:700;font-size:14px;z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+/* perfil */
+.btn-perfil{min-height:40px;min-width:40px;border-radius:999px;border:1px solid var(--line2);background:#1C1C24;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:6px;padding:0 10px;cursor:pointer;font-weight:700;font-size:13px}
+.btn-perfil span:empty{display:none}
+.btn-perfil.on{border-color:var(--ink)}
+.salvar{background:var(--card);border:1px solid var(--line2);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.salvar[hidden]{display:none}
+dialog{background:var(--bg);color:var(--ink);border:1px solid var(--line2);border-radius:22px;padding:0;width:min(520px,calc(100% - 24px));max-height:calc(100vh - 32px);overflow:auto}
+dialog::backdrop{background:rgba(0,0,0,.65)}
+.dlg-top{position:sticky;top:0;background:var(--bg);display:flex;justify-content:space-between;align-items:center;padding:16px 16px 8px;z-index:2}
+#perfilBody{padding:0 16px 20px;display:flex;flex-direction:column;gap:14px}
+#estatConta{display:flex;flex-direction:column;gap:14px}
+.campo{display:flex;flex-direction:column;gap:6px}
+.campo label{font-size:14px;font-weight:700;color:var(--soft)}
+.campo input{min-height:48px;border-radius:12px;border:1px solid var(--line2);background:var(--card);color:var(--ink);padding:0 14px;font-family:inherit;font-size:16px}
+.campo input:focus{outline:2px solid var(--blue);outline-offset:1px}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.4;color:var(--soft);cursor:pointer}
+.check input{width:22px;height:22px;flex:0 0 22px;margin:0;accent-color:#F2F2F5}
+.nota-priv{font-size:12px;color:var(--mute);line-height:1.5}
+.link-btn{background:none;border:0;color:var(--soft);font-weight:700;font-size:14px;text-decoration:underline;cursor:pointer;padding:8px 0;min-height:40px}
+.stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.stat-grid div{background:var(--card);border-radius:14px;padding:12px}
+.stat-grid b{display:block;font-family:'Bricolage Grotesque',sans-serif;font-size:28px;line-height:1}
+.stat-grid span{font-size:12px;color:var(--soft);font-weight:700}
+.temas{display:flex;flex-direction:column;gap:8px}
+.tema{display:grid;grid-template-columns:110px 1fr 28px;gap:8px;align-items:center;font-size:14px}
+.tema .track{height:10px}
+.hist{display:flex;flex-direction:column;gap:6px}
+.hist a{text-decoration:none;background:var(--card);border-radius:12px;padding:10px 12px;display:flex;gap:10px;align-items:center;font-size:14px}
+.hist a i{flex:0 0 8px;height:8px;border-radius:4px}
+.btn-danger{min-height:44px;border-radius:12px;border:1px solid #5A2A30;background:transparent;color:#FF8A96;font-weight:700;font-size:14px;cursor:pointer}
+
+/* anúncios */
+.ad{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;position:relative}
+.ad .rot{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--mute);text-transform:uppercase}
+.ad img{border-radius:12px;width:100%;height:auto}
+.ad a.cta{align-self:flex-start;min-height:40px;padding:0 14px;border-radius:10px;background:#2A2A33;color:var(--ink);text-decoration:none;display:flex;align-items:center;font-weight:800;font-size:14px}
+#secAdLateral{display:none}
+
+/* computador */
+@media (min-width:1024px){
+  .wrap{display:grid;max-width:1240px;grid-template-columns:minmax(0,1fr) 380px;column-gap:32px;padding:0 32px;align-items:start}
+  .topbar{grid-column:1/-1;margin:0 -32px;padding:14px 32px}
+  .top-cta a{min-height:44px;padding:0 18px;border-radius:12px;background:var(--green);color:var(--bg);text-decoration:none;display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px}
+  .hero{grid-column:1/-1;padding:44px 0 24px;display:flex;align-items:flex-end;justify-content:space-between;gap:32px}
+  .hero h1{font-size:72px}
+  .hero p{max-width:520px;margin:0}
+  .col-main{display:block;grid-column:1;min-width:0}
+  .col-side{display:flex;flex-direction:column;grid-column:2;position:sticky;top:72px;max-height:calc(100vh - 72px);overflow:auto;scrollbar-width:none;padding-bottom:24px}
+  .col-side::-webkit-scrollbar{display:none}
+  .col-main section,.col-side section{padding-left:0;padding-right:0}
+  .col-side section{padding-top:16px;padding-bottom:0}
+  .tabs-wrap{position:static;padding:8px 0 12px;max-width:420px}
+  .chips,.rail{margin:0;padding-left:0;padding-right:0}
+  .vcard{flex:0 0 calc(50% - 6px)}
+  .bcard{flex:0 0 calc(33.333% - 8px)}
+  .card h3{font-size:20px}
+  .selo .t{font-size:26px}
+  footer{grid-column:1/-1;padding:32px 0 40px;max-width:760px}
+  .dock{display:none}
+  .toast{bottom:32px}
+  #secAdLateral{display:block}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="display brand">central<span> 2º turno</span></div>
+    <div class="top-cta">
+      <div class="pill" id="dias">—</div>
+      <button class="btn-perfil" id="btnPerfil" aria-label="Meu 2º turno: meu histórico de leitura">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+        <span id="perfilNome"></span>
+      </button>
+      <a id="btnCanalTop" target="_blank" rel="noopener">Seguir no WhatsApp</a>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div>
+    <div class="bar"><i style="background:var(--red)"></i><i style="background:var(--blue)"></i></div>
+    <h1 class="display">2º turno<br>sem bolha.</h1>
+    </div>
+    <p>As notícias do 13 e do 22, lado a lado. Resumo de 1 frase, link pro jornal. 1 minuto por dia.</p>
+  </div>
+
+  <main class="col-main">
+  <div class="tabs-wrap" id="secTabs">
+    <div class="tabs" role="tablist" aria-label="Filtrar notícias">
+      <button role="tab" data-tab="all" aria-selected="true">Tudo</button>
+      <button role="tab" data-tab="13" aria-selected="false">13</button>
+      <button role="tab" data-tab="22" aria-selected="false">22</button>
+    </div>
+  </div>
+
+  <section style="padding-top:4px" id="secFeed">
+    <div class="feed" id="feed"><div class="empty">Carregando notícias…</div></div>
+  </section>
+
+
+  <section style="padding-top:28px" id="secVideos">
+    <h2 class="display h2">Pra ajudar a decidir</h2>
+    <p class="sub">Debates, entrevistas, checagens e análises que valem o seu tempo. Análise é opinião de quem fala. <span id="vPlacar"></span></p>
+    <div class="chips" id="vChips"></div>
+    <div class="rail" id="vRail"></div>
+    <div style="margin-top:14px">
+      <div class="kicker">Planos de governo oficiais</div>
+      <div class="planos">
+        <a id="plano13" target="_blank" rel="noopener" style="border:2px solid var(--red)">Plano do 13 no TSE</a>
+        <a id="plano22" target="_blank" rel="noopener" style="border:2px solid var(--blue)">Plano do 22 no TSE</a>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:28px" id="secLivros">
+    <h2 class="display h2">Pra ir além</h2>
+    <p class="sub">Livros pra entender por que a gente discorda tanto, e não pra escolher lado.</p>
+    <div class="rail" id="bRail"></div>
+    <div style="margin-top:14px">
+      <div class="kicker" style="margin-bottom:8px">Antes de compartilhar, checa</div>
+      <div class="list">
+        <a class="row" href="https://www.justicaeleitoral.jus.br/fato-ou-boato/" target="_blank" rel="noopener"><span><strong>Fato ou Boato</strong><small>Checagem da Justiça Eleitoral</small></span>›</a>
+        <a class="row" href="https://www.aosfatos.org" target="_blank" rel="noopener"><span><strong>Aos Fatos</strong><small>Checagem independente</small></span>›</a>
+        <a class="row" href="https://g1.globo.com/fato-ou-fake/" target="_blank" rel="noopener"><span><strong>Fato ou Fake</strong><small>Checagem do g1</small></span>›</a>
+        <a class="row" href="https://projetocomprova.com.br" target="_blank" rel="noopener"><span><strong>Projeto Comprova</strong><small>Checagem feita por vários veículos</small></span>›</a>
+      </div>
+    </div>
+  </section>
+
+  </main>
+
+  <aside class="col-side">
+  <section id="secSelo">
+    <div class="salvar" id="cardSalvar" hidden>
+      <div style="font-weight:800;font-size:16px">Quer ver isso no computador também?</div>
+      <div style="font-size:14px;color:var(--soft)">Salve seu histórico de leitura e acompanhe de qualquer aparelho. Leva 20 segundos.</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-white" id="btnAbrirSalvar" style="flex:1;min-height:44px;font-size:15px">Salvar meu histórico</button>
+        <button class="btn-icon" id="btnFecharSalvar" aria-label="Agora não" style="flex:0 0 44px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="selo" id="selo">
+      <div class="kicker" style="color:inherit;opacity:.85">Seu placar de hoje</div>
+      <div class="display t" id="seloTitulo">Comece pelo lado que você não lê.</div>
+      <div class="nums">
+        <div><b id="my13">0</b><span>notícias do 13</span></div>
+        <div><b id="my22">0</b><span>notícias do 22</span></div>
+      </div>
+      <div style="font-size:14px" id="seloSub">Leia ao menos 1 notícia de cada lado pra liberar o selo.</div>
+      <button class="btn-white" id="btnSelo">Postar meu selo no status</button>
+    </div>
+  </section>
+
+  <section id="secAdLateral">
+    <div id="adLateral"></div>
+  </section>
+
+  <section id="secClima">
+    <div class="box">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <div class="display" style="font-size:22px">Clima do dia</div>
+        <div class="kicker" style="text-transform:none;letter-spacing:0">zera à meia-noite</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <div class="display" style="font-size:30px;color:var(--heat)" id="heatLevel">—</div>
+        <div style="font-size:13px;color:var(--mute);font-weight:600" id="heatCount"></div>
+      </div>
+      <div class="track" role="img" id="heatTrack" aria-label="Termômetro"><i id="heatBar" style="width:3%;background:var(--heat)"></i></div>
+      <button class="btn-heat" id="btnHeat">Tá quente hoje</button>
+      <button class="btn-icon" id="btnHeatShare" style="flex:none;width:100%;min-height:44px;font-weight:700">Compartilhar o clima de hoje</button>
+    </div>
+  </section>
+
+  <section id="secInteresse">
+    <div class="box">
+      <div class="display" style="font-size:22px">Interesse nas notícias hoje</div>
+      <div style="font-size:13px;color:var(--mute)"><strong style="color:var(--soft)">Não é pesquisa eleitoral.</strong> Leituras em "Ler no jornal" de todo mundo, hoje. Não mede voto.</div>
+      <div id="interesse"></div>
+      <div style="display:flex;flex-direction:column;gap:8px" id="maisLidas"></div>
+    </div>
+  </section>
+
+  <section id="secPesquisas" hidden>
+    <div class="box">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+        <div class="display" style="font-size:22px">Pesquisas</div>
+        <div style="font-size:12px;color:var(--mute);font-weight:600">só com registro no TSE</div>
+      </div>
+      <div id="pesquisas" style="display:flex;flex-direction:column;gap:12px"></div>
+    </div>
+  </section>
+
+  <section id="secKit">
+    <div class="display" style="font-size:22px;margin-bottom:10px">Kit do dia 25</div>
+    <div class="list">
+      <a class="row" href="https://www.tse.jus.br" target="_blank" rel="noopener"><span><strong>Onde eu voto?</strong><small>Consulta no TSE ou no e-Título</small></span>›</a>
+      <div class="row"><span><strong>8h às 17h</strong><small>Horário de Brasília</small></span></div>
+      <div class="row"><span><strong>Leve</strong><small>Documento oficial com foto ou e-Título</small></span></div>
+      <div class="row"><span><strong>Apuração ao vivo</strong><small>A partir das 17h, no canal</small></span></div>
+    </div>
+  </section>
+  </aside>
+
+  <footer>
+    <b>Central 2º Turno, por Mounólogo</b>
+    <div><a href="#" id="linkPrivacidade" style="color:var(--soft);font-weight:700">Privacidade: como usamos seus dados</a></div>
+    <div>Não fazemos pesquisa eleitoral. O clima do dia e a barra de leitura medem as notícias, nunca o voto.</div>
+    <div>Canal independente, sem vínculo com partidos ou candidatos. Resumos de matérias da imprensa, sempre com link pra fonte.</div>
+    <div>Não perguntamos nem guardamos o seu voto. Seu placar de leitura fica só no seu celular.</div>
+    <div>Depois da eleição, o canal segue com o conteúdo do Mounólogo.</div>
+  </footer>
+
+  <div class="dock">
+    <a class="btn-wa" id="btnCanal" target="_blank" rel="noopener">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.4 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Seguir no WhatsApp
+    </a>
+    <button class="btn-icon" id="btnShareCanal" aria-label="Mandar o canal pra alguém">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v13"/><path d="M7 8l5-5 5 5"/><path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<dialog id="dlgPerfil" aria-labelledby="perfilTitulo">
+  <div class="dlg-top">
+    <div class="display" id="perfilTitulo" style="font-size:22px">Meu 2º turno</div>
+    <button class="btn-icon" id="btnFechaPerfil" aria-label="Fechar" style="flex:0 0 44px">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div id="perfilBody"></div>
+</dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+
+<script>
+(function () {
+  'use strict';
+  var C = window.CONFIG;
+  var RED = '#E5243B', BLUE = '#2B6CEB', NEUTRAL = '#4A4A57';
+  var configurado = C.SUPABASE_URL.indexOf('SEU-PROJETO') < 0 && C.SUPABASE_KEY.indexOf('COLE_') < 0;
+
+  /* ---------- utilidades ---------- */
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function safeUrl(u) {
+    try { var x = new URL(u); return (x.protocol === 'https:' || x.protocol === 'http:') ? x.href : '#'; }
+    catch (e) { return '#'; }
+  }
+  function hoje() { // AAAA-MM-DD em São Paulo
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+  }
+  function inicioDoDiaISO() { return hoje() + 'T03:00:00Z'; }
+  function ls(k, v) {
+    try {
+      if (v === undefined) { var r = localStorage.getItem(k); return r ? JSON.parse(r) : null; }
+      localStorage.setItem(k, JSON.stringify(v));
+    } catch (e) { return null; }
+  }
+  function ha(iso) {
+    if (!iso) return '';
+    var m = Math.round((Date.now() - Date.parse(iso)) / 60000);
+    if (m < 1) return 'agora';
+    if (m < 60) return 'há ' + m + ' min';
+    var h = Math.round(m / 60);
+    if (h < 24) return 'há ' + h + ' h';
+    return 'há ' + Math.round(h / 24) + ' d';
+  }
+  var toastT;
+  function toast(msg) {
+    var t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove('show'); }, 2800);
+  }
+  function rotuloLado(l) { return l === '13' ? '13 · Lula' : l === '22' ? '22 · Flávio' : '13 e 22'; }
+  function classeLado(l) { return l === '13' ? 't13' : l === '22' ? 't22' : 'tamb'; }
+  function corLado(l) { return l === '13' ? RED : l === '22' ? BLUE : NEUTRAL; }
+
+  /* ---------- Supabase ---------- */
+  // login (link no e-mail). "implicit" faz o link funcionar mesmo se abrir em outro navegador.
+  var sb = null, sessao = null, perfil = null;
+  try {
+    if (configurado && window.supabase) {
+      sb = window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'implicit' }
+      });
+    }
+  } catch (e) { sb = null; }
+
+  function headers(extra) {
+    var h = { apikey: C.SUPABASE_KEY, 'Content-Type': 'application/json' };
+    if (sessao && sessao.access_token) h.Authorization = 'Bearer ' + sessao.access_token;
+    else if (C.SUPABASE_KEY.indexOf('sb_') !== 0) h.Authorization = 'Bearer ' + C.SUPABASE_KEY;
+    for (var k in extra) h[k] = extra[k];
+    return h;
+  }
+  function get(path) {
+    return fetch(C.SUPABASE_URL + '/rest/v1/' + path, { headers: headers() })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
+  }
+  function rpc(nome, body, keepalive) {
+    return fetch(C.SUPABASE_URL + '/rest/v1/rpc/' + nome, {
+      method: 'POST', headers: headers(), body: JSON.stringify(body || {}), keepalive: !!keepalive
+    }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
+  }
+
+  /* ---------- compartilhar (imagem 9:16 gerada no celular) ---------- */
+  var SITE = location.href.split('#')[0].split('?')[0];
+  function assinatura() { return '\n\nCentral 2º Turno, por Mounólogo\n' + SITE; }
+
+  function quebra(ctx, texto, largura) {
+    var palavras = String(texto).split(/\s+/), linhas = [], atual = '';
+    palavras.forEach(function (p) {
+      var teste = atual ? atual + ' ' + p : p;
+      if (ctx.measureText(teste).width > largura && atual) { linhas.push(atual); atual = p; }
+      else atual = teste;
+    });
+    if (atual) linhas.push(atual);
+    return linhas;
+  }
+  function desenhaCard(o) {
+    // o = { kicker, kickerCor, titulo, corpo, numero, faixa: true|false }
+    return document.fonts.ready.then(function () {
+      var W = 1080, H = 1920, cv = document.createElement('canvas');
+      cv.width = W; cv.height = H;
+      var c = cv.getContext('2d');
+      c.fillStyle = '#0C0C10'; c.fillRect(0, 0, W, H);
+      // faixa 13 | 22
+      c.fillStyle = RED; c.fillRect(0, 0, W / 2, 18);
+      c.fillStyle = BLUE; c.fillRect(W / 2, 0, W / 2, 18);
+      if (o.faixa) { c.fillStyle = RED; c.fillRect(0, 0, W / 2, H); c.fillStyle = BLUE; c.fillRect(W / 2, 0, W / 2, H); c.fillStyle = 'rgba(12,12,16,.18)'; c.fillRect(0, 0, W, H); }
+      var x = 96, larg = W - 2 * x;
+      // marca no topo
+      c.fillStyle = '#F2F2F5';
+      c.font = '800 54px "Bricolage Grotesque", sans-serif';
+      c.fillText('central', x, 170);
+      var wc = c.measureText('central ').width;
+      c.fillStyle = o.faixa ? 'rgba(255,255,255,.75)' : '#8A8A99'; c.font = '600 54px "Bricolage Grotesque", sans-serif';
+      c.fillText('2º turno', x + wc, 170);
+
+      // mede o miolo pra centralizar na altura
+      c.font = '800 92px "Bricolage Grotesque", sans-serif';
+      var linT = quebra(c, o.titulo, larg).slice(0, 7);
+      c.font = '500 48px Figtree, sans-serif';
+      var linC = o.corpo ? quebra(c, o.corpo, larg).slice(0, 6) : [];
+      var alt = (o.kicker ? 120 : 0) + linT.length * 104 + (linC.length ? 40 + linC.length * 66 : 0);
+      var y = Math.max(300, Math.round((H - alt) / 2) - 40);
+
+      if (o.kicker) {
+        c.font = '800 40px Figtree, sans-serif';
+        var kw = c.measureText(o.kicker).width + 56;
+        c.fillStyle = o.kickerCor || NEUTRAL;
+        roundRect(c, x, y, kw, 76, 38); c.fill();
+        c.fillStyle = '#fff'; c.fillText(o.kicker, x + 28, y + 52);
+        y += 120;
+      }
+      c.fillStyle = '#FFFFFF'; c.font = '800 92px "Bricolage Grotesque", sans-serif';
+      linT.forEach(function (l) { c.fillText(l, x, y + 82); y += 104; });
+      if (linC.length) {
+        y += 40; c.fillStyle = o.faixa ? 'rgba(255,255,255,.88)' : '#B5B5C2'; c.font = '500 48px Figtree, sans-serif';
+        linC.forEach(function (l) { c.fillText(l, x, y + 48); y += 66; });
+      }
+
+      // rodapé
+      var site = location.host || 'central 2º turno';
+      c.fillStyle = o.faixa ? 'rgba(255,255,255,.9)' : '#B5B5C2'; c.font = '700 40px Figtree, sans-serif';
+      c.fillText('As notícias do 13 e do 22 no mesmo lugar', x, H - 220);
+      c.fillStyle = o.faixa ? 'rgba(255,255,255,.75)' : '#8A8A99'; c.font = '600 38px Figtree, sans-serif';
+      c.fillText(site + ' · por Mounólogo', x, H - 160);
+      return new Promise(function (res) { cv.toBlob(res, 'image/png'); });
+    });
+  }
+  function roundRect(c, x, y, w, h, r) {
+    c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
+  }
+  function compartilhar(texto, cardOpts) {
+    var msg = texto + assinatura();
+    var semImagem = function () {
+      if (navigator.share) return navigator.share({ text: msg }).catch(function () {});
+      if (navigator.clipboard) { navigator.clipboard.writeText(msg); toast('Copiado. Cola no WhatsApp ou no status.'); return; }
+      toast('Seu navegador não deixa compartilhar daqui.');
+    };
+    if (!cardOpts) return semImagem();
+    desenhaCard(cardOpts).then(function (blob) {
+      var file = new File([blob], 'central-2-turno.png', { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        return navigator.share({ files: [file], text: msg }).catch(function () {});
+      }
+      // computador: baixa a imagem e copia o texto
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'central-2-turno.png';
+      document.body.appendChild(a); a.click(); a.remove();
+      if (navigator.clipboard) navigator.clipboard.writeText(msg);
+      toast('Imagem baixada e texto copiado.');
+    }).catch(semImagem);
+  }
+
+  /* ---------- contador ---------- */
+  (function () {
+    var d = Math.ceil((Date.parse(C.ELEICAO) - Date.now()) / 86400000);
+    $('dias').textContent = d > 1 ? 'faltam ' + d + ' dias' : d === 1 ? 'falta 1 dia' : d === 0 ? 'é hoje' : 'eleição encerrada';
+  })();
+  $('btnCanal').href = C.CANAL_URL;
+  $('btnCanalTop').href = C.CANAL_URL;
+  $('plano13').href = safeUrl(C.PLANO_13);
+  $('plano22').href = safeUrl(C.PLANO_22);
+  $('btnShareCanal').onclick = function () {
+    compartilhar('Sigo esse canal pra ler o 2º turno dos dois lados: ' + C.CANAL_URL);
+  };
+
+  /* ---------- leituras do dia (só no celular da pessoa) ---------- */
+  var chaveLidas = 'lidas-' + hoje();
+  var lidas = ls(chaveLidas) || {};
+  function placar() {
+    var a = 0, b = 0;
+    Object.keys(lidas).forEach(function (id) {
+      var l = lidas[id];
+      if (l === '13' || l === 'ambos') a++;
+      if (l === '22' || l === 'ambos') b++;
+    });
+    return { a: a, b: b };
+  }
+  function pintaSelo() {
+    var p = placar(), dois = p.a > 0 && p.b > 0, nada = !p.a && !p.b;
+    $('my13').textContent = p.a; $('my22').textContent = p.b;
+    $('selo').classList.toggle('on', dois);
+    $('seloTitulo').textContent = dois ? 'Li os dois lados hoje.' : nada ? 'Comece pelo lado que você não lê.' : 'Falta o outro lado.';
+    $('seloSub').textContent = dois ? 'Selo liberado. Posta e desafia alguém a fazer o mesmo.'
+      : nada ? 'Leia ao menos 1 notícia de cada lado pra liberar o selo.'
+      : 'Leia 1 notícia do ' + (p.a ? '22' : '13') + ' pra liberar o selo.';
+  }
+  $('btnSelo').onclick = function () {
+    var p = placar(), dois = p.a > 0 && p.b > 0;
+    compartilhar(dois ? 'Li os dois lados do 2º turno hoje. Você consegue?' : 'Tô lendo os dois lados do 2º turno.',
+      dois ? { faixa: true, kicker: 'SELO DO DIA', kickerCor: '#0C0C10', titulo: 'Li os dois lados hoje.', corpo: p.a + ' do 13 e ' + p.b + ' do 22. Você consegue?' }
+           : { kicker: 'CENTRAL 2º TURNO', titulo: 'Tô lendo os dois lados do 2º turno.' });
+  };
+
+  /* ---------- feed ---------- */
+  var noticias = [], aba = 'all';
+  document.querySelectorAll('.tabs button').forEach(function (b) {
+    b.onclick = function () {
+      aba = b.getAttribute('data-tab');
+      document.querySelectorAll('.tabs button').forEach(function (x) { x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
+      pintaFeed();
+    };
+  });
+  var telaGrande = window.matchMedia('(min-width:1024px)');
+  if (telaGrande.addEventListener) telaGrande.addEventListener('change', function () { pintaFeed(); });
+  function pintaFeed() {
+    var lista = noticias.filter(function (n) { return aba === 'all' || n.lado === aba || n.lado === 'ambos'; });
+    if (!lista.length) {
+      $('feed').innerHTML = '<div class="empty">' + (configurado ? 'Ainda não tem notícia aprovada aqui. Volta daqui a pouco.' : 'Página ainda não conectada ao banco. Preencha o bloco CONFIG.') + '</div>';
+      return;
+    }
+    if (telaGrande.matches && aba === 'all') {
+      // computador: 13 à esquerda, 22 à direita, "os dois" em cima
+      var ambos = lista.filter(function (n) { return n.lado === 'ambos'; });
+      var de13 = lista.filter(function (n) { return n.lado === '13'; });
+      var de22 = lista.filter(function (n) { return n.lado === '22'; });
+      var vazio = function (l) { return '<div class="empty">Nenhuma notícia do ' + l + ' aprovada ainda.</div>'; };
+      $('feed').innerHTML =
+        (ambos.length ? '<div class="split-head" style="margin-bottom:12px">Sobre os dois</div><div class="feed-grid">' + ambos.map(cardHtml).join('') + '</div>' : '') +
+        '<div class="split">' +
+        '<div><div class="split-head r">Notícias do 13</div>' + (de13.length ? de13.map(cardHtml).join('') : vazio('13')) + '</div>' +
+        '<div><div class="split-head b">Notícias do 22</div>' + (de22.length ? de22.map(cardHtml).join('') : vazio('22')) + '</div>' +
+        '</div>';
+      return;
+    }
+    var partes = lista.map(cardHtml);
+    if (partes.length >= 3 && AD_FEED) partes.splice(3, 0, AD_FEED); // anúncio depois da 3ª notícia
+    $('feed').innerHTML = partes.join('');
+    ativaAdsense();
+  }
+  function cardHtml(n) {
+    return (function (n) {
+      var lida = !!lidas[n.id];
+      return '<article class="card">' +
+        '<div class="meta"><span class="tag ' + classeLado(n.lado) + '">' + rotuloLado(n.lado) + '</span>' +
+        '<span class="src">' + esc(n.veiculo) + ' · ' + ha(n.publicado_em || n.aprovado_em) + '</span></div>' +
+        '<h3>' + esc(n.manchete) + '</h3>' +
+        '<p><strong>Em 1 frase:</strong> ' + esc(n.resumo) + '</p>' +
+        '<div class="actions">' +
+        '<a class="btn-read' + (lida ? ' lida' : '') + '" href="' + esc(safeUrl(n.link)) + '" target="_blank" rel="noopener" data-ler="' + n.id + '">' + (lida ? 'Lida · abrir de novo' : 'Ler no jornal') + '</a>' +
+        '<button class="btn-icon" data-share="' + n.id + '" aria-label="Compartilhar esta notícia">' +
+        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v13"/><path d="M7 8l5-5 5 5"/><path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>' +
+        '</button></div></article>';
+    })(n);
+  }
+  $('feed').addEventListener('click', function (e) {
+    var ler = e.target.closest('[data-ler]');
+    if (ler) {
+      var id = ler.getAttribute('data-ler');
+      var n = noticias.find(function (x) { return String(x.id) === id; });
+      if (n) registraLeitura(n);
+      if (n && !lidas[id]) {
+        lidas[id] = n.lado; ls(chaveLidas, lidas);
+        if (configurado) rpc('ler', { noticia_id: Number(id) }, true).catch(function () {});
+        // atualiza só o botão (não redesenha o feed, pra não recarregar anúncio)
+        setTimeout(function () {
+          ler.classList.add('lida'); ler.textContent = 'Lida · abrir de novo';
+          pintaSelo(); carregaInteresse();
+        }, 300);
+      }
+      return; // o link abre normalmente
+    }
+    var sh = e.target.closest('[data-share]');
+    if (sh) {
+      var n2 = noticias.find(function (x) { return String(x.id) === sh.getAttribute('data-share'); });
+      if (!n2) return;
+      compartilhar(n2.manchete + '\n' + n2.resumo + '\nFonte: ' + n2.veiculo + ' · ' + n2.link,
+        { kicker: rotuloLado(n2.lado), kickerCor: corLado(n2.lado), titulo: n2.manchete, corpo: n2.resumo + ' (' + n2.veiculo + ')' });
+    }
+  });
+  function carregaNoticias() {
+    if (!configurado) { pintaFeed(); return; }
+    get('noticias?select=id,lado,tipo,veiculo,manchete,resumo,link,publicado_em,aprovado_em,instituto,registro_tse' +
+        '&status=eq.aprovado&order=aprovado_em.desc&limit=60')
+      .then(function (rows) {
+        noticias = rows.filter(function (r) { return r.tipo !== 'pesquisa'; }).slice(0, 40);
+        pintaFeed();
+        var pesq = rows.filter(function (r) { return r.tipo === 'pesquisa'; }).slice(0, 3);
+        if (pesq.length) {
+          $('secPesquisas').hidden = false;
+          $('pesquisas').innerHTML = pesq.map(function (p) {
+            return '<div style="display:flex;flex-direction:column;gap:4px;padding-bottom:12px;border-bottom:1px solid var(--line)">' +
+              '<div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:700;color:var(--soft)"><span>' + esc(p.instituto || p.veiculo) + '</span><span>' + esc(p.registro_tse || '') + '</span></div>' +
+              '<div style="font-weight:800;font-size:16px">' + esc(p.manchete) + '</div>' +
+              '<a href="' + esc(safeUrl(p.link)) + '" target="_blank" rel="noopener" style="font-size:13px;font-weight:700;color:var(--soft)">Ver no ' + esc(p.veiculo) + '</a></div>';
+          }).join('');
+        }
+      })
+      .catch(function () { $('feed').innerHTML = '<div class="empty">Não deu pra carregar as notícias agora. Tenta de novo em instantes.</div>'; });
+  }
+
+  /* ---------- vídeos ---------- */
+  var videos = [], vcat = 'todos';
+  var CATS = { todos: 'Todos', debate: 'Debate', entrevista: 'Entrevista', proposta: 'Proposta', checagem: 'Checagem', analise: 'Análise' };
+  function ytId(u) {
+    var m = String(u).match(/(?:youtu\.be\/|v=|\/shorts\/|\/live\/|\/embed\/)([A-Za-z0-9_-]{11})/);
+    return m ? m[1] : null;
+  }
+  function segundos(t) {
+    if (!t) return 0;
+    return String(t).split(':').map(Number).reduce(function (a, b) { return a * 60 + b; }, 0);
+  }
+  function pintaVideos() {
+    $('vChips').innerHTML = Object.keys(CATS).map(function (k) {
+      return '<button data-cat="' + k + '" aria-pressed="' + (vcat === k) + '">' + CATS[k] + '</button>';
+    }).join('');
+    var lista = videos.filter(function (v) { return vcat === 'todos' || v.categoria === vcat; });
+    if (!lista.length) {
+      $('vRail').innerHTML = '<div class="empty" style="flex:1">' + (videos.length ? 'Nada nessa categoria ainda.' : 'Os vídeos entram aqui em breve.') + '</div>';
+      return;
+    }
+    $('vRail').innerHTML = lista.map(function (v) {
+      var id = ytId(v.link);
+      var thumb = id
+        ? '<button class="thumb" data-yt="' + id + '" data-start="0" aria-label="Assistir: ' + esc(v.titulo) + '">' +
+          '<img loading="lazy" alt="" src="https://i.ytimg.com/vi/' + id + '/hqdefault.jpg">' +
+          '<span class="play"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>' +
+          '<span class="cat">' + CATS[v.categoria] + '</span></button>'
+        : '<a class="thumb" href="' + esc(safeUrl(v.link)) + '" target="_blank" rel="noopener"><span class="play"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span><span class="cat">' + CATS[v.categoria] + '</span></a>';
+      var nota = v.analise
+        ? '<div class="nota"><div class="kicker" style="font-size:11px">Por que ver</div><div>' + esc(v.analise) + '</div>' +
+          (v.momento && id ? '<button class="btn-moment" data-yt="' + id + '" data-start="' + segundos(v.momento) + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Ponto-chave em ' + esc(v.momento) + '</button>' : '') +
+          '</div>'
+        : '';
+      return '<article class="vcard">' + thumb + '<div class="vbody">' +
+        '<span class="tag ' + classeLado(v.lado) + '" style="align-self:flex-start">' + rotuloLado(v.lado) + '</span>' +
+        '<div class="ti">' + esc(v.titulo) + '</div>' +
+        (v.fonte ? '<div style="font-size:13px;color:var(--mute);font-weight:600">' + esc(v.fonte) + '</div>' : '') +
+        nota + '</div></article>';
+    }).join('');
+  }
+  $('vChips').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-cat]'); if (!b) return;
+    vcat = b.getAttribute('data-cat'); pintaVideos();
+  });
+  $('vRail').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-yt]'); if (!b) return;
+    var card = b.closest('.vcard'), alvo = card.querySelector('.thumb');
+    var src = 'https://www.youtube-nocookie.com/embed/' + b.getAttribute('data-yt') + '?autoplay=1&playsinline=1&start=' + b.getAttribute('data-start');
+    var div = document.createElement('div'); div.className = 'thumb';
+    div.innerHTML = '<iframe src="' + src + '" title="Vídeo" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
+    alvo.replaceWith(div);
+  });
+  function carregaVideos() {
+    pintaVideos();
+    if (!configurado) return;
+    get('videos?select=id,link,lado,categoria,titulo,fonte,analise,momento&ativo=eq.true&order=criado_em.desc&limit=30')
+      .then(function (rows) {
+        videos = rows;
+        var a = 0, b = 0;
+        rows.forEach(function (v) { if (v.lado !== '22') a++; if (v.lado !== '13') b++; });
+        $('vPlacar').textContent = rows.length ? 'Agora: ' + a + ' vídeos sobre o 13, ' + b + ' sobre o 22.' : '';
+        pintaVideos();
+      }).catch(function () {});
+  }
+
+  /* ---------- livros ---------- */
+  function carregaLivros() {
+    var vazio = function () { $('secLivros').querySelector('.rail').innerHTML = '<div class="empty" style="flex:1">As indicações entram aqui em breve.</div>'; };
+    if (!configurado) return vazio();
+    get('livros?select=titulo,autor,por_que,capa_url,link,afiliado&ativo=eq.true&order=ordem.asc&limit=12')
+      .then(function (rows) {
+        if (!rows.length) return vazio();
+        $('bRail').innerHTML = rows.map(function (l) {
+          return '<article class="bcard"><div class="cover">' + (l.capa_url ? '<img loading="lazy" alt="Capa de ' + esc(l.titulo) + '" src="' + esc(safeUrl(l.capa_url)) + '">' : 'CAPA') + '</div>' +
+            '<div style="font-weight:800;font-size:16px;line-height:1.25">' + esc(l.titulo) + '</div>' +
+            '<div style="font-size:13px;color:var(--mute);font-weight:600">' + esc(l.autor) + '</div>' +
+            '<div style="font-size:14px;color:#D7D7E0">' + esc(l.por_que) + '</div>' +
+            '<a class="btn-light" href="' + esc(safeUrl(l.link)) + '" target="_blank" rel="noopener' + (l.afiliado ? ' sponsored' : '') + '">Ver o livro</a>' +
+            (l.afiliado ? '<div style="font-size:11px;color:var(--mute);text-align:center">Link de afiliado. O preço é o mesmo pra você.</div>' : '') +
+            '</article>';
+        }).join('');
+      }).catch(vazio);
+  }
+
+  /* ---------- clima do dia ---------- */
+  var calor = 0;
+  function nivel(p) { return p < 25 ? 'Morno' : p < 50 ? 'Quente' : p < 75 ? 'Pegando fogo' : 'Fervendo'; }
+  function pintaCalor() {
+    var p = Math.max(3, Math.min(100, Math.round(calor / C.TERMOMETRO_MAX * 100)));
+    $('heatBar').style.width = p + '%';
+    $('heatLevel').textContent = nivel(p);
+    $('heatCount').textContent = calor + ' toques hoje';
+    $('heatTrack').setAttribute('aria-label', 'Termômetro em ' + p + '%: ' + nivel(p));
+  }
+  function carregaCalor() {
+    pintaCalor();
+    if (!configurado) return;
+    get('termometro?select=cliques&dia=eq.' + hoje()).then(function (r) { calor = r[0] ? r[0].cliques : 0; pintaCalor(); }).catch(function () {});
+  }
+  $('btnHeat').onclick = function () {
+    var ultimo = ls('calor-ultimo') || 0;
+    if (Date.now() - ultimo < 10000) { toast('Já contou. Espera uns segundos pra tocar de novo.'); return; }
+    ls('calor-ultimo', Date.now());
+    calor++; pintaCalor();
+    if (configurado) rpc('esquentar').then(function (t) { if (typeof t === 'number') { calor = t; pintaCalor(); } }).catch(function () {});
+  };
+  $('btnHeatShare').onclick = function () {
+    var p = Math.max(3, Math.min(100, Math.round(calor / C.TERMOMETRO_MAX * 100)));
+    compartilhar('Hoje a eleição tá ' + nivel(p).toLowerCase() + '. E pra você?',
+      { kicker: 'CLIMA DO DIA', kickerCor: '#B4520A', titulo: 'Hoje a eleição tá ' + nivel(p).toLowerCase() + '.', corpo: 'E pra você? Toca no termômetro.' });
+  };
+
+  /* ---------- interesse + mais lidas ---------- */
+  function carregaInteresse() {
+    if (!configurado) { $('interesse').innerHTML = '<div style="font-size:14px;color:var(--soft)">Aparece quando a página estiver conectada.</div>'; return; }
+    get('interesse_dia?select=lado,cliques&dia=eq.' + hoje()).then(function (rows) {
+      var a = 0, b = 0;
+      rows.forEach(function (r) { if (r.lado === '13') a = r.cliques; if (r.lado === '22') b = r.cliques; });
+      var tot = a + b;
+      if (tot < C.INTERESSE_MIN) {
+        $('interesse').innerHTML = '<div style="font-size:14px;color:var(--soft)">Ainda medindo. Aparece depois de ' + C.INTERESSE_MIN + ' leituras no dia (' + tot + ' até agora).</div>';
+        return;
+      }
+      var p = Math.round(a / tot * 100);
+      $('interesse').innerHTML =
+        '<div class="track"><i style="width:' + p + '%;background:var(--red)"></i><i style="width:' + (100 - p) + '%;background:var(--blue)"></i></div>' +
+        '<div style="display:flex;justify-content:space-between;font-size:14px;font-weight:800;margin-top:8px"><span>13 · ' + p + '%</span><span>' + (100 - p) + '% · 22</span></div>' +
+        '<div style="font-size:12px;color:var(--mute);margin-top:4px">Base: ' + tot + ' leituras. Cada pessoa conta 1 vez por notícia.</div>';
+    }).catch(function () {});
+    var base = 'noticias?select=id,manchete,veiculo,link&status=eq.aprovado&tipo=eq.noticia&cliques=gt.0&aprovado_em=gte.' + inicioDoDiaISO() + '&order=cliques.desc&limit=1&lado=in.';
+    Promise.all([get(base + '(13,ambos)'), get(base + '(22,ambos)')]).then(function (r) {
+      var html = '';
+      if (r[0][0]) html += '<a class="top r" href="' + esc(safeUrl(r[0][0].link)) + '" target="_blank" rel="noopener"><span class="kicker" style="font-size:11px">Mais lida do 13</span><span style="font-weight:700;font-size:15px">' + esc(r[0][0].manchete) + '</span></a>';
+      if (r[1][0]) html += '<a class="top b" href="' + esc(safeUrl(r[1][0].link)) + '" target="_blank" rel="noopener"><span class="kicker" style="font-size:11px">Mais lida do 22</span><span style="font-weight:700;font-size:15px">' + esc(r[1][0].manchete) + '</span></a>';
+      $('maisLidas').innerHTML = html;
+    }).catch(function () {});
+  }
+
+  /* ---------- anúncios ---------- */
+  function anuncioHtml(slot) {
+    if (C.ADSENSE_CLIENT && slot) {
+      return '<div class="ad"><span class="rot">Publicidade</span><ins class="adsbygoogle" style="display:block" data-ad-client="' + esc(C.ADSENSE_CLIENT) +
+        '" data-ad-slot="' + esc(slot) + '" data-ad-format="auto" data-full-width-responsive="true"></ins></div>';
+    }
+    var lista = C.ANUNCIOS || [];
+    if (!lista.length) return '';
+    var a = lista[Math.floor(Math.random() * lista.length)];
+    var interno = String(a.link || '').charAt(0) === '#';
+    return '<div class="ad"><span class="rot">Publicidade</span>' +
+      (a.imagem ? '<img alt="" loading="lazy" src="' + esc(safeUrl(a.imagem)) + '">' : '') +
+      '<div style="font-weight:800;font-size:16px">' + esc(a.titulo) + '</div>' +
+      '<div style="font-size:14px;color:var(--soft)">' + esc(a.texto) + '</div>' +
+      '<a class="cta" href="' + esc(interno ? a.link : safeUrl(a.link)) + '"' + (interno ? '' : ' target="_blank" rel="noopener sponsored"') + '>' + esc(a.botao || 'Saiba mais') + '</a></div>';
+  }
+  var adsCarregado = false;
+  function ativaAdsense() {
+    if (!C.ADSENSE_CLIENT) return;
+    if (!adsCarregado) {
+      var s = document.createElement('script');
+      s.async = true; s.crossOrigin = 'anonymous';
+      s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + encodeURIComponent(C.ADSENSE_CLIENT);
+      document.head.appendChild(s); adsCarregado = true;
+    }
+    document.querySelectorAll('ins.adsbygoogle:not([data-adsbygoogle-status])').forEach(function () {
+      try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+    });
+  }
+  var AD_FEED = anuncioHtml(C.ADSENSE_SLOT_FEED);
+  $('adLateral').innerHTML = anuncioHtml(C.ADSENSE_SLOT_LATERAL);
+
+  /* ---------- histórico e estatísticas ---------- */
+  var TEMAS = [
+    ['Justiça e TSE', /\btse\b|\bstf\b|moraes|justi[cç]a|tribunal|ministr[oa]|ju[ií]z|decis[aã]o|inelegi|processo/i],
+    ['Economia', /econom|infla[cç]|juros|empreg|sal[aá]ri|impost|pre[cç]o|\bpib\b|d[oó]lar|cr[eé]dito|renda|fiscal|gasto|neg[oó]cio/i],
+    ['Segurança', /seguran[cç]a|viol[eê]n|crime|pol[ií]cia|\barmas?\b|fac[cç][aã]o|pris[aã]o|presos?\b/i],
+    ['Saúde', /sa[uú]de|\bsus\b|hospital|m[eé]dic|vacina/i],
+    ['Educação', /educa[cç]|escola|ensino|universid|professor/i],
+    ['Programas sociais', /bolsa fam|programa social|aux[ií]lio|moradia|minha casa|fome/i],
+    ['Fé e família', /\bf[eé]\b|igreja|evang[eé]l|cat[oó]lic|relig|crist/i],
+    ['Meio ambiente', /ambient|amaz[oô]n|desmat|clima\b|energia/i],
+    ['Campanha', /debate|pesquisa|propaganda|hor[aá]rio eleitoral|com[ií]cio|agenda|apoio|alian[cç]|campanha|v[ií]deo/i]
+  ];
+  function tema(txt) {
+    for (var i = 0; i < TEMAS.length; i++) if (TEMAS[i][1].test(txt)) return TEMAS[i][0];
+    return 'Outros';
+  }
+  function diaSP(iso) {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(iso));
+  }
+  var historico = ls('historico') || {}; // id -> { l: lado, t: tema, d: dia, m: manchete, u: link }
+
+  function registraLeitura(n) {
+    if (!historico[n.id]) {
+      historico[n.id] = { l: n.lado, t: tema(n.manchete + ' ' + n.resumo), d: hoje(), m: String(n.manchete).slice(0, 140), u: n.link };
+      ls('historico', historico);
+    }
+    if (sb && sessao && perfil && perfil.aceita_historico) {
+      sb.from('leituras').upsert({ usuario: sessao.user.id, noticia_id: Number(n.id) }, { onConflict: 'usuario,noticia_id', ignoreDuplicates: true })
+        .then(function () {}, function () {});
+    }
+    checaConvite();
+  }
+  function itensLocais() {
+    return Object.keys(historico).map(function (id) { var h = historico[id]; return { id: id, l: h.l, t: h.t, d: h.d, m: h.m, u: h.u }; })
+      .sort(function (a, b) { return a.d < b.d ? 1 : -1; });
+  }
+  function itensServidor() {
+    return sb.from('leituras').select('noticia_id, lido_em, noticias(lado, manchete, resumo, link)')
+      .order('lido_em', { ascending: false }).limit(500)
+      .then(function (r) {
+        if (r.error) throw r.error;
+        return (r.data || []).filter(function (x) { return x.noticias; }).map(function (x) {
+          var n = x.noticias;
+          return { id: x.noticia_id, l: n.lado, t: tema(n.manchete + ' ' + n.resumo), d: diaSP(x.lido_em), m: n.manchete, u: n.link };
+        });
+      });
+  }
+  function estatisticas(itens) {
+    var s = { tot: itens.length, a: 0, b: 0, amb: 0, temas: {}, dias: {} };
+    itens.forEach(function (it) {
+      if (it.l === '13') s.a++; else if (it.l === '22') s.b++; else s.amb++;
+      s.temas[it.t] = (s.temas[it.t] || 0) + 1;
+      s.dias[it.d] = true;
+    });
+    var seq = 0, d = new Date(hoje() + 'T12:00:00Z');
+    if (!s.dias[hoje()]) d.setUTCDate(d.getUTCDate() - 1);
+    while (s.dias[d.toISOString().slice(0, 10)]) { seq++; d.setUTCDate(d.getUTCDate() - 1); }
+    s.seq = seq; s.ndias = Object.keys(s.dias).length;
+    return s;
+  }
+  function estatHtml(itens) {
+    var s = estatisticas(itens);
+    if (!s.tot) {
+      return '<div class="empty">Você ainda não leu nenhuma notícia por aqui. Toque em "Ler no jornal" em qualquer notícia e o seu histórico começa.</div>';
+    }
+    var p13 = Math.round(s.a / s.tot * 100), p22 = Math.round(s.b / s.tot * 100), pAmb = 100 - p13 - p22;
+    var temas = Object.keys(s.temas).map(function (k) { return [k, s.temas[k]]; }).sort(function (x, y) { return y[1] - x[1]; }).slice(0, 5);
+    var max = temas.length ? temas[0][1] : 1;
+    return '<div class="stat-grid">' +
+      '<div><b>' + s.tot + '</b><span>notícias lidas</span></div>' +
+      '<div><b>' + s.ndias + '</b><span>' + (s.ndias === 1 ? 'dia lendo' : 'dias lendo') + '</span></div>' +
+      '<div><b>' + s.seq + '</b><span>' + (s.seq === 1 ? 'dia seguido' : 'dias seguidos') + '</span></div></div>' +
+      '<div><div class="kicker" style="margin-bottom:8px">O que você leu de cada lado</div>' +
+      '<div class="track"><i style="width:' + p13 + '%;background:var(--red)"></i><i style="width:' + pAmb + '%;background:var(--neutral)"></i><i style="width:' + p22 + '%;background:var(--blue)"></i></div>' +
+      '<div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-top:6px;color:var(--soft)"><span>13: ' + s.a + '</span><span>os dois: ' + s.amb + '</span><span>22: ' + s.b + '</span></div></div>' +
+      '<div><div class="kicker" style="margin-bottom:8px">Assuntos que você mais leu</div><div class="temas">' +
+      temas.map(function (t) {
+        return '<div class="tema"><span>' + esc(t[0]) + '</span><div class="track"><i style="width:' + Math.round(t[1] / max * 100) + '%;background:var(--heat)"></i></div><b style="text-align:right">' + t[1] + '</b></div>';
+      }).join('') + '</div></div>' +
+      '<p class="nota-priv" style="margin:0">Isso mostra o que você leu, não em quem você vota.</p>' +
+      '<button class="btn-white" id="btnCompartilharMeu" style="min-height:44px;font-size:15px">Compartilhar meu 2º turno</button>';
+  }
+  function histHtml(itens) {
+    if (!itens.length) return '';
+    return '<div><div class="kicker" style="margin-bottom:8px">Últimas que você leu</div><div class="hist">' +
+      itens.slice(0, 10).map(function (it) {
+        return '<a href="' + esc(safeUrl(it.u)) + '" target="_blank" rel="noopener"><i style="background:' + corLado(it.l) + '"></i><span>' + esc(it.m) + '</span></a>';
+      }).join('') + '</div></div>';
+  }
+
+  /* ---------- perfil (janela "Meu 2º turno") ---------- */
+  var dlg = $('dlgPerfil'), body = $('perfilBody'), itensAtuais = [];
+  function abrePerfil(tela) {
+    if (!dlg.open) { if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); }
+    mostra(tela || 'inicio');
+  }
+  $('btnPerfil').onclick = function () { abrePerfil(); };
+  $('btnFechaPerfil').onclick = function () { dlg.close ? dlg.close() : dlg.removeAttribute('open'); };
+  dlg.addEventListener('click', function (e) { if (e.target === dlg && dlg.close) dlg.close(); });
+  $('linkPrivacidade').onclick = function (e) { e.preventDefault(); abrePerfil('privacidade'); };
+
+  function mostra(tela) {
+    if (tela === 'cadastro') return telaCadastro();
+    if (tela === 'entrar') return telaEntrar();
+    if (tela === 'privacidade') return telaPrivacidade();
+    if (sessao && perfil) return telaLogado();
+    // sem conta: estatística do aparelho + convite
+    itensAtuais = itensLocais();
+    body.innerHTML = estatHtml(itensAtuais) + histHtml(itensAtuais) +
+      '<div class="salvar" style="margin:0"><div style="font-weight:800;font-size:16px">Seu histórico está só neste aparelho</div>' +
+      '<div style="font-size:14px;color:var(--soft)">Crie sua conta pra ver de qualquer celular ou computador. Sem senha: o acesso é por um link no e-mail.</div>' +
+      (sb ? '<button class="btn-white" data-tela="cadastro" style="min-height:44px;font-size:15px">Salvar meu histórico</button>' +
+            '<button class="link-btn" data-tela="entrar">Já tenho conta</button>'
+          : '<div class="nota-priv">Conta indisponível no momento.</div>') + '</div>';
+  }
+  function telaLogado() {
+    body.innerHTML = '<div style="font-size:16px">Oi, <strong>' + esc(String(perfil.nome).split(' ')[0]) + '</strong>. Seu histórico está salvo na sua conta.</div><div id="estatConta"><div class="empty">Carregando seu histórico…</div></div>' +
+      '<div class="nota-priv">' + (perfil.aceita_mounologo ? 'Você vai receber conteúdo do Mounólogo depois da eleição.' : 'Você não vai receber conteúdo do Mounólogo depois da eleição.') + '</div>' +
+      '<div style="display:flex;gap:8px"><button class="btn-icon" id="btnSair" style="flex:1;min-height:44px;font-weight:700">Sair</button>' +
+      '<button class="btn-danger" id="btnApagar" style="flex:1">Apagar meus dados</button></div>' +
+      '<button class="link-btn" data-tela="privacidade">Como usamos seus dados</button>';
+    itensServidor().then(function (itens) {
+      itensAtuais = itens;
+      var alvo = $('estatConta'); if (alvo) alvo.innerHTML = estatHtml(itens) + histHtml(itens);
+    }).catch(function () {
+      var alvo = $('estatConta'); if (alvo) alvo.innerHTML = '<div class="empty">Não deu pra carregar seu histórico agora. Tenta de novo em instantes.</div>';
+    });
+  }
+  function telaCadastro() {
+    body.innerHTML =
+      '<form id="fCad" novalidate style="display:flex;flex-direction:column;gap:14px">' +
+      '<div style="font-size:15px;color:var(--soft)">Salve seu histórico e veja de qualquer aparelho. Sem senha: você recebe um link no e-mail.</div>' +
+      '<div class="campo"><label for="cNome">Nome</label><input id="cNome" autocomplete="given-name" maxlength="80" required></div>' +
+      '<div class="campo"><label for="cEmail">E-mail</label><input id="cEmail" type="email" autocomplete="email" inputmode="email" required></div>' +
+      '<div class="campo"><label for="cZap">WhatsApp com DDD</label><input id="cZap" type="tel" autocomplete="tel" inputmode="tel" placeholder="(11) 99999-9999" required></div>' +
+      '<label class="check"><input type="checkbox" id="cHist"><span>Quero guardar o meu histórico de leitura na minha conta. <b style="color:var(--ink)">Obrigatório pra salvar.</b></span></label>' +
+      '<label class="check"><input type="checkbox" id="cMou"><span>Quero receber conteúdo do Mounólogo depois da eleição (opcional).</span></label>' +
+      '<div class="nota-priv">Não perguntamos nem guardamos o seu voto. Só você vê o seu histórico. Dá pra apagar tudo quando quiser, no seu perfil. <button type="button" class="link-btn" data-tela="privacidade" style="padding:0;min-height:0;font-size:12px">Ler a privacidade</button></div>' +
+      '<div id="cErro" role="alert" style="color:#FF8A96;font-size:14px;font-weight:700"></div>' +
+      '<button class="btn-white" type="submit" id="cEnviar">Enviar link de acesso</button>' +
+      '<button class="link-btn" type="button" data-tela="entrar">Já tenho conta</button></form>';
+    $('fCad').onsubmit = function (e) {
+      e.preventDefault();
+      var nome = $('cNome').value.trim(), email = $('cEmail').value.trim().toLowerCase(), zap = $('cZap').value.replace(/\D/g, '');
+      if (zap.length === 10 || zap.length === 11) zap = '55' + zap;
+      var erro = nome.length < 2 ? 'Coloca o seu nome.'
+        : !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) ? 'Esse e-mail parece errado.'
+        : (zap.length < 12 || zap.length > 13) ? 'Coloca o WhatsApp com DDD.'
+        : !$('cHist').checked ? 'Marca a caixa do histórico pra gente poder salvar.' : '';
+      if (erro) { $('cErro').textContent = erro; return; }
+      $('cErro').textContent = ''; $('cEnviar').disabled = true; $('cEnviar').textContent = 'Enviando…';
+      sb.auth.signInWithOtp({
+        email: email,
+        options: {
+          emailRedirectTo: SITE, shouldCreateUser: true,
+          data: { nome: nome, whatsapp: zap, aceita_historico: true, aceita_mounologo: $('cMou').checked,
+                  hist: Object.keys(historico).slice(-200).map(Number) }
+        }
+      }).then(function (r) {
+        if (r.error) throw r.error;
+        telaEnviado(email);
+      }).catch(function (err) {
+        $('cEnviar').disabled = false; $('cEnviar').textContent = 'Enviar link de acesso';
+        $('cErro').textContent = /rate|limit|seconds/i.test(String(err && err.message)) ? 'Muitas tentativas. Espera um minuto e tenta de novo.' : 'Não deu pra enviar agora. Confere o e-mail e tenta de novo.';
+      });
+    };
+  }
+  function telaEntrar() {
+    body.innerHTML =
+      '<form id="fEntrar" novalidate style="display:flex;flex-direction:column;gap:14px">' +
+      '<div style="font-size:15px;color:var(--soft)">Coloca o e-mail da sua conta. A gente manda um link pra entrar.</div>' +
+      '<div class="campo"><label for="eEmail">E-mail</label><input id="eEmail" type="email" autocomplete="email" inputmode="email" required></div>' +
+      '<div id="eErro" role="alert" style="color:#FF8A96;font-size:14px;font-weight:700"></div>' +
+      '<button class="btn-white" type="submit" id="eEnviar">Enviar link</button>' +
+      '<button class="link-btn" type="button" data-tela="cadastro">Ainda não tenho conta</button></form>';
+    $('fEntrar').onsubmit = function (e) {
+      e.preventDefault();
+      var email = $('eEmail').value.trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { $('eErro').textContent = 'Esse e-mail parece errado.'; return; }
+      $('eEnviar').disabled = true; $('eEnviar').textContent = 'Enviando…';
+      sb.auth.signInWithOtp({ email: email, options: { emailRedirectTo: SITE, shouldCreateUser: false } })
+        .then(function (r) {
+          if (r.error) throw r.error;
+          telaEnviado(email);
+        }).catch(function () {
+          $('eEnviar').disabled = false; $('eEnviar').textContent = 'Enviar link';
+          $('eErro').textContent = 'Não achamos conta com esse e-mail, ou deu erro. Confere e tenta de novo.';
+        });
+    };
+  }
+  function telaEnviado(email) {
+    body.innerHTML = '<div class="display" style="font-size:24px">Confere o seu e-mail</div>' +
+      '<div style="font-size:15px;color:var(--soft)">Mandamos um link pra <strong style="color:var(--ink)">' + esc(email) + '</strong>. Toca nele e pronto, você entra. Se não aparecer em 1 minuto, olha no spam.</div>';
+  }
+  function telaPrivacidade() {
+    var contato = C.CONTATO_PRIVACIDADE && C.CONTATO_PRIVACIDADE.indexOf('COLOQUE') < 0 ? esc(C.CONTATO_PRIVACIDADE) : 'o e-mail do responsável pelo site';
+    body.innerHTML = '<div class="display" style="font-size:22px">Como usamos seus dados</div>' +
+      '<div style="display:flex;flex-direction:column;gap:10px;font-size:14px;line-height:1.5;color:var(--soft)">' +
+      '<p style="margin:0"><strong style="color:var(--ink)">Sem conta:</strong> o que você lê fica guardado só no seu aparelho. A gente só conta, de forma anônima, quantas vezes cada notícia foi aberta.</p>' +
+      '<p style="margin:0"><strong style="color:var(--ink)">Com conta, guardamos:</strong> seu nome, e-mail, WhatsApp e a lista das notícias que você abriu por aqui, com a data.</p>' +
+      '<p style="margin:0"><strong style="color:var(--ink)">Pra quê:</strong> mostrar o seu histórico e as suas estatísticas em qualquer aparelho, e falar com você sobre a Central 2º Turno. Conteúdo do Mounólogo depois da eleição, só se você marcou essa opção.</p>' +
+      '<p style="margin:0"><strong style="color:var(--ink)">O que não guardamos:</strong> o seu voto. A gente não pergunta, e o histórico mostra o que você leu, não em quem você vota.</p>' +
+      '<p style="margin:0"><strong style="color:var(--ink)">Quem vê:</strong> só você vê o seu histórico. Não vendemos nem repassamos os seus dados.</p>' +
+      '<p style="margin:0"><strong style="color:var(--ink)">Apagar:</strong> no seu perfil, "Apagar meus dados" apaga a conta e o histórico na hora.</p>' +
+      (C.ADSENSE_CLIENT ? '<p style="margin:0"><strong style="color:var(--ink)">Anúncios:</strong> os anúncios do Google podem usar cookies pra escolher o que mostrar.</p>' : '') +
+      '<p style="margin:0"><strong style="color:var(--ink)">Dúvidas ou pedidos:</strong> fale com ' + contato + '.</p></div>' +
+      '<button class="link-btn" data-tela="inicio">Voltar</button>';
+  }
+  body.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-tela]');
+    if (t) { e.preventDefault(); mostra(t.getAttribute('data-tela')); return; }
+    if (e.target.closest('#btnSair')) { sb.auth.signOut().then(function () { mostra('inicio'); toast('Você saiu da sua conta.'); }); return; }
+    if (e.target.closest('#btnApagar')) {
+      if (!confirm('Apagar sua conta e todo o seu histórico? Isso não tem volta.')) return;
+      sb.rpc('apagar_minha_conta').then(function (r) {
+        if (r.error) throw r.error;
+        historico = {}; ls('historico', historico);
+        return sb.auth.signOut();
+      }).then(function () { mostra('inicio'); toast('Pronto. Sua conta e seu histórico foram apagados.'); })
+        .catch(function () { toast('Não deu pra apagar agora. Tenta de novo.'); });
+      return;
+    }
+    if (e.target.closest('#btnCompartilharMeu')) {
+      var s = estatisticas(itensAtuais);
+      var t2 = 'Já li ' + s.tot + ' notícias do 2º turno, dos dois lados, em ' + s.ndias + (s.ndias === 1 ? ' dia.' : ' dias.');
+      compartilhar(t2 + ' E você?', { faixa: true, kicker: 'MEU 2º TURNO', kickerCor: '#0C0C10', titulo: s.tot + ' notícias lidas, dos dois lados.', corpo: s.ndias + (s.ndias === 1 ? ' dia' : ' dias') + ' acompanhando a eleição' + (s.seq > 1 ? ', ' + s.seq + ' seguidos' : '') + '. E você?' });
+    }
+  });
+
+  /* convite pra salvar, depois da 2ª leitura */
+  function checaConvite() {
+    var mostrar = !!sb && !sessao && Object.keys(historico).length >= 2 && !ls('convite-fechado');
+    $('cardSalvar').hidden = !mostrar;
+  }
+  $('btnAbrirSalvar').onclick = function () { abrePerfil('cadastro'); };
+  $('btnFecharSalvar').onclick = function () { ls('convite-fechado', true); checaConvite(); };
+
+  function pintaBotaoPerfil() {
+    var nome = sessao && perfil ? String(perfil.nome).split(' ')[0] : '';
+    $('perfilNome').textContent = nome;
+    $('btnPerfil').classList.toggle('on', !!nome);
+  }
+
+  /* quando a pessoa entra pelo link do e-mail */
+  var entrandoCom = null;
+  function aoEntrar(s, primeiraVez) {
+    if (entrandoCom === s.user.id) return; // o Supabase avisa o login mais de uma vez
+    entrandoCom = s.user.id;
+    var md = (s.user && s.user.user_metadata) || {};
+    return sb.from('perfis').select('*').eq('id', s.user.id).maybeSingle().then(function (r) {
+      if (r.data) return r.data;
+      if (!md.nome) return null;
+      return sb.from('perfis').insert({
+        id: s.user.id, nome: String(md.nome).slice(0, 80), whatsapp: md.whatsapp || null,
+        aceita_historico: !!md.aceita_historico, aceita_mounologo: !!md.aceita_mounologo
+      }).select().single().then(function (x) { return x.data || null; });
+    }).then(function (p) {
+      perfil = p;
+      pintaBotaoPerfil(); checaConvite();
+      if (!perfil || !perfil.aceita_historico) return;
+      // sobe o que foi lido antes de criar a conta (deste aparelho e do aparelho do cadastro)
+      var ids = {};
+      Object.keys(historico).forEach(function (id) { ids[id] = true; });
+      (md.hist || []).forEach(function (id) { ids[id] = true; });
+      var linhas = Object.keys(ids).map(function (id) { return { usuario: s.user.id, noticia_id: Number(id) }; });
+      if (!linhas.length) return;
+      return sb.from('leituras').upsert(linhas, { onConflict: 'usuario,noticia_id', ignoreDuplicates: true });
+    }).then(function () {
+      if (primeiraVez) { toast('Pronto, ' + (perfil ? String(perfil.nome).split(' ')[0] + ', seu' : 'seu') + ' histórico está salvo.'); }
+      if (dlg.open) mostra('inicio');
+    }).catch(function () {});
+  }
+  if (sb) {
+    var veioDoLink = /access_token=|type=magiclink|type=signup/.test(location.hash);
+    sb.auth.onAuthStateChange(function (ev, s) {
+      sessao = s;
+      if (s && (ev === 'SIGNED_IN' || ev === 'INITIAL_SESSION')) {
+        setTimeout(function () { aoEntrar(s, veioDoLink && ev === 'SIGNED_IN'); veioDoLink = false; }, 0);
+      }
+      if (!s) { perfil = null; entrandoCom = null; pintaBotaoPerfil(); checaConvite(); }
+    });
+  }
+
+  /* ---------- começa ---------- */
+  checaConvite();
+  pintaSelo();
+  carregaNoticias();
+  carregaVideos();
+  carregaLivros();
+  carregaCalor();
+  carregaInteresse();
+  // atualiza sozinho a cada 5 minutos
+  setInterval(function () { carregaNoticias(); carregaCalor(); carregaInteresse(); }, 300000);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,433 @@
+{
+  "name": "Central 2º Turno · Captação",
+  "nodes": [
+    {
+      "id": "76e0446e-5613-463c-a547-94fc5dccdb27",
+      "name": "A cada 20 min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        300
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 20
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "7863c855-5657-47e4-9476-72a078654d13",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "69e21c99-ffa9-4857-80c1-d0a91509eafd",
+              "name": "SUPABASE_URL",
+              "value": "https://SEU-PROJETO.supabase.co",
+              "type": "string"
+            },
+            {
+              "id": "dc44c864-79c3-43ca-80da-cbd4a2c16f33",
+              "name": "SUPABASE_SERVICE_KEY",
+              "value": "COLE_A_SERVICE_ROLE_KEY",
+              "type": "string"
+            },
+            {
+              "id": "b663d597-a158-4f89-8a5c-2915fa8a03c6",
+              "name": "TELEGRAM_TOKEN",
+              "value": "COLE_O_TOKEN_DO_BOTFATHER",
+              "type": "string"
+            },
+            {
+              "id": "1fa3b6da-150c-4735-8a8f-7bcea44a9cc8",
+              "name": "MEU_CHAT_ID",
+              "value": "COLE_SEU_CHAT_ID",
+              "type": "string"
+            },
+            {
+              "id": "7111c3f7-4563-48b1-a21b-bf0af15f3ef7",
+              "name": "ANTHROPIC_KEY",
+              "value": "COLE_SUA_CHAVE_ANTHROPIC",
+              "type": "string"
+            },
+            {
+              "id": "72eab067-9dee-4dfa-a10e-6ad40484d964",
+              "name": "FEED_13",
+              "value": "={{ 'https://news.google.com/rss/search?q=' + encodeURIComponent('\"Lula\" (site:g1.globo.com OR site:folha.uol.com.br OR site:estadao.com.br OR site:oglobo.globo.com OR site:cnnbrasil.com.br OR site:uol.com.br OR site:poder360.com.br OR site:bbc.com OR site:metropoles.com) when:1d') + '&hl=pt-BR&gl=BR&ceid=BR:pt-419' }}",
+              "type": "string"
+            },
+            {
+              "id": "824cf679-8e2f-4422-85e9-c33773bf501b",
+              "name": "FEED_22",
+              "value": "={{ 'https://news.google.com/rss/search?q=' + encodeURIComponent('\"Flávio Bolsonaro\" (site:g1.globo.com OR site:folha.uol.com.br OR site:estadao.com.br OR site:oglobo.globo.com OR site:cnnbrasil.com.br OR site:uol.com.br OR site:poder360.com.br OR site:bbc.com OR site:metropoles.com) when:1d') + '&hl=pt-BR&gl=BR&ceid=BR:pt-419' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "39d2438d-42a3-4ad6-b248-3c9f1282a174",
+      "name": "Google News 13",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        680,
+        200
+      ],
+      "parameters": {
+        "url": "={{ $json.FEED_13 }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "0fa5179d-5412-448a-bbdb-b8fd55fdd51e",
+      "name": "Google News 22",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        680,
+        420
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.FEED_22 }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "55a4af82-bd7a-4205-bf54-fb5617d1e3f7",
+      "name": "Marcar 13",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        200
+      ],
+      "parameters": {
+        "jsCode": "return $input.all().map(i => ({ json: { ...i.json, busca: '13' } }));"
+      }
+    },
+    {
+      "id": "e86e1005-983b-4220-b2b7-ae10b73ba037",
+      "name": "Marcar 22",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        420
+      ],
+      "parameters": {
+        "jsCode": "return $input.all().map(i => ({ json: { ...i.json, busca: '22' } }));"
+      }
+    },
+    {
+      "id": "753c4e34-3cab-4fbe-8258-210958be4e65",
+      "name": "Juntar",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1120,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "9b3c685c-f15a-4598-a01a-bd24599e6c68",
+      "name": "Normalizar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// Padroniza os itens do Google News, tira repetidos da mesma rodada\n// e ignora o que tem mais de 24h.\nconst vistos = new Set();\nconst agora = Date.now();\nconst saida = [];\nfor (const item of $input.all()) {\n  const j = item.json;\n  const guid = j.guid || j.link;\n  if (!guid || vistos.has(guid)) continue;\n  vistos.add(guid);\n  const quando = new Date(j.isoDate || j.pubDate || 0).getTime();\n  if (!quando || agora - quando > 24 * 3600 * 1000) continue;\n  // Google News: \"Manchete - Veiculo\"\n  const titulo = (j.title || '').trim();\n  const corte = titulo.lastIndexOf(' - ');\n  const manchete = corte > 0 ? titulo.slice(0, corte).trim() : titulo;\n  const veiculo = corte > 0 ? titulo.slice(corte + 3).trim() : 'Fonte';\n  // corte rapido de opiniao antes de gastar IA\n  if (/^(opini[aã]o|coluna|editorial|artigo)\\b/i.test(manchete)) continue;\n  saida.push({ json: {\n    guid, busca: j.busca, manchete, veiculo,\n    link: j.link, publicado_em: new Date(quando).toISOString()\n  }});\n}\nreturn saida;\n"
+      }
+    },
+    {
+      "id": "8c4bc1ce-ac59-42cb-81d1-9ffbd9e25ebb",
+      "name": "Remover ja vistas",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        300
+      ],
+      "parameters": {
+        "operation": "removeItemsRepeatedInPreviousExecutions",
+        "dedupeValue": "={{ $json.guid }}",
+        "value": "={{ $json.guid }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "4c4dce85-b5a8-4caf-bc6a-ede9cf9dc3a8",
+      "name": "Claude classifica e resume",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1780,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $('Config').first().json.ANTHROPIC_KEY }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'claude-haiku-5-5', max_tokens: 1024, system: \"Voce faz a curadoria de um canal de noticias NEUTRO sobre o 2o turno da eleicao presidencial de 2026 no Brasil. Candidatos: Lula (PT, numero 13) e Flavio Bolsonaro (PL, numero 22). Voce recebe so a manchete e o veiculo. Responda APENAS um JSON valido, sem texto antes ou depois, com as chaves: lado (\\\"13\\\", \\\"22\\\", \\\"ambos\\\" ou \\\"nenhum\\\" - sobre quem e a noticia), tipo (\\\"noticia\\\", \\\"pesquisa\\\", \\\"agenda\\\", \\\"opiniao\\\" ou \\\"outro\\\"), resumo (ate 200 caracteres, em portugues, com suas palavras, tom neutro, sem adjetivos de valor, usando SOMENTE o que esta na manchete - nao invente fatos, numeros ou falas; nao copie a manchete), instituto (nome do instituto se for pesquisa, senao null), registro_tse (numero de registro se aparecer na manchete, senao null), descartar (true se for opiniao, coluna, editorial, boato, conteudo sem relacao com a eleicao presidencial, ou ataque pessoal; senao false), motivo (frase curta explicando se descartar for true).\", messages: [{ role: 'user', content: 'Busca: ' + $json.busca + '\\nVeiculo: ' + $json.veiculo + '\\nManchete: ' + $json.manchete }] }) }}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 5,
+              "batchInterval": 1000
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "41aa4d2c-1dc8-4c9b-b50b-35dddece8b84",
+      "name": "Interpretar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// Le a resposta da IA e decide o que vira linha no banco.\nconst respostas = $input.all();\nconst originais = $('Remover ja vistas').all();\nconst saida = [];\nfor (let i = 0; i < respostas.length; i++) {\n  const o = originais[i].json;\n  let r;\n  try {\n    const bruto = (respostas[i].json.content || [])\n      .filter(c => c.type === 'text').map(c => c.text).join('');\n    const achado = bruto.match(/\\{[\\s\\S]*\\}/);   // pega so o JSON, ignora texto em volta\n    r = JSON.parse(achado ? achado[0] : bruto);\n  } catch (e) {\n    continue; // resposta quebrada: ignora\n  }\n  if (r.descartar) continue;\n  if (!['13', '22', 'ambos'].includes(r.lado)) continue;\n  if (!['noticia', 'pesquisa', 'agenda'].includes(r.tipo)) continue;\n  // pesquisa so entra com registro no TSE\n  if (r.tipo === 'pesquisa' && !r.registro_tse) continue;\n  saida.push({ json: {\n    id_externo: o.guid,\n    lado: r.lado,\n    tipo: r.tipo,\n    veiculo: o.veiculo,\n    manchete: o.manchete,\n    resumo: (r.resumo || '').slice(0, 220),\n    link: o.link,\n    publicado_em: o.publicado_em,\n    instituto: r.instituto || null,\n    registro_tse: r.registro_tse || null,\n    status: 'pendente'\n  }});\n}\nreturn saida;\n"
+      }
+    },
+    {
+      "id": "3e57f26e-58d6-4e80-87bb-a340e375b35e",
+      "name": "Salvar no Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2220,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.SUPABASE_URL }}/rest/v1/noticias?on_conflict=id_externo",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('Config').first().json.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Config').first().json.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=ignore-duplicates,return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "71d98f82-98a1-4430-8c0e-3251c0e4a11b",
+      "name": "Pedir aprovacao no Telegram",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2440,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot{{ $('Config').first().json.TELEGRAM_TOKEN }}/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ chat_id: $('Config').first().json.MEU_CHAT_ID, text: '#' + $json.id + ' · ' + ($json.lado === 'ambos' ? '13 e 22' : $json.lado) + ' · ' + $json.tipo + ' · ' + $json.veiculo + '\\n\\n' + $json.manchete + '\\n\\nResumo: ' + $json.resumo + ($json.registro_tse ? '\\nRegistro TSE: ' + $json.registro_tse : '') + '\\n\\n' + $json.link, disable_web_page_preview: true, reply_markup: { inline_keyboard: [ [ { text: 'Aprovar', callback_data: 'ok:' + $json.id }, { text: 'Descartar', callback_data: 'x:' + $json.id } ] ] } }) }}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 1200
+            }
+          }
+        }
+      }
+    }
+  ],
+  "connections": {
+    "A cada 20 min": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Google News 13",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google News 22",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google News 13": {
+      "main": [
+        [
+          {
+            "node": "Marcar 13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google News 22": {
+      "main": [
+        [
+          {
+            "node": "Marcar 22",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar 13": {
+      "main": [
+        [
+          {
+            "node": "Juntar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar 22": {
+      "main": [
+        [
+          {
+            "node": "Juntar",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Juntar": {
+      "main": [
+        [
+          {
+            "node": "Normalizar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar": {
+      "main": [
+        [
+          {
+            "node": "Remover ja vistas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remover ja vistas": {
+      "main": [
+        [
+          {
+            "node": "Claude classifica e resume",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude classifica e resume": {
+      "main": [
+        [
+          {
+            "node": "Interpretar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Interpretar": {
+      "main": [
+        [
+          {
+            "node": "Salvar no Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salvar no Supabase": {
+      "main": [
+        [
+          {
+            "node": "Pedir aprovacao no Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo"
+  },
+  "pinData": {}
+}
