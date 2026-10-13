@@ -752,8 +752,10 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   function carregaNoticias() {
     if (!configurado) { pintaFeed(); return; }
     get('noticias?select=*' +
-        '&status=eq.aprovado&order=aprovado_em.desc&limit=60')
+        '&status=eq.aprovado&order=publicado_em.desc.nullslast,aprovado_em.desc&limit=60')
       .then(function (rows) {
+        var hora = function (r) { return r.publicado_em || r.aprovado_em || ''; };
+        rows.sort(function (x, y) { return hora(y) < hora(x) ? -1 : hora(y) > hora(x) ? 1 : 0; });  // mais nova primeiro, pela hora da matéria
         noticias = rows.filter(function (r) { return r.tipo !== 'pesquisa'; }).slice(0, 40);
         pintaFeed();
         var pesq = rows.filter(function (r) { return r.tipo === 'pesquisa'; }).slice(0, 3);
