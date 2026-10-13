@@ -24,6 +24,7 @@ module.exports = async (req, res) => {
     res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
     return res.status(200).send(png);
   } catch (e) {
-    return res.status(500).end();
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    return res.status(500).send('Erro ao gerar a imagem: ' + String(e && (e.stack || e.message) || e).slice(0, 800));
   }
 };
