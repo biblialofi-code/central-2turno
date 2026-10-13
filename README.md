@@ -2,7 +2,9 @@
 
 Hub neutro do 2º turno (13 × 22). Site estático + Supabase + n8n.
 
-- `site/` — o que vai pro ar (index.html, og.png). Netlify/Vercel publicam essa pasta.
+- `site/` — o que vai pro ar (index.html, og.png). A Vercel publica essa pasta a cada push na main.
+
+No ar: https://central-2turno.vercel.app
 - `supabase/` — SQL, rodar em ordem no SQL Editor.
 - `n8n/` — workflows (captação e aprovação via Telegram). Chaves ficam só no n8n.
 
