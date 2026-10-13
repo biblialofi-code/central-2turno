@@ -138,8 +138,8 @@ h1{font-size:34px;line-height:1.05;margin:8px 0 6px}
       '<div class="track"><i style="width:' + Math.min(100, d.pst) + '%;background:var(--ink)"></i></div>' +
       '<div class="info" style="margin-top:8px"><span>' + fi(d.st) + ' de ' + fi(d.ts) + ' seções</span><span>Atualizado pelo TSE às ' + esc(d.ht || '–') + '</span></div></div>' +
       '<div class="duelo">' +
-        '<div class="cand l"><span class="num">13</span><span class="nome">' + esc(TESTE ? L.nome : 'Lula') + '</span>' + eleito(L) + '<span class="pct">' + f2(L.pvap) + '%</span><span class="votos">' + fi(L.vap) + ' votos</span></div>' +
-        '<div class="cand f"><span class="num">22</span><span class="nome">' + esc(TESTE ? F.nome : 'Flávio Bolsonaro') + '</span>' + eleito(F) + '<span class="pct">' + f2(F.pvap) + '%</span><span class="votos">' + fi(F.vap) + ' votos</span></div>' +
+        '<div class="cand l"><span class="num">13</span><span class="nome">' + 'Lula' + '</span>' + eleito(L) + '<span class="pct">' + f2(L.pvap) + '%</span><span class="votos">' + fi(L.vap) + ' votos</span></div>' +
+        '<div class="cand f"><span class="num">22</span><span class="nome">' + 'Flávio Bolsonaro' + '</span>' + eleito(F) + '<span class="pct">' + f2(F.pvap) + '%</span><span class="votos">' + fi(F.vap) + ' votos</span></div>' +
       '</div>' +
       '<div class="meio"><div class="split"><i style="width:' + wl + '%;background:var(--red)"></i><i style="width:' + wf + '%;background:var(--blue)"></i></div></div>' +
       '<div class="info"><span>' + (frente ? frente + ' na frente por ' + fi(dif) + ' votos' : 'Empate') + '</span><span>Brancos e nulos: ' + fi(d.vb + d.tvn) + '</span></div>' +
