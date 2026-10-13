@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Central 2º Turno · por Mounólogo</title>
-<meta name="description" content="As notícias do 13 e do 22 no mesmo lugar. Resumo de 1 frase, link pro jornal, mesmo espaço pros dois lados.">
+<meta name="description" content="As notícias do 13 e do 22 no mesmo lugar.">
 <meta name="theme-color" content="#0C0C10">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Central 2º Turno">
-<meta property="og:description" content="As notícias do 13 e do 22 no mesmo lugar. Leia os dois lados em 1 minuto por dia.">
+<meta property="og:description" content="As notícias do 13 e do 22 no mesmo lugar.">
 <meta property="og:image" content="https://central-2turno.vercel.app/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -279,9 +279,9 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   <div class="hero">
     <div>
     <div class="bar"><i style="background:var(--red)"></i><i style="background:var(--blue)"></i></div>
-    <h1 class="display">2º turno<br>sem bolha.</h1>
+    <h1 class="display">2º turno</h1>
     </div>
-    <p>As notícias do 13 e do 22, lado a lado. Resumo de 1 frase, link pro jornal. 1 minuto por dia.</p>
+    <p>O que saiu hoje sobre o 13 e o 22.</p>
   </div>
 
   <main class="col-main">
@@ -294,17 +294,17 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   </div>
 
   <section style="padding-top:4px" id="secFeed">
-    <div class="feed" id="feed"><div class="empty">Carregando notícias…</div></div>
+    <div class="feed" id="feed"><div class="empty">Carregando…</div></div>
   </section>
 
 
   <section style="padding-top:28px" id="secVideos">
-    <h2 class="display h2">Pra ajudar a decidir</h2>
-    <p class="sub">Debates, entrevistas, checagens e análises que valem o seu tempo. Análise é opinião de quem fala. <span id="vPlacar"></span></p>
+    <h2 class="display h2">Vídeos</h2>
+    <p class="sub">Debates, entrevistas e análises. Análise é a opinião de quem fala. <span id="vPlacar"></span></p>
     <div class="chips" id="vChips"></div>
     <div class="rail" id="vRail"></div>
     <div style="margin-top:14px">
-      <div class="kicker">Planos de governo oficiais</div>
+      <div class="kicker">Planos de governo</div>
       <div class="planos">
         <a id="plano13" target="_blank" rel="noopener" style="border:2px solid var(--red)">Plano do 13 no TSE</a>
         <a id="plano22" target="_blank" rel="noopener" style="border:2px solid var(--blue)">Plano do 22 no TSE</a>
@@ -313,16 +313,16 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   </section>
 
   <section style="padding-top:28px" id="secLivros">
-    <h2 class="display h2">Pra ir além</h2>
+    <h2 class="display h2">Livros</h2>
     <p class="sub">Para se aprofundar em como funciona o Brasil.</p>
     <div class="rail" id="bRail"></div>
     <div style="margin-top:14px">
-      <div class="kicker" style="margin-bottom:8px">Antes de compartilhar, checa</div>
+      <div class="kicker" style="margin-bottom:8px">Checagem</div>
       <div class="list">
-        <a class="row" href="https://www.justicaeleitoral.jus.br/fato-ou-boato/" target="_blank" rel="noopener"><span><strong>Fato ou Boato</strong><small>Checagem da Justiça Eleitoral</small></span>›</a>
-        <a class="row" href="https://www.aosfatos.org" target="_blank" rel="noopener"><span><strong>Aos Fatos</strong><small>Checagem independente</small></span>›</a>
-        <a class="row" href="https://g1.globo.com/fato-ou-fake/" target="_blank" rel="noopener"><span><strong>Fato ou Fake</strong><small>Checagem do g1</small></span>›</a>
-        <a class="row" href="https://projetocomprova.com.br" target="_blank" rel="noopener"><span><strong>Projeto Comprova</strong><small>Checagem feita por vários veículos</small></span>›</a>
+        <a class="row" href="https://www.justicaeleitoral.jus.br/fato-ou-boato/" target="_blank" rel="noopener"><span><strong>Fato ou Boato</strong><small>Justiça Eleitoral</small></span>›</a>
+        <a class="row" href="https://www.aosfatos.org" target="_blank" rel="noopener"><span><strong>Aos Fatos</strong><small>Independente</small></span>›</a>
+        <a class="row" href="https://g1.globo.com/fato-ou-fake/" target="_blank" rel="noopener"><span><strong>Fato ou Fake</strong><small>g1</small></span>›</a>
+        <a class="row" href="https://projetocomprova.com.br" target="_blank" rel="noopener"><span><strong>Projeto Comprova</strong><small>Vários veículos juntos</small></span>›</a>
       </div>
     </div>
   </section>
@@ -332,24 +332,24 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   <aside class="col-side">
   <section id="secSelo">
     <div class="salvar" id="cardSalvar" hidden>
-      <div style="font-weight:800;font-size:16px">Quer ver isso no computador também?</div>
-      <div style="font-size:14px;color:var(--soft)">Salve seu histórico de leitura e acompanhe de qualquer aparelho. Leva 20 segundos.</div>
+      <div style="font-weight:800;font-size:16px">Salve o que você leu</div>
+      <div style="font-size:14px;color:var(--soft)">Pra ver no celular e no computador.</div>
       <div style="display:flex;gap:8px">
-        <button class="btn-white" id="btnAbrirSalvar" style="flex:1;min-height:44px;font-size:15px">Salvar meu histórico</button>
+        <button class="btn-white" id="btnAbrirSalvar" style="flex:1;min-height:44px;font-size:15px">Salvar</button>
         <button class="btn-icon" id="btnFecharSalvar" aria-label="Agora não" style="flex:0 0 44px">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
         </button>
       </div>
     </div>
     <div class="selo" id="selo">
-      <div class="kicker" style="color:inherit;opacity:.85">Seu placar de hoje</div>
-      <div class="display t" id="seloTitulo">Comece pelo lado que você não lê.</div>
+      <div class="kicker" style="color:inherit;opacity:.85">Hoje você leu</div>
+      <div class="display t" id="seloTitulo">Nenhuma ainda.</div>
       <div class="nums">
         <div><b id="my13">0</b><span>notícias do 13</span></div>
         <div><b id="my22">0</b><span>notícias do 22</span></div>
       </div>
-      <div style="font-size:14px" id="seloSub">Leia ao menos 1 notícia de cada lado pra liberar o selo.</div>
-      <button class="btn-white" id="btnSelo">Postar meu selo no status</button>
+      <div style="font-size:14px" id="seloSub">Uma de cada lado libera o selo.</div>
+      <button class="btn-white" id="btnSelo">Postar no status</button>
     </div>
   </section>
 
@@ -361,7 +361,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     <div class="box">
       <div style="display:flex;justify-content:space-between;align-items:baseline">
         <div class="display" style="font-size:22px">Clima do dia</div>
-        <div class="kicker" style="text-transform:none;letter-spacing:0">zera à meia-noite</div>
+        
       </div>
       <div style="display:flex;justify-content:space-between;align-items:baseline">
         <div class="display" style="font-size:30px;color:var(--heat)" id="heatLevel">—</div>
@@ -369,14 +369,14 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       </div>
       <div class="track" role="img" id="heatTrack" aria-label="Termômetro"><i id="heatBar" style="width:3%;background:var(--heat)"></i></div>
       <button class="btn-heat" id="btnHeat">Tá quente hoje</button>
-      <button class="btn-icon" id="btnHeatShare" style="flex:none;width:100%;min-height:44px;font-weight:700">Compartilhar o clima de hoje</button>
+      <button class="btn-icon" id="btnHeatShare" style="flex:none;width:100%;min-height:44px;font-weight:700">Compartilhar</button>
     </div>
   </section>
 
   <section id="secInteresse">
     <div class="box">
-      <div class="display" style="font-size:22px">Interesse nas notícias hoje</div>
-      <div style="font-size:13px;color:var(--mute)"><strong style="color:var(--soft)">Não é pesquisa eleitoral.</strong> Leituras em "Ler no jornal" de todo mundo, hoje. Não mede voto.</div>
+      <div class="display" style="font-size:22px">O que mais estão lendo</div>
+      <div style="font-size:13px;color:var(--mute)"><strong style="color:var(--soft)">Não é pesquisa.</strong> Conta leituras, não votos.</div>
       <div id="interesse"></div>
       <div style="display:flex;flex-direction:column;gap:8px" id="maisLidas"></div>
     </div>
@@ -393,23 +393,20 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   </section>
 
   <section id="secKit">
-    <div class="display" style="font-size:22px;margin-bottom:10px">Kit do dia 25</div>
+    <div class="display" style="font-size:22px;margin-bottom:10px">Dia 25</div>
     <div class="list">
-      <a class="row" href="https://www.tse.jus.br" target="_blank" rel="noopener"><span><strong>Onde eu voto?</strong><small>Consulta no TSE ou no e-Título</small></span>›</a>
+      <a class="row" href="https://www.tse.jus.br" target="_blank" rel="noopener"><span><strong>Onde eu voto?</strong><small>TSE ou e-Título</small></span>›</a>
       <div class="row"><span><strong>8h às 17h</strong><small>Horário de Brasília</small></span></div>
-      <div class="row"><span><strong>Leve</strong><small>Documento oficial com foto ou e-Título</small></span></div>
-      <div class="row"><span><strong>Apuração ao vivo</strong><small>A partir das 17h, no canal</small></span></div>
+      <div class="row"><span><strong>Leve documento com foto</strong><small>Ou o e-Título</small></span></div>
+      <div class="row"><span><strong>Apuração</strong><small>A partir das 17h, no canal</small></span></div>
     </div>
   </section>
   </aside>
 
   <footer>
     <b>Central 2º Turno, por Mounólogo</b>
-    <div><a href="#" id="linkPrivacidade" style="color:var(--soft);font-weight:700">Privacidade: como usamos seus dados</a></div>
-    <div>Não fazemos pesquisa eleitoral. O clima do dia e a barra de leitura medem as notícias, nunca o voto.</div>
-    <div>Canal independente, sem vínculo com partidos ou candidatos. Resumos de matérias da imprensa, sempre com link pra fonte.</div>
-    <div>Não perguntamos nem guardamos o seu voto. Seu placar de leitura fica só no seu celular.</div>
-    <div>Depois da eleição, o canal segue com o conteúdo do Mounólogo.</div>
+    <div><a href="#" id="linkPrivacidade" style="color:var(--soft);font-weight:700">Privacidade</a></div>
+    <div>Sem vínculo com partido ou candidato. Toda notícia leva pro jornal que publicou.</div>
   </footer>
 
   <div class="dock">
@@ -585,8 +582,8 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     var msg = texto + assinatura();
     var semImagem = function () {
       if (navigator.share) return navigator.share({ text: msg }).catch(function () {});
-      if (navigator.clipboard) { navigator.clipboard.writeText(msg); toast('Copiado. Cola no WhatsApp ou no status.'); return; }
-      toast('Seu navegador não deixa compartilhar daqui.');
+      if (navigator.clipboard) { navigator.clipboard.writeText(msg); toast('Copiado.'); return; }
+      toast('Não deu pra compartilhar daqui.');
     };
     if (!cardOpts) return semImagem();
     desenhaCard(cardOpts).then(function (blob) {
@@ -612,7 +609,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   $('plano13').href = safeUrl(C.PLANO_13);
   $('plano22').href = safeUrl(C.PLANO_22);
   $('btnShareCanal').onclick = function () {
-    compartilhar('Sigo esse canal pra ler o 2º turno dos dois lados: ' + C.CANAL_URL);
+    compartilhar('Tô acompanhando o 2º turno por aqui: ' + C.CANAL_URL);
   };
 
   /* ---------- leituras do dia (só no celular da pessoa) ---------- */
@@ -631,10 +628,10 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     var p = placar(), dois = p.a > 0 && p.b > 0, nada = !p.a && !p.b;
     $('my13').textContent = p.a; $('my22').textContent = p.b;
     $('selo').classList.toggle('on', dois);
-    $('seloTitulo').textContent = dois ? 'Li os dois lados hoje.' : nada ? 'Comece pelo lado que você não lê.' : 'Falta o outro lado.';
-    $('seloSub').textContent = dois ? 'Selo liberado. Posta e desafia alguém a fazer o mesmo.'
-      : nada ? 'Leia ao menos 1 notícia de cada lado pra liberar o selo.'
-      : 'Leia 1 notícia do ' + (p.a ? '22' : '13') + ' pra liberar o selo.';
+    $('seloTitulo').textContent = dois ? 'Os dois lados.' : nada ? 'Nenhuma ainda.' : 'Falta o outro lado.';
+    $('seloSub').textContent = dois ? 'Selo liberado.'
+      : nada ? 'Uma de cada lado libera o selo.'
+      : 'Falta uma do ' + (p.a ? '22' : '13') + '.';
   }
   $('btnSelo').onclick = function () {
     var p = placar(), dois = p.a > 0 && p.b > 0;
@@ -665,7 +662,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   function pintaFeed() {
     var lista = noticias.filter(function (n) { return aba === 'all' || n.lado === aba || n.lado === 'ambos'; });
     if (!lista.length) {
-      $('feed').innerHTML = '<div class="empty">' + (configurado ? 'Ainda não tem notícia aprovada aqui. Volta daqui a pouco.' : 'Página ainda não conectada ao banco. Preencha o bloco CONFIG.') + '</div>';
+      $('feed').innerHTML = '<div class="empty">' + (configurado ? 'Nada por aqui ainda.' : 'Página ainda não conectada ao banco. Preencha o bloco CONFIG.') + '</div>';
       return;
     }
     if (telaGrande.matches && aba === 'all') {
@@ -673,7 +670,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       var ambos = lista.filter(function (n) { return n.lado === 'ambos'; });
       var de13 = lista.filter(function (n) { return n.lado === '13'; });
       var de22 = lista.filter(function (n) { return n.lado === '22'; });
-      var vazio = function (l) { return '<div class="empty">Nenhuma notícia do ' + l + ' aprovada ainda.</div>'; };
+      var vazio = function (l) { return '<div class="empty">Nada do ' + l + ' ainda.</div>'; };
       $('feed').innerHTML =
         (ambos.length ? '<div class="split-head" style="margin-bottom:12px">Geral</div><div class="feed-grid">' + corta('ambos', ambos).map(cardHtml).join('') + '</div>' +
           (botaoMais('ambos', ambos) ? '<div style="margin:-2px 0 14px">' + botaoMais('ambos', ambos) + '</div>' : '') : '') +
@@ -711,9 +708,9 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
         '<div class="meta"><span class="tag ' + classeLado(n.lado) + '">' + rotuloLado(n.lado) + '</span>' +
         '<span class="src">' + esc(n.veiculo) + ' · ' + ha(n.publicado_em || n.aprovado_em) + '</span></div>' +
         '<h3>' + esc(n.manchete) + '</h3>' +
-        '<p><strong>Em 1 frase:</strong> ' + esc(n.resumo) + '</p>' +
+        '<p>' + esc(n.resumo) + '</p>' +
         '<div class="actions">' +
-        '<a class="btn-read' + (lida ? ' lida' : '') + '" href="' + esc(safeUrl(n.link)) + '" target="_blank" rel="noopener" data-ler="' + n.id + '">' + (lida ? 'Lida · abrir de novo' : 'Ler no jornal') + '</a>' +
+        '<a class="btn-read' + (lida ? ' lida' : '') + '" href="' + esc(safeUrl(n.link)) + '" target="_blank" rel="noopener" data-ler="' + n.id + '">' + (lida ? 'Lida' : 'Ler no jornal') + '</a>' +
         '<button class="btn-icon" data-share="' + n.id + '" aria-label="Compartilhar esta notícia">' +
         '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v13"/><path d="M7 8l5-5 5 5"/><path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>' +
         '</button></div></article>';
@@ -770,7 +767,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
           }).join('');
         }
       })
-      .catch(function () { $('feed').innerHTML = '<div class="empty">Não deu pra carregar as notícias agora. Tenta de novo em instantes.</div>'; });
+      .catch(function () { $('feed').innerHTML = '<div class="empty">Não carregou. Tenta de novo daqui a pouco.</div>'; });
   }
 
   /* ---------- vídeos ---------- */
@@ -790,7 +787,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     }).join('');
     var lista = videos.filter(function (v) { return vcat === 'todos' || v.categoria === vcat; });
     if (!lista.length) {
-      $('vRail').innerHTML = '<div class="empty" style="flex:1">' + (videos.length ? 'Nada nessa categoria ainda.' : 'Os vídeos entram aqui em breve.') + '</div>';
+      $('vRail').innerHTML = '<div class="empty" style="flex:1">' + (videos.length ? 'Nada nessa categoria ainda.' : 'Nenhum vídeo ainda.') + '</div>';
       return;
     }
     $('vRail').innerHTML = lista.map(function (v) {
@@ -803,7 +800,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
         : '<a class="thumb" href="' + esc(safeUrl(v.link)) + '" target="_blank" rel="noopener"><span class="play"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span><span class="cat">' + CATS[v.categoria] + '</span></a>';
       var nota = v.analise
         ? '<div class="nota"><div class="kicker" style="font-size:11px">Por que ver</div><div>' + esc(v.analise) + '</div>' +
-          (v.momento && id ? '<button class="btn-moment" data-yt="' + id + '" data-start="' + segundos(v.momento) + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Ponto-chave em ' + esc(v.momento) + '</button>' : '') +
+          (v.momento && id ? '<button class="btn-moment" data-yt="' + id + '" data-start="' + segundos(v.momento) + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Ver a partir de ' + esc(v.momento) + '</button>' : '') +
           '</div>'
         : '';
       return '<article class="vcard">' + thumb + '<div class="vbody">' +
@@ -833,14 +830,14 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
         videos = rows;
         var a = 0, b = 0;
         rows.forEach(function (v) { if (v.lado !== '22') a++; if (v.lado !== '13') b++; });
-        $('vPlacar').textContent = rows.length ? 'Agora: ' + a + ' vídeos sobre o 13, ' + b + ' sobre o 22.' : '';
+        $('vPlacar').textContent = rows.length ? a + ' sobre o 13, ' + b + ' sobre o 22.' : '';
         pintaVideos();
       }).catch(function () {});
   }
 
   /* ---------- livros ---------- */
   function carregaLivros() {
-    var vazio = function () { $('secLivros').querySelector('.rail').innerHTML = '<div class="empty" style="flex:1">As indicações entram aqui em breve.</div>'; };
+    var vazio = function () { $('secLivros').querySelector('.rail').innerHTML = '<div class="empty" style="flex:1">Nenhum livro ainda.</div>'; };
     if (!configurado) return vazio();
     get('livros?select=titulo,autor,por_que,capa_url,link,afiliado&ativo=eq.true&order=ordem.asc&limit=12')
       .then(function (rows) {
@@ -851,7 +848,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
             '<div style="font-size:13px;color:var(--mute);font-weight:600">' + esc(l.autor) + '</div>' +
             '<div style="font-size:14px;color:#D7D7E0">' + esc(l.por_que) + '</div>' +
             '<a class="btn-light" href="' + esc(safeUrl(l.link)) + '" target="_blank" rel="noopener' + (l.afiliado ? ' sponsored' : '') + '">Ver o livro</a>' +
-            (l.afiliado ? '<div style="font-size:11px;color:var(--mute);text-align:center">Link de afiliado. O preço é o mesmo pra você.</div>' : '') +
+            (l.afiliado ? '<div style="font-size:11px;color:var(--mute);text-align:center">Link de afiliado</div>' : '') +
             '</article>';
         }).join('');
       }).catch(vazio);
@@ -874,7 +871,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   }
   $('btnHeat').onclick = function () {
     var ultimo = ls('calor-ultimo') || 0;
-    if (Date.now() - ultimo < 10000) { toast('Já contou. Espera uns segundos pra tocar de novo.'); return; }
+    if (Date.now() - ultimo < 10000) { toast('Já foi. Espera uns segundos.'); return; }
     ls('calor-ultimo', Date.now());
     calor++; pintaCalor();
     if (configurado) rpc('esquentar').then(function (t) { if (typeof t === 'number') { calor = t; pintaCalor(); } }).catch(function () {});
@@ -882,25 +879,25 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   $('btnHeatShare').onclick = function () {
     var p = Math.max(3, Math.min(100, Math.round(calor / C.TERMOMETRO_MAX * 100)));
     compartilhar('Hoje a eleição tá ' + nivel(p).toLowerCase() + '. E pra você?',
-      { kicker: 'CLIMA DO DIA', kickerCor: '#B4520A', titulo: 'Hoje a eleição tá ' + nivel(p).toLowerCase() + '.', corpo: 'E pra você? Toca no termômetro.' });
+      { kicker: 'CLIMA DO DIA', kickerCor: '#B4520A', titulo: 'Hoje a eleição tá ' + nivel(p).toLowerCase() + '.', corpo: 'E pra você?' });
   };
 
   /* ---------- interesse + mais lidas ---------- */
   function carregaInteresse() {
-    if (!configurado) { $('interesse').innerHTML = '<div style="font-size:14px;color:var(--soft)">Aparece quando a página estiver conectada.</div>'; return; }
+    if (!configurado) { $('interesse').innerHTML = '<div style="font-size:14px;color:var(--soft)">Ainda sem dados.</div>'; return; }
     get('interesse_dia?select=lado,cliques&dia=eq.' + hoje()).then(function (rows) {
       var a = 0, b = 0;
       rows.forEach(function (r) { if (r.lado === '13') a = r.cliques; if (r.lado === '22') b = r.cliques; });
       var tot = a + b;
       if (tot < C.INTERESSE_MIN) {
-        $('interesse').innerHTML = '<div style="font-size:14px;color:var(--soft)">Ainda medindo. Aparece depois de ' + C.INTERESSE_MIN + ' leituras no dia (' + tot + ' até agora).</div>';
+        $('interesse').innerHTML = '<div style="font-size:14px;color:var(--soft)">Aparece depois de ' + C.INTERESSE_MIN + ' leituras no dia. Até agora: ' + tot + '.</div>';
         return;
       }
       var p = Math.round(a / tot * 100);
       $('interesse').innerHTML =
         '<div class="track"><i style="width:' + p + '%;background:var(--red)"></i><i style="width:' + (100 - p) + '%;background:var(--blue)"></i></div>' +
         '<div style="display:flex;justify-content:space-between;font-size:14px;font-weight:800;margin-top:8px"><span>13 · ' + p + '%</span><span>' + (100 - p) + '% · 22</span></div>' +
-        '<div style="font-size:12px;color:var(--mute);margin-top:4px">Base: ' + tot + ' leituras. Cada pessoa conta 1 vez por notícia.</div>';
+        '<div style="font-size:12px;color:var(--mute);margin-top:4px">' + tot + ' leituras hoje</div>';
     }).catch(function () {});
     var base = 'noticias?select=id,manchete,veiculo,link&status=eq.aprovado&tipo=eq.noticia&cliques=gt.0&aprovado_em=gte.' + inicioDoDiaISO() + '&order=cliques.desc&limit=1&lado=in.';
     Promise.all([get(base + '(13,ambos)'), get(base + '(22,ambos)')]).then(function (r) {
@@ -1006,7 +1003,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   function estatHtml(itens) {
     var s = estatisticas(itens);
     if (!s.tot) {
-      return '<div class="empty">Você ainda não leu nenhuma notícia por aqui. Toque em "Ler no jornal" em qualquer notícia e o seu histórico começa.</div>';
+      return '<div class="empty">Você ainda não leu nada por aqui.</div>';
     }
     var p13 = Math.round(s.a / s.tot * 100), p22 = Math.round(s.b / s.tot * 100), pAmb = 100 - p13 - p22;
     var temas = Object.keys(s.temas).map(function (k) { return [k, s.temas[k]]; }).sort(function (x, y) { return y[1] - x[1]; }).slice(0, 5);
@@ -1022,7 +1019,6 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       temas.map(function (t) {
         return '<div class="tema"><span>' + esc(t[0]) + '</span><div class="track"><i style="width:' + Math.round(t[1] / max * 100) + '%;background:var(--heat)"></i></div><b style="text-align:right">' + t[1] + '</b></div>';
       }).join('') + '</div></div>' +
-      '<p class="nota-priv" style="margin:0">Isso mostra o que você leu, não em quem você vota.</p>' +
       '<button class="btn-white" id="btnCompartilharMeu" style="min-height:44px;font-size:15px">Compartilhar meu 2º turno</button>';
   }
   function histHtml(itens) {
@@ -1052,15 +1048,15 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     // sem conta: estatística do aparelho + convite
     itensAtuais = itensLocais();
     body.innerHTML = estatHtml(itensAtuais) + histHtml(itensAtuais) +
-      '<div class="salvar" style="margin:0"><div style="font-weight:800;font-size:16px">Seu histórico está só neste aparelho</div>' +
-      '<div style="font-size:14px;color:var(--soft)">Crie sua conta pra ver de qualquer celular ou computador. Sem senha: o acesso é por um link no e-mail.</div>' +
+      '<div class="salvar" style="margin:0"><div style="font-weight:800;font-size:16px">Seu histórico tá só neste aparelho</div>' +
+      '<div style="font-size:14px;color:var(--soft)">Crie uma conta pra ver em qualquer lugar. Sem senha, você entra pelo e-mail.</div>' +
       (sb ? '<button class="btn-white" data-tela="cadastro" style="min-height:44px;font-size:15px">Salvar meu histórico</button>' +
             '<button class="link-btn" data-tela="entrar">Já tenho conta</button>'
-          : '<div class="nota-priv">Conta indisponível no momento.</div>') + '</div>';
+          : '<div class="nota-priv">Conta fora do ar agora.</div>') + '</div>';
   }
   function telaLogado() {
-    body.innerHTML = '<div style="font-size:16px">Oi, <strong>' + esc(String(perfil.nome).split(' ')[0]) + '</strong>. Seu histórico está salvo na sua conta.</div><div id="estatConta"><div class="empty">Carregando seu histórico…</div></div>' +
-      '<div class="nota-priv">' + (perfil.aceita_mounologo ? 'Você vai receber conteúdo do Mounólogo depois da eleição.' : 'Você não vai receber conteúdo do Mounólogo depois da eleição.') + '</div>' +
+    body.innerHTML = '<div style="font-size:16px">Oi, <strong>' + esc(String(perfil.nome).split(' ')[0]) + '</strong>.</div><div id="estatConta"><div class="empty">Carregando…</div></div>' +
+      '<div class="nota-priv">' + (perfil.aceita_mounologo ? 'Você recebe o Mounólogo depois da eleição.' : 'Você não recebe o Mounólogo depois da eleição.') + '</div>' +
       '<div style="display:flex;gap:8px"><button class="btn-icon" id="btnSair" style="flex:1;min-height:44px;font-weight:700">Sair</button>' +
       '<button class="btn-danger" id="btnApagar" style="flex:1">Apagar meus dados</button></div>' +
       '<button class="link-btn" data-tela="privacidade">Como usamos seus dados</button>';
@@ -1068,21 +1064,21 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       itensAtuais = itens;
       var alvo = $('estatConta'); if (alvo) alvo.innerHTML = estatHtml(itens) + histHtml(itens);
     }).catch(function () {
-      var alvo = $('estatConta'); if (alvo) alvo.innerHTML = '<div class="empty">Não deu pra carregar seu histórico agora. Tenta de novo em instantes.</div>';
+      var alvo = $('estatConta'); if (alvo) alvo.innerHTML = '<div class="empty">Não carregou. Tenta de novo daqui a pouco.</div>';
     });
   }
   function telaCadastro() {
     body.innerHTML =
       '<form id="fCad" novalidate style="display:flex;flex-direction:column;gap:14px">' +
-      '<div style="font-size:15px;color:var(--soft)">Salve seu histórico e veja de qualquer aparelho. Sem senha: você recebe um link no e-mail.</div>' +
+      '<div style="font-size:15px;color:var(--soft)">Sem senha. Você entra pelo link que chega no e-mail.</div>' +
       '<div class="campo"><label for="cNome">Nome</label><input id="cNome" autocomplete="given-name" maxlength="80" required></div>' +
       '<div class="campo"><label for="cEmail">E-mail</label><input id="cEmail" type="email" autocomplete="email" inputmode="email" required></div>' +
       '<div class="campo"><label for="cZap">WhatsApp com DDD</label><input id="cZap" type="tel" autocomplete="tel" inputmode="tel" placeholder="(11) 99999-9999" required></div>' +
-      '<label class="check"><input type="checkbox" id="cHist"><span>Quero guardar o meu histórico de leitura na minha conta. <b style="color:var(--ink)">Obrigatório pra salvar.</b></span></label>' +
-      '<label class="check"><input type="checkbox" id="cMou"><span>Quero receber conteúdo do Mounólogo depois da eleição (opcional).</span></label>' +
-      '<div class="nota-priv">Não perguntamos nem guardamos o seu voto. Só você vê o seu histórico. Dá pra apagar tudo quando quiser, no seu perfil. <button type="button" class="link-btn" data-tela="privacidade" style="padding:0;min-height:0;font-size:12px">Ler a privacidade</button></div>' +
+      '<label class="check"><input type="checkbox" id="cHist"><span>Guardar meu histórico de leitura na conta <b style="color:var(--ink)">(obrigatório)</b></span></label>' +
+      '<label class="check"><input type="checkbox" id="cMou"><span>Receber o Mounólogo depois da eleição (opcional)</span></label>' +
+      '<div class="nota-priv">Só você vê seu histórico. Dá pra apagar quando quiser. <button type="button" class="link-btn" data-tela="privacidade" style="padding:0;min-height:0;font-size:12px">Privacidade</button></div>' +
       '<div id="cErro" role="alert" style="color:#FF8A96;font-size:14px;font-weight:700"></div>' +
-      '<button class="btn-white" type="submit" id="cEnviar">Enviar link de acesso</button>' +
+      '<button class="btn-white" type="submit" id="cEnviar">Mandar link</button>' +
       '<button class="link-btn" type="button" data-tela="entrar">Já tenho conta</button></form>';
     $('fCad').onsubmit = function (e) {
       e.preventDefault();
@@ -1091,7 +1087,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       var erro = nome.length < 2 ? 'Coloca o seu nome.'
         : !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) ? 'Esse e-mail parece errado.'
         : (zap.length < 12 || zap.length > 13) ? 'Coloca o WhatsApp com DDD.'
-        : !$('cHist').checked ? 'Marca a caixa do histórico pra gente poder salvar.' : '';
+        : !$('cHist').checked ? 'Marca a caixa do histórico.' : '';
       if (erro) { $('cErro').textContent = erro; return; }
       $('cErro').textContent = ''; $('cEnviar').disabled = true; $('cEnviar').textContent = 'Enviando…';
       sb.auth.signInWithOtp({
@@ -1113,10 +1109,10 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   function telaEntrar() {
     body.innerHTML =
       '<form id="fEntrar" novalidate style="display:flex;flex-direction:column;gap:14px">' +
-      '<div style="font-size:15px;color:var(--soft)">Coloca o e-mail da sua conta. A gente manda um link pra entrar.</div>' +
+      '<div style="font-size:15px;color:var(--soft)">Coloca seu e-mail que a gente manda o link.</div>' +
       '<div class="campo"><label for="eEmail">E-mail</label><input id="eEmail" type="email" autocomplete="email" inputmode="email" required></div>' +
       '<div id="eErro" role="alert" style="color:#FF8A96;font-size:14px;font-weight:700"></div>' +
-      '<button class="btn-white" type="submit" id="eEnviar">Enviar link</button>' +
+      '<button class="btn-white" type="submit" id="eEnviar">Mandar link</button>' +
       '<button class="link-btn" type="button" data-tela="cadastro">Ainda não tenho conta</button></form>';
     $('fEntrar').onsubmit = function (e) {
       e.preventDefault();
@@ -1134,8 +1130,8 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     };
   }
   function telaEnviado(email) {
-    body.innerHTML = '<div class="display" style="font-size:24px">Confere o seu e-mail</div>' +
-      '<div style="font-size:15px;color:var(--soft)">Mandamos um link pra <strong style="color:var(--ink)">' + esc(email) + '</strong>. Toca nele e pronto, você entra. Se não aparecer em 1 minuto, olha no spam.</div>';
+    body.innerHTML = '<div class="display" style="font-size:24px">Olha seu e-mail</div>' +
+      '<div style="font-size:15px;color:var(--soft)">Mandamos um link pra <strong style="color:var(--ink)">' + esc(email) + '</strong>. Não chegou? Olha o spam.</div>';
   }
   function telaPrivacidade() {
     var contato = C.CONTATO_PRIVACIDADE && C.CONTATO_PRIVACIDADE.indexOf('COLOQUE') < 0 ? esc(C.CONTATO_PRIVACIDADE) : 'o e-mail do responsável pelo site';
@@ -1154,14 +1150,14 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   body.addEventListener('click', function (e) {
     var t = e.target.closest('[data-tela]');
     if (t) { e.preventDefault(); mostra(t.getAttribute('data-tela')); return; }
-    if (e.target.closest('#btnSair')) { sb.auth.signOut().then(function () { mostra('inicio'); toast('Você saiu da sua conta.'); }); return; }
+    if (e.target.closest('#btnSair')) { sb.auth.signOut().then(function () { mostra('inicio'); toast('Você saiu.'); }); return; }
     if (e.target.closest('#btnApagar')) {
-      if (!confirm('Apagar sua conta e todo o seu histórico? Isso não tem volta.')) return;
+      if (!confirm('Apagar sua conta e seu histórico? Não tem volta.')) return;
       sb.rpc('apagar_minha_conta').then(function (r) {
         if (r.error) throw r.error;
         historico = {}; ls('historico', historico);
         return sb.auth.signOut();
-      }).then(function () { mostra('inicio'); toast('Pronto. Sua conta e seu histórico foram apagados.'); })
+      }).then(function () { mostra('inicio'); toast('Conta apagada.'); })
         .catch(function () { toast('Não deu pra apagar agora. Tenta de novo.'); });
       return;
     }
