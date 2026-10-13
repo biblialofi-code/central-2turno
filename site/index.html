@@ -918,7 +918,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     } else if (sessao) {
       form = '<div class="aviso">Termina seu cadastro pra comentar.</div><button class="btn-white" data-tela-perfil="cadastro" style="min-height:44px;font-size:15px">Terminar cadastro</button>';
     } else {
-      form = '<div style="display:flex;flex-direction:column;gap:8px"><div class="aviso">Pra comentar, entra com sua conta. Sem senha, é pelo e-mail.</div>' +
+      form = '<div style="display:flex;flex-direction:column;gap:8px"><div class="aviso">Pra comentar, entra com sua conta.</div>' +
         '<button class="btn-white" data-tela-perfil="cadastro" style="min-height:44px;font-size:15px">Criar conta</button>' +
         '<button class="link-btn" data-tela-perfil="entrar">Já tenho conta</button></div>';
     }
@@ -1289,7 +1289,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     itensAtuais = itensLocais();
     body.innerHTML = estatHtml(itensAtuais) + histHtml(itensAtuais) +
       '<div class="salvar" style="margin:0"><div style="font-weight:800;font-size:16px">Seu histórico tá só neste aparelho</div>' +
-      '<div style="font-size:14px;color:var(--soft)">Crie uma conta pra ver em qualquer lugar. Sem senha, você entra pelo e-mail.</div>' +
+      '<div style="font-size:14px;color:var(--soft)">Crie uma conta pra ver em qualquer celular ou computador.</div>' +
       (sb ? '<button class="btn-white" data-tela="cadastro" style="min-height:44px;font-size:15px">Salvar meu histórico</button>' +
             '<button class="link-btn" data-tela="entrar">Já tenho conta</button>'
           : '<div class="nota-priv">Conta fora do ar agora.</div>') + '</div>';
@@ -1307,71 +1307,84 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       var alvo = $('estatConta'); if (alvo) alvo.innerHTML = '<div class="empty">Não carregou. Tenta de novo daqui a pouco.</div>';
     });
   }
+  function fechaPerfil() { if (dlg.open) { if (dlg.close) dlg.close(); else dlg.removeAttribute('open'); } }
+  function erroAuth(err) {
+    var m = String(err && err.message || '');
+    if (/already registered|already been registered|exists/i.test(m)) return 'Esse e-mail já tem conta. Toca em "Já tenho conta".';
+    if (/Email not confirmed/i.test(m)) return 'Esse e-mail ainda não foi confirmado.';
+    if (/Invalid login|invalid_credentials|invalid/i.test(m)) return 'E-mail ou senha errados.';
+    if (/rate|limit|seconds/i.test(m)) return 'Muitas tentativas. Espera um minuto e tenta de novo.';
+    if (/[Pp]assword/.test(m)) return 'A senha precisa ter pelo menos 6 caracteres.';
+    return 'Não deu agora. Tenta de novo.';
+  }
+  var EMAIL_OK = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   function telaCadastro() {
     body.innerHTML =
       '<form id="fCad" novalidate style="display:flex;flex-direction:column;gap:14px">' +
-      '<div style="font-size:15px;color:var(--soft)">Sem senha. Você entra pelo link que chega no e-mail.</div>' +
-      '<div class="campo"><label for="cNome">Nome</label><input id="cNome" autocomplete="given-name" maxlength="80" required></div>' +
+      '<div class="campo"><label for="cNome">Nome</label><input id="cNome" autocomplete="name" maxlength="80" required></div>' +
       '<div class="campo"><label for="cEmail">E-mail</label><input id="cEmail" type="email" autocomplete="email" inputmode="email" required></div>' +
-      '<div class="campo"><label for="cZap">WhatsApp com DDD</label><input id="cZap" type="tel" autocomplete="tel" inputmode="tel" placeholder="(11) 99999-9999" required></div>' +
-      '<label class="check"><input type="checkbox" id="cHist"><span>Guardar meu histórico de leitura na conta <b style="color:var(--ink)">(obrigatório)</b></span></label>' +
-      '<label class="check"><input type="checkbox" id="cMou"><span>Receber o Mounólogo depois da eleição (opcional)</span></label>' +
-      '<div class="nota-priv">Só você vê seu histórico. Dá pra apagar quando quiser. <button type="button" class="link-btn" data-tela="privacidade" style="padding:0;min-height:0;font-size:12px">Privacidade</button></div>' +
+      '<div class="campo"><label for="cSenha">Senha</label><input id="cSenha" type="password" autocomplete="new-password" minlength="6" placeholder="Pelo menos 6 caracteres" required></div>' +
+      '<div class="campo"><label for="cZap">WhatsApp com DDD (opcional)</label><input id="cZap" type="tel" autocomplete="tel" inputmode="tel" placeholder="(11) 99999-9999"></div>' +
+      '<label class="check"><input type="checkbox" id="cHist" checked><span>Guardar meu histórico de leitura na conta</span></label>' +
+      '<label class="check"><input type="checkbox" id="cMou"><span>Receber o Mounólogo depois da eleição</span></label>' +
+      '<div class="nota-priv">Só você vê seu histórico. Dá pra apagar tudo quando quiser. <button type="button" class="link-btn" data-tela="privacidade" style="padding:0;min-height:0;font-size:12px">Privacidade</button></div>' +
       '<div id="cErro" role="alert" style="color:#FF8A96;font-size:14px;font-weight:700"></div>' +
-      '<button class="btn-white" type="submit" id="cEnviar">Mandar link</button>' +
+      '<button class="btn-white" type="submit" id="cEnviar">Criar conta</button>' +
       '<button class="link-btn" type="button" data-tela="entrar">Já tenho conta</button></form>';
     $('fCad').onsubmit = function (e) {
       e.preventDefault();
-      var nome = $('cNome').value.trim(), email = $('cEmail').value.trim().toLowerCase(), zap = $('cZap').value.replace(/\D/g, '');
+      var nome = $('cNome').value.trim(), email = $('cEmail').value.trim().toLowerCase(), senha = $('cSenha').value, zap = $('cZap').value.replace(/\D/g, '');
       if (zap.length === 10 || zap.length === 11) zap = '55' + zap;
       var erro = nome.length < 2 ? 'Coloca o seu nome.'
-        : !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) ? 'Esse e-mail parece errado.'
-        : (zap.length < 12 || zap.length > 13) ? 'Coloca o WhatsApp com DDD.'
-        : !$('cHist').checked ? 'Marca a caixa do histórico.' : '';
+        : !EMAIL_OK.test(email) ? 'Esse e-mail parece errado.'
+        : senha.length < 6 ? 'A senha precisa ter pelo menos 6 caracteres.'
+        : (zap && (zap.length < 12 || zap.length > 13)) ? 'Confere o WhatsApp, com DDD.' : '';
       if (erro) { $('cErro').textContent = erro; return; }
-      $('cErro').textContent = ''; $('cEnviar').disabled = true; $('cEnviar').textContent = 'Enviando…';
-      sb.auth.signInWithOtp({
-        email: email,
+      $('cErro').textContent = ''; $('cEnviar').disabled = true; $('cEnviar').textContent = 'Criando…';
+      sb.auth.signUp({
+        email: email, password: senha,
         options: {
-          emailRedirectTo: ORIGEM ? ORIGEM + location.pathname : SITE, shouldCreateUser: true,
-          data: { nome: nome, whatsapp: zap, aceita_historico: true, aceita_mounologo: $('cMou').checked,
+          emailRedirectTo: ORIGEM ? ORIGEM + location.pathname : SITE,
+          data: { nome: nome, whatsapp: zap || null, aceita_historico: $('cHist').checked, aceita_mounologo: $('cMou').checked,
                   hist: Object.keys(historico).slice(-200).map(Number) }
         }
       }).then(function (r) {
         if (r.error) throw r.error;
-        telaEnviado(email);
+        if (!r.data.session) return telaEnviado(email);   // o Supabase ainda está pedindo confirmação por e-mail
+        fechaPerfil(); toast('Conta criada. Bem-vindo, ' + nome.split(' ')[0] + '.');
       }).catch(function (err) {
-        $('cEnviar').disabled = false; $('cEnviar').textContent = 'Enviar link de acesso';
-        $('cErro').textContent = /rate|limit|seconds/i.test(String(err && err.message)) ? 'Muitas tentativas. Espera um minuto e tenta de novo.' : 'Não deu pra enviar agora. Confere o e-mail e tenta de novo.';
+        $('cEnviar').disabled = false; $('cEnviar').textContent = 'Criar conta';
+        $('cErro').textContent = erroAuth(err);
       });
     };
   }
   function telaEntrar() {
     body.innerHTML =
       '<form id="fEntrar" novalidate style="display:flex;flex-direction:column;gap:14px">' +
-      '<div style="font-size:15px;color:var(--soft)">Coloca seu e-mail que a gente manda o link.</div>' +
       '<div class="campo"><label for="eEmail">E-mail</label><input id="eEmail" type="email" autocomplete="email" inputmode="email" required></div>' +
+      '<div class="campo"><label for="eSenha">Senha</label><input id="eSenha" type="password" autocomplete="current-password" required></div>' +
       '<div id="eErro" role="alert" style="color:#FF8A96;font-size:14px;font-weight:700"></div>' +
-      '<button class="btn-white" type="submit" id="eEnviar">Mandar link</button>' +
+      '<button class="btn-white" type="submit" id="eEnviar">Entrar</button>' +
       '<button class="link-btn" type="button" data-tela="cadastro">Ainda não tenho conta</button></form>';
     $('fEntrar').onsubmit = function (e) {
       e.preventDefault();
-      var email = $('eEmail').value.trim().toLowerCase();
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { $('eErro').textContent = 'Esse e-mail parece errado.'; return; }
-      $('eEnviar').disabled = true; $('eEnviar').textContent = 'Enviando…';
-      sb.auth.signInWithOtp({ email: email, options: { emailRedirectTo: ORIGEM ? ORIGEM + location.pathname : SITE, shouldCreateUser: false } })
+      var email = $('eEmail').value.trim().toLowerCase(), senha = $('eSenha').value;
+      if (!EMAIL_OK.test(email)) { $('eErro').textContent = 'Esse e-mail parece errado.'; return; }
+      if (!senha) { $('eErro').textContent = 'Coloca a senha.'; return; }
+      $('eEnviar').disabled = true; $('eEnviar').textContent = 'Entrando…';
+      sb.auth.signInWithPassword({ email: email, password: senha })
         .then(function (r) {
           if (r.error) throw r.error;
-          telaEnviado(email);
-        }).catch(function () {
-          $('eEnviar').disabled = false; $('eEnviar').textContent = 'Enviar link';
-          $('eErro').textContent = 'Não achamos conta com esse e-mail, ou deu erro. Confere e tenta de novo.';
+          fechaPerfil(); toast('Você entrou.');
+        }).catch(function (err) {
+          $('eEnviar').disabled = false; $('eEnviar').textContent = 'Entrar';
+          $('eErro').textContent = erroAuth(err);
         });
     };
   }
   function telaEnviado(email) {
     body.innerHTML = '<div class="display" style="font-size:24px">Olha seu e-mail</div>' +
-      '<div style="font-size:15px;color:var(--soft)">Mandamos um link pra <strong style="color:var(--ink)">' + esc(email) + '</strong>. Não chegou? Olha o spam.</div>';
+      '<div style="font-size:15px;color:var(--soft)">Falta confirmar o e-mail. Mandamos um link pra <strong style="color:var(--ink)">' + esc(email) + '</strong>. Não chegou? Olha o spam.</div>';
   }
   function telaPrivacidade() {
     var contato = C.CONTATO_PRIVACIDADE && C.CONTATO_PRIVACIDADE.indexOf('COLOQUE') < 0 ? esc(C.CONTATO_PRIVACIDADE) : 'o e-mail do responsável pelo site';
