@@ -5,6 +5,10 @@
     {
       "source": "/n/:id",
       "destination": "/api/n?id=:id"
+    },
+    {
+      "source": "/videos",
+      "destination": "/"
     }
   ],
   "functions": {

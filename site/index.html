@@ -109,6 +109,11 @@ section{padding:20px 16px 8px}
 .card h3 a{color:inherit;text-decoration:none}
 #secArtigo{display:none;order:1}
 body.modo-noticia #secArtigo{display:block}
+#secTodosVideos{display:none;order:1}
+body.modo-videos #secTodosVideos{display:block}
+body.modo-videos .hero,body.modo-videos #secTabs,body.modo-videos #secFeed,body.modo-videos #secVideos,body.modo-videos #secLivros,body.modo-videos #secArtigo{display:none}
+.vgrid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:12px}
+.vgrid .vcard{flex:none}
 body.modo-noticia .hero,body.modo-noticia #secTabs,body.modo-noticia #secFeed,body.modo-noticia #secVideos,body.modo-noticia #secLivros{display:none}
 .voltar{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--soft);font-weight:700;text-decoration:none;margin:6px 0 4px}
 .artigo{background:var(--card);border:1px solid var(--line);border-radius:22px;overflow:hidden}
@@ -282,7 +287,8 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   .toast{bottom:32px}
   #secAdLateral{display:block}
 }
-@media (max-width:1023px){ body.modo-noticia #secClima,body.modo-noticia #secInteresse,body.modo-noticia #secPesquisas{display:none} }
+@media (max-width:1023px){ body.modo-noticia #secClima,body.modo-noticia #secInteresse,body.modo-noticia #secPesquisas,body.modo-videos #secClima,body.modo-videos #secInteresse,body.modo-videos #secPesquisas{display:none} }
+@media (min-width:700px){ .vgrid{grid-template-columns:1fr 1fr} }
 @media (min-width:1024px){ .artigo h1{font-size:40px} .artigo .corpo{padding:28px} }
 </style>
 </head>
@@ -307,6 +313,13 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
 
   <main class="col-main">
   <section id="secArtigo" aria-live="polite"></section>
+  <section id="secTodosVideos">
+    <a class="voltar" href="/" data-voltar>← Voltar</a>
+    <h1 class="display h2" style="margin:4px 0 2px">Todos os vídeos</h1>
+    <p class="sub">Debates, entrevistas e análises. Análise é a opinião de quem fala.</p>
+    <div class="chips" id="vChips2"></div>
+    <div class="vgrid" id="vGrid"></div>
+  </section>
   <div class="tabs-wrap" id="secTabs">
     <div class="tabs" role="tablist" aria-label="Filtrar notícias">
       <button role="tab" data-tab="all" aria-selected="true">Tudo</button>
@@ -325,6 +338,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     <p class="sub">Debates, entrevistas e análises. Análise é a opinião de quem fala. <span id="vPlacar"></span></p>
     <div class="chips" id="vChips"></div>
     <div class="rail" id="vRail"></div>
+    <button class="mais" id="btnTodosVideos" hidden style="margin-top:12px">Todos os vídeos</button>
     <div style="margin-top:14px">
       <div class="kicker">Planos de governo</div>
       <div class="planos">
@@ -857,6 +871,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   }
   function abrirNoticia(id, empurra) {
     if (empurra && ORIGEM) history.pushState({ n: id }, '', '/n/' + id);
+    document.body.classList.remove('modo-videos');
     document.body.classList.add('modo-noticia');
     window.scrollTo(0, 0);
     var n = acharNoticia(id);
@@ -873,18 +888,20 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   }
   function fecharNoticia(empurra) {
     if (empurra && ORIGEM) history.pushState({}, '', '/');
-    document.body.classList.remove('modo-noticia');
+    document.body.classList.remove('modo-noticia', 'modo-videos');
     noticiaAberta = null; document.title = TITULO_HOME;
     pintaFeed(); window.scrollTo(0, 0);
   }
   document.querySelector('.topbar .brand').addEventListener('click', function (e) {
     if (e.metaKey || e.ctrlKey) return;
     e.preventDefault();
-    if (document.body.classList.contains('modo-noticia')) fecharNoticia(true); else window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (document.body.classList.contains('modo-noticia') || document.body.classList.contains('modo-videos')) fecharNoticia(true); else window.scrollTo({ top: 0, behavior: 'smooth' });
   });
   window.addEventListener('popstate', function () {
     var m = location.pathname.match(/^\/n\/(\d+)/);
-    if (m) abrirNoticia(m[1], false); else if (noticiaAberta || document.body.classList.contains('modo-noticia')) fecharNoticia(false);
+    if (m) abrirNoticia(m[1], false);
+    else if (location.pathname === '/videos') abrirVideos(false);
+    else if (noticiaAberta || document.body.classList.contains('modo-noticia') || document.body.classList.contains('modo-videos')) fecharNoticia(false);
   });
   var ICONE_SHARE = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v13"/><path d="M7 8l5-5 5 5"/><path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>';
   function pintaNoticia(n) {
@@ -1032,47 +1049,81 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     if (!t) return 0;
     return String(t).split(':').map(Number).reduce(function (a, b) { return a * 60 + b; }, 0);
   }
+  var VIDEOS_HOME = 6, todosVideos = null;
+  function vcardHtml(v) {
+    var id = ytId(v.link);
+    var thumb = id
+      ? '<button class="thumb" data-yt="' + id + '" data-start="0" aria-label="Assistir: ' + esc(v.titulo) + '">' +
+        '<img loading="lazy" alt="" src="https://i.ytimg.com/vi/' + id + '/hqdefault.jpg">' +
+        '<span class="play"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>' +
+        '<span class="cat">' + CATS[v.categoria] + '</span></button>'
+      : '<a class="thumb" href="' + esc(safeUrl(v.link)) + '" target="_blank" rel="noopener"><span class="play"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span><span class="cat">' + CATS[v.categoria] + '</span></a>';
+    var nota = v.analise
+      ? '<div class="nota"><div class="kicker" style="font-size:11px">Por que ver</div><div>' + esc(v.analise) + '</div>' +
+        (v.momento && id ? '<button class="btn-moment" data-yt="' + id + '" data-start="' + segundos(v.momento) + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Ver a partir de ' + esc(v.momento) + '</button>' : '') +
+        '</div>'
+      : '';
+    return '<article class="vcard">' + thumb + '<div class="vbody">' +
+      '<span class="tag ' + classeLado(v.lado) + '" style="align-self:flex-start">' + rotuloLado(v.lado) + '</span>' +
+      '<div class="ti">' + esc(v.titulo) + '</div>' +
+      (v.fonte ? '<div style="font-size:13px;color:var(--mute);font-weight:600">' + esc(v.fonte) + '</div>' : '') +
+      nota + '</div></article>';
+  }
+  function chipsHtml() {
+    return Object.keys(CATS).map(function (k) { return '<button data-cat="' + k + '" aria-pressed="' + (vcat === k) + '">' + CATS[k] + '</button>'; }).join('');
+  }
   function pintaVideos() {
-    $('vChips').innerHTML = Object.keys(CATS).map(function (k) {
-      return '<button data-cat="' + k + '" aria-pressed="' + (vcat === k) + '">' + CATS[k] + '</button>';
-    }).join('');
+    $('vChips').innerHTML = chipsHtml();
     var lista = videos.filter(function (v) { return vcat === 'todos' || v.categoria === vcat; });
+    var btn = $('btnTodosVideos');
+    btn.hidden = videos.length <= VIDEOS_HOME;
+    btn.textContent = 'Todos os vídeos (' + (todosVideos ? todosVideos.length : videos.length) + ')';
     if (!lista.length) {
       $('vRail').innerHTML = '<div class="empty" style="flex:1">' + (videos.length ? 'Nada nessa categoria ainda.' : 'Nenhum vídeo ainda.') + '</div>';
-      return;
-    }
-    $('vRail').innerHTML = lista.map(function (v) {
-      var id = ytId(v.link);
-      var thumb = id
-        ? '<button class="thumb" data-yt="' + id + '" data-start="0" aria-label="Assistir: ' + esc(v.titulo) + '">' +
-          '<img loading="lazy" alt="" src="https://i.ytimg.com/vi/' + id + '/hqdefault.jpg">' +
-          '<span class="play"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>' +
-          '<span class="cat">' + CATS[v.categoria] + '</span></button>'
-        : '<a class="thumb" href="' + esc(safeUrl(v.link)) + '" target="_blank" rel="noopener"><span class="play"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span><span class="cat">' + CATS[v.categoria] + '</span></a>';
-      var nota = v.analise
-        ? '<div class="nota"><div class="kicker" style="font-size:11px">Por que ver</div><div>' + esc(v.analise) + '</div>' +
-          (v.momento && id ? '<button class="btn-moment" data-yt="' + id + '" data-start="' + segundos(v.momento) + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Ver a partir de ' + esc(v.momento) + '</button>' : '') +
-          '</div>'
-        : '';
-      return '<article class="vcard">' + thumb + '<div class="vbody">' +
-        '<span class="tag ' + classeLado(v.lado) + '" style="align-self:flex-start">' + rotuloLado(v.lado) + '</span>' +
-        '<div class="ti">' + esc(v.titulo) + '</div>' +
-        (v.fonte ? '<div style="font-size:13px;color:var(--mute);font-weight:600">' + esc(v.fonte) + '</div>' : '') +
-        nota + '</div></article>';
-    }).join('');
+    } else $('vRail').innerHTML = lista.slice(0, VIDEOS_HOME).map(vcardHtml).join('');
+    if (document.body.classList.contains('modo-videos')) pintaTodosVideos();
   }
+  function pintaTodosVideos() {
+    var base = todosVideos || videos;
+    $('vChips2').innerHTML = chipsHtml();
+    var lista = base.filter(function (v) { return vcat === 'todos' || v.categoria === vcat; });
+    $('vGrid').innerHTML = lista.length ? lista.map(vcardHtml).join('') : '<div class="empty">' + (base.length ? 'Nada nessa categoria ainda.' : 'Nenhum vídeo ainda.') + '</div>';
+  }
+  function abrirVideos(empurra) {
+    if (empurra && ORIGEM) history.pushState({ v: 1 }, '', '/videos');
+    document.body.classList.remove('modo-noticia');
+    document.body.classList.add('modo-videos');
+    document.title = 'Vídeos · Central 2º Turno';
+    window.scrollTo(0, 0);
+    pintaTodosVideos();
+    if (!todosVideos && configurado) {
+      get('videos?select=id,link,lado,categoria,titulo,fonte,analise,momento&ativo=eq.true&order=criado_em.desc&limit=300')
+        .then(function (rows) { todosVideos = rows; pintaTodosVideos(); pintaVideos(); }).catch(function () {});
+    }
+  }
+  $('btnTodosVideos').addEventListener('click', function () { abrirVideos(true); });
+  $('vChips2').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-cat]'); if (!b) return;
+    vcat = b.getAttribute('data-cat'); pintaVideos();
+  });
+  $('secTodosVideos').addEventListener('click', function (e) {
+    var vt = e.target.closest('[data-voltar]');
+    if (vt) { e.preventDefault(); fecharNoticia(true); return; }
+    tocaVideo(e);
+  });
   $('vChips').addEventListener('click', function (e) {
     var b = e.target.closest('[data-cat]'); if (!b) return;
     vcat = b.getAttribute('data-cat'); pintaVideos();
   });
-  $('vRail').addEventListener('click', function (e) {
+  $('vRail').addEventListener('click', tocaVideo);
+  function tocaVideo(e) {
     var b = e.target.closest('[data-yt]'); if (!b) return;
     var card = b.closest('.vcard'), alvo = card.querySelector('.thumb');
     var src = 'https://www.youtube-nocookie.com/embed/' + b.getAttribute('data-yt') + '?autoplay=1&playsinline=1&start=' + b.getAttribute('data-start');
     var div = document.createElement('div'); div.className = 'thumb';
     div.innerHTML = '<iframe src="' + src + '" title="Vídeo" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
     alvo.replaceWith(div);
-  });
+  }
   function carregaVideos() {
     pintaVideos();
     if (!configurado) return;
@@ -1493,6 +1544,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     var m = location.pathname.match(/^\/n\/(\d+)/);
     var id = window.NOTICIA_ID || (m && m[1]);
     if (id) abrirNoticia(id, false);
+    else if (location.pathname === '/videos') abrirVideos(false);
   })();
   carregaNoticias();
   carregaVideos();
