@@ -7,6 +7,10 @@
       "destination": "/admin.html"
     },
     {
+      "source": "/dia-25",
+      "destination": "/dia-25.html"
+    },
+    {
       "source": "/",
       "destination": "/api/home"
     },

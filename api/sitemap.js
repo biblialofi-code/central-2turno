@@ -8,7 +8,7 @@ module.exports = async (req, res) => {
   const url = (loc, mod, freq, pri) => '<url><loc>' + loc + '</loc>' + (mod ? '<lastmod>' + mod + '</lastmod>' : '') +
     '<changefreq>' + freq + '</changefreq><priority>' + pri + '</priority></url>';
   const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' +
-    url(origem + '/', agora, 'hourly', '1.0') + url(origem + '/videos', agora, 'daily', '0.6') +
+    url(origem + '/', agora, 'hourly', '1.0') + url(origem + '/dia-25', agora, 'daily', '0.9') + url(origem + '/videos', agora, 'daily', '0.6') +
     rows.map((n) => url(origem + '/n/' + n.id, n.aprovado_em ? new Date(n.aprovado_em).toISOString() : '', 'weekly', '0.7')).join('') +
     '</urlset>';
   res.setHeader('Content-Type', 'application/xml; charset=utf-8');
