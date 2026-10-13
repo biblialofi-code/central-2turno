@@ -37,6 +37,10 @@ window.CONFIG = {
   // Barra de interesse só aparece depois de tantas leituras no dia
   INTERESSE_MIN: 200,
 
+  // Na página inicial: quantas notícias de cada lado aparecem antes do botão "Mais notícias"
+  NOTICIAS_POR_LADO: 6,
+  NOTICIAS_GERAL: 4,
+
   // Data e hora em que a votação começa (horário de Brasília)
   ELEICAO: '2026-10-25T08:00:00-03:00',
 
@@ -111,6 +115,11 @@ section{padding:20px 16px 8px}
 .btn-read{flex:1;display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:12px;background:#33333D;color:#fff;text-decoration:none;font-weight:800;font-size:15px}
 .btn-read.lida{background:#2A2A33;color:var(--soft)}
 .btn-icon{flex:0 0 52px;min-height:44px;border-radius:12px;border:1px solid var(--line2);background:transparent;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.mais{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:48px;border-radius:14px;background:transparent;border:1px solid var(--line2);color:var(--ink);font-weight:800;font-size:15px;cursor:pointer}
+.mais:hover{background:var(--card)}
+.mais.r{border-color:var(--red);color:var(--red-ink)} .mais.b{border-color:var(--blue);color:var(--blue-ink)}
+.mais span{font-weight:600;opacity:.8}
+.mais-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .empty{background:var(--card);border:1px dashed var(--line2);border-radius:18px;padding:20px;color:var(--soft);font-size:15px;text-align:center}
 .h2{font-size:26px;line-height:1.05;margin:0}
 .sub{margin:8px 0 0;font-size:15px;color:var(--soft)}
@@ -635,7 +644,15 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   };
 
   /* ---------- feed ---------- */
-  var noticias = [], aba = 'all';
+  var noticias = [], aba = 'all', abertos = {};
+  var NOME = { '13': 'do Lula', '22': 'do Flávio', ambos: 'gerais' };
+  function limiteDe(l) { return l === 'ambos' ? (C.NOTICIAS_GERAL || 4) : (C.NOTICIAS_POR_LADO || 6); }
+  function corta(l, arr) { return abertos[l] ? arr : arr.slice(0, limiteDe(l)); }
+  function botaoMais(l, arr) {
+    var resto = arr.length - limiteDe(l);
+    if (abertos[l] || resto <= 0) return '';
+    return '<button class="mais ' + (l === '13' ? 'r' : l === '22' ? 'b' : '') + '" data-mais="' + l + '">Mais notícias ' + NOME[l] + ' <span>(' + resto + ')</span></button>';
+  }
   document.querySelectorAll('.tabs button').forEach(function (b) {
     b.onclick = function () {
       aba = b.getAttribute('data-tab');
@@ -658,16 +675,31 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       var de22 = lista.filter(function (n) { return n.lado === '22'; });
       var vazio = function (l) { return '<div class="empty">Nenhuma notícia do ' + l + ' aprovada ainda.</div>'; };
       $('feed').innerHTML =
-        (ambos.length ? '<div class="split-head" style="margin-bottom:12px">Geral</div><div class="feed-grid">' + ambos.map(cardHtml).join('') + '</div>' : '') +
+        (ambos.length ? '<div class="split-head" style="margin-bottom:12px">Geral</div><div class="feed-grid">' + corta('ambos', ambos).map(cardHtml).join('') + '</div>' +
+          (botaoMais('ambos', ambos) ? '<div style="margin:-2px 0 14px">' + botaoMais('ambos', ambos) + '</div>' : '') : '') +
         '<div class="split">' +
-        '<div><div class="split-head r">Notícias do 13</div>' + (de13.length ? de13.map(cardHtml).join('') : vazio('13')) + '</div>' +
-        '<div><div class="split-head b">Notícias do 22</div>' + (de22.length ? de22.map(cardHtml).join('') : vazio('22')) + '</div>' +
+        '<div><div class="split-head r">Notícias do 13</div>' + (de13.length ? corta('13', de13).map(cardHtml).join('') + botaoMais('13', de13) : vazio('13')) + '</div>' +
+        '<div><div class="split-head b">Notícias do 22</div>' + (de22.length ? corta('22', de22).map(cardHtml).join('') + botaoMais('22', de22) : vazio('22')) + '</div>' +
         '</div>';
       return;
     }
+    // celular, aba Tudo: as N mais novas de cada lado, na ordem de chegada; o resto fica na aba do lado
+    var extra = '';
+    if (aba === 'all') {
+      var conta = { '13': 0, '22': 0, ambos: 0 }, sobra = { '13': 0, '22': 0, ambos: 0 };
+      lista = lista.filter(function (n) {
+        var l = conta[n.lado] === undefined ? 'ambos' : n.lado;
+        if (conta[l] < limiteDe(l)) { conta[l]++; return true; }
+        sobra[l]++; return false;
+      });
+      var bts = ['13', '22'].filter(function (l) { return sobra[l]; }).map(function (l) {
+        return '<button class="mais ' + (l === '13' ? 'r' : 'b') + '" data-aba="' + l + '">Mais ' + NOME[l] + ' <span>(' + sobra[l] + ')</span></button>';
+      });
+      if (bts.length) extra = '<div class="mais-row"' + (bts.length === 1 ? ' style="grid-template-columns:1fr"' : '') + '>' + bts.join('') + '</div>';
+    }
     var partes = lista.map(cardHtml);
     if (partes.length >= 3 && AD_FEED) partes.splice(3, 0, AD_FEED); // anúncio depois da 3ª notícia
-    $('feed').innerHTML = partes.join('');
+    $('feed').innerHTML = partes.join('') + extra;
     ativaAdsense();
   }
   function cardHtml(n) {
@@ -688,6 +720,14 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     })(n);
   }
   $('feed').addEventListener('click', function (e) {
+    var mais = e.target.closest('[data-mais]');
+    if (mais) { abertos[mais.getAttribute('data-mais')] = true; pintaFeed(); return; }
+    var irAba = e.target.closest('[data-aba]');
+    if (irAba) {
+      var t = document.querySelector('.tabs button[data-tab="' + irAba.getAttribute('data-aba') + '"]');
+      if (t) { t.click(); var alvo = $('secTabs') || $('feed'); window.scrollTo({ top: alvo.getBoundingClientRect().top + window.scrollY - 70, behavior: 'smooth' }); }
+      return;
+    }
     var ler = e.target.closest('[data-ler]');
     if (ler) {
       var id = ler.getAttribute('data-ler');
