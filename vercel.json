@@ -3,12 +3,20 @@
   "cleanUrls": true,
   "rewrites": [
     {
+      "source": "/",
+      "destination": "/api/home"
+    },
+    {
+      "source": "/videos",
+      "destination": "/api/home?pagina=videos"
+    },
+    {
       "source": "/n/:id",
       "destination": "/api/n?id=:id"
     },
     {
-      "source": "/videos",
-      "destination": "/"
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
     }
   ],
   "functions": {
@@ -18,17 +26,40 @@
     },
     "api/card.js": {
       "maxDuration": 30,
-      "includeFiles": "{site/index.html,lib/**}"
+      "includeFiles": "{site/app.html,lib/**}"
     },
     "api/n.js": {
-      "includeFiles": "site/index.html"
+      "includeFiles": "{site/app.html,lib/**}"
     },
     "api/img.js": {
-      "includeFiles": "site/index.html"
+      "includeFiles": "{site/app.html,lib/**}"
     },
     "api/aviso.js": {
       "maxDuration": 60,
       "includeFiles": "lib/**"
+    },
+    "api/home.js": {
+      "includeFiles": "{site/app.html,lib/**}"
+    },
+    "api/sitemap.js": {
+      "includeFiles": "{site/app.html,lib/**}"
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/app",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/app.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/index.html",
+      "destination": "/",
+      "permanent": true
+    }
+  ]
 }

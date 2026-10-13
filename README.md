@@ -2,7 +2,8 @@
 
 Hub neutro do 2º turno (13 × 22). Site estático + Supabase + n8n.
 
-- `site/` — o que vai pro ar (index.html, og.png). A Vercel publica essa pasta a cada push na main.
+- `site/` — o que vai pro ar. `app.html` é o modelo do site: a home (/), /videos e /n/ID são montadas no servidor a partir dele (api/home.js, api/n.js), já com as notícias no HTML pro Google.
+- `api/sitemap.js` + `site/robots.txt` — SEO.
 
 No ar: https://central-2turno.vercel.app
 - `supabase/` — SQL, rodar em ordem no SQL Editor (01, 02, 03).

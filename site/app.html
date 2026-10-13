@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Central 2º Turno · por Mounólogo</title>
-<meta name="description" content="As notícias do Lula e do Flávio num lugar só.">
+<title>Central 2º Turno: notícias de Lula e Flávio no 2º turno</title>
+<link rel="canonical" href="https://central-2turno.vercel.app/">
+<meta name="description" content="As notícias do 2º turno de Lula e Flávio Bolsonaro num lugar só: resumo de cada uma, link pro jornal que publicou e os dois lados lado a lado.">
+<meta name="google-site-verification" content="AUHu18AgkXHtZ-y3meVysfJxsu8CSAKMih9STn_mjQk">
 <meta name="theme-color" content="#0C0C10">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -315,7 +317,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   <section id="secArtigo" aria-live="polite"></section>
   <section id="secTodosVideos">
     <a class="voltar" href="/" data-voltar>← Voltar</a>
-    <h1 class="display h2" style="margin:4px 0 2px">Todos os vídeos</h1>
+    <h2 class="display h2" style="margin:4px 0 2px">Todos os vídeos</h2>
     <p class="sub">Debates, entrevistas e análises. Análise é a opinião de quem fala.</p>
     <div class="chips" id="vChips2"></div>
     <div class="vgrid" id="vGrid"></div>
@@ -545,7 +547,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   /* ---------- compartilhar (imagem 9:16 gerada no celular) ---------- */
   var ORIGEM = /^https?:$/.test(location.protocol) ? location.origin : '';
   var SITE = ORIGEM ? ORIGEM + '/' : location.href.split('#')[0].split('?')[0];
-  var TITULO_HOME = 'Central 2º Turno · por Mounólogo';
+  var TITULO_HOME = 'Central 2º Turno: notícias de Lula e Flávio no 2º turno';
   function linkNoticia(id) { return ORIGEM + '/n/' + id; }
   function assinatura() { return '\n\nCentral 2º Turno, por Mounólogo\n' + SITE; }
 
@@ -1015,11 +1017,16 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       : '<div class="outro"><a class="mais" href="/" data-voltar>Ver todas as notícias</a></div>';
   }
 
+  var iniciais = window.NOTICIAS_INICIAIS || null;
   function carregaNoticias() {
     if (!configurado) { pintaFeed(); return; }
+    if (iniciais) { var r0 = iniciais; iniciais = null; usaNoticias(r0); return; }   // já vieram no HTML
     get('noticias?select=*' +
         '&status=eq.aprovado&order=publicado_em.desc.nullslast,aprovado_em.desc&limit=60')
-      .then(function (rows) {
+      .then(usaNoticias)
+      .catch(function () { $('feed').innerHTML = '<div class="empty">Não carregou. Tenta de novo daqui a pouco.</div>'; });
+  }
+  function usaNoticias(rows) {
         var hora = function (r) { return r.publicado_em || r.aprovado_em || ''; };
         rows.sort(function (x, y) { return hora(y) < hora(x) ? -1 : hora(y) > hora(x) ? 1 : 0; });  // mais nova primeiro, pela hora da matéria
         noticias = rows.filter(function (r) { return r.tipo !== 'pesquisa'; }).slice(0, 40);
@@ -1034,8 +1041,6 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
               '<a href="' + esc(safeUrl(p.link)) + '" target="_blank" rel="noopener" style="font-size:13px;font-weight:700;color:var(--soft)">Ver no ' + esc(p.veiculo) + '</a></div>';
           }).join('');
         }
-      })
-      .catch(function () { $('feed').innerHTML = '<div class="empty">Não carregou. Tenta de novo daqui a pouco.</div>'; });
   }
 
   /* ---------- vídeos ---------- */

@@ -5,7 +5,7 @@ const { desenha, baixaFoto } = require('../lib/card.js');
 let CFG = null;
 function cfg() {
   if (!CFG) {
-    const html = fs.readFileSync(path.join(process.cwd(), 'site', 'index.html'), 'utf8');
+    const html = fs.readFileSync(path.join(process.cwd(), 'site', 'app.html'), 'utf8');
     const pega = (k) => (html.match(new RegExp(k + ":\\s*'([^']+)'")) || [])[1] || '';
     CFG = { url: pega('SUPABASE_URL'), key: pega('SUPABASE_KEY') };
   }
