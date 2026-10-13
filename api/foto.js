@@ -7,8 +7,13 @@
 //  2) A área de admin, botão "Buscar fotos que faltam". Manda o token de quem está logado;
 //     a função confere no Supabase se essa pessoa é admin.
 //
-// Variáveis na Vercel (Settings > Environment Variables):
+// Depois da foto, quando vem do gatilho (notícia acabou de ser aprovada), posta no canal
+// do WhatsApp pelo WAHA, uma vez só por notícia (coluna postado_em).
+//
+// Variáveis na Vercel (Settings > Environments > Production):
 //   SUPABASE_URL, SUPABASE_SERVICE_KEY, FOTO_SEGREDO
+//   WAHA_URL (ex.: https://waha.seudominio.com), WAHA_KEY, WAHA_CANAL (xxxx@newsletter), WAHA_SESSION (opcional, padrão "default")
+//   SITE_URL (opcional, padrão https://central-2turno.vercel.app)
 
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36';
 const SB = process.env.SUPABASE_URL;
@@ -108,6 +113,43 @@ async function processar(n) {
   return { id: n.id, link: dados.link ? 'trocado' : 'igual', imagem: dados.imagem ? 'ok' : 'sem foto', erro };
 }
 
+// ---------- 3) post no canal do WhatsApp ----------
+const ROTULO = { '13': '13 · Lula (PT)', '22': '22 · Flávio Bolsonaro (PL)' };
+function textoDoPost(n, site) {
+  return '*' + n.manchete + '*\n' +
+    (n.resumo ? n.resumo + '\n' : '') + '\n' +
+    (ROTULO[n.lado] || 'Geral') + ' · ' + n.veiculo + '\n' +
+    site + '/n/' + n.id;
+}
+async function postarNoCanal(id) {
+  const { WAHA_URL, WAHA_KEY, WAHA_CANAL } = process.env;
+  if (!WAHA_URL || !WAHA_CANAL) return 'canal não configurado';
+  const linhas = await sb('noticias?select=id,lado,veiculo,manchete,resumo,status,postado_em&id=eq.' + id);
+  const n = linhas[0];
+  if (!n || n.status !== 'aprovado') return 'não está aprovada';
+  if (n.postado_em) return 'já postada';
+  // marca antes de enviar: se dois gatilhos chegarem juntos, só um posta
+  const marcou = await sb('noticias?id=eq.' + id + '&postado_em=is.null', {
+    method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify({ postado_em: new Date().toISOString() })
+  });
+  if (!marcou || !marcou.length) return 'já postada';
+  const site = (process.env.SITE_URL || 'https://central-2turno.vercel.app').replace(/\/$/, '');
+  try {
+    const r = await fetch(WAHA_URL.replace(/\/$/, '') + '/api/sendText', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(WAHA_KEY ? { 'X-Api-Key': WAHA_KEY } : {}) },
+      body: JSON.stringify({ session: process.env.WAHA_SESSION || 'default', chatId: WAHA_CANAL, text: textoDoPost(n, site), linkPreview: true }),
+      signal: comTempo(20000)
+    });
+    if (!r.ok) throw new Error('WAHA ' + r.status + ': ' + (await r.text()).slice(0, 200));
+    return 'postada';
+  } catch (e) {
+    // deu errado: desmarca pra dar pra tentar de novo
+    await sb('noticias?id=eq.' + id, { method: 'PATCH', body: JSON.stringify({ postado_em: null }) }).catch(() => {});
+    return 'erro: ' + String(e.message || e);
+  }
+}
+
 async function souAdmin(token) {
   if (!token) return false;
   const r = await fetch(SB + '/rest/v1/rpc/sou_admin', {
@@ -130,7 +172,10 @@ module.exports = async (req, res) => {
       if (!id) return res.status(400).json({ erro: 'falta id' });
       const linhas = await sb('noticias?select=id,link,imagem&id=eq.' + id);
       if (!linhas.length) return res.status(404).json({ erro: 'não achei' });
-      return res.status(200).json(await processar(linhas[0]));
+      const feito = await processar(linhas[0]);
+      let canal;
+      try { canal = await postarNoCanal(id); } catch (e) { canal = 'erro: ' + String(e.message || e); }
+      return res.status(200).json({ ...feito, canal });
     }
 
     // 2) botão do admin: até 8 por vez, das mais novas pras mais velhas

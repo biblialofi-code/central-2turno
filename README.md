@@ -6,7 +6,7 @@ Hub neutro do 2º turno (13 × 22). Site estático + Supabase + n8n.
 
 No ar: https://central-2turno.vercel.app
 - `supabase/` — SQL, rodar em ordem no SQL Editor (01, 02, 03).
-- `api/foto.js` — função da Vercel: troca o link do Google News pelo real e pega a foto (og:image). Precisa das variáveis SUPABASE_URL, SUPABASE_SERVICE_KEY e FOTO_SEGREDO na Vercel.
+- `api/foto.js` — função da Vercel: troca o link do Google News pelo real, pega a foto (og:image) e posta no canal do WhatsApp pelo WAHA (variáveis WAHA_URL, WAHA_KEY, WAHA_CANAL). Precisa das variáveis SUPABASE_URL, SUPABASE_SERVICE_KEY e FOTO_SEGREDO na Vercel.
 - `site/admin.html` — área de admin em /admin: notícias (lado, status, resumo, apagar), vídeos e livros. Login por link no e-mail; só quem está na tabela `admins` altera.
 - `n8n/` — workflows (captação e aprovação via Telegram). Chaves ficam só no n8n.
 
