@@ -47,12 +47,7 @@ window.CONFIG = {
   // E-mail que aparece na página de privacidade, pra pessoa falar com você
   CONTATO_PRIVACIDADE: 'COLOQUE_SEU_EMAIL',
 
-  // Anúncios da casa (aparecem enquanto o AdSense não estiver ligado).
-  // Troque, apague ou adicione. "imagem" é opcional.
-  ANUNCIOS: [
-    { titulo: 'Mounólogo', texto: 'O podcast das perguntas que a igreja evita. Novo episódio toda semana.', botao: 'Ouvir no Spotify', link: 'https://open.spotify.com/', imagem: '' },
-    { titulo: 'Pra ler depois da eleição', texto: 'Livros para se aprofundar em como funciona o Brasil.', botao: 'Ver os livros', link: '#secLivros', imagem: '' }
-  ],
+  // Anúncios da casa: agora são editados no /admin (aba Anúncios).
 
   // Google AdSense: deixe vazio até o Google aprovar o site.
   // Quando aprovar, cole o "ca-pub-..." e os números dos dois blocos de anúncio.
@@ -911,12 +906,13 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   }
 
   /* ---------- anúncios ---------- */
-  function anuncioHtml(slot) {
+  var anuncios = [];
+  function anuncioHtml(slot, onde) {
     if (C.ADSENSE_CLIENT && slot) {
       return '<div class="ad"><span class="rot">Publicidade</span><ins class="adsbygoogle" style="display:block" data-ad-client="' + esc(C.ADSENSE_CLIENT) +
         '" data-ad-slot="' + esc(slot) + '" data-ad-format="auto" data-full-width-responsive="true"></ins></div>';
     }
-    var lista = C.ANUNCIOS || [];
+    var lista = anuncios.filter(function (a) { return a.onde === 'todos' || a.onde === onde; });
     if (!lista.length) return '';
     var a = lista[Math.floor(Math.random() * lista.length)];
     var interno = String(a.link || '').charAt(0) === '#';
@@ -939,8 +935,17 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
     });
   }
-  var AD_FEED = anuncioHtml(C.ADSENSE_SLOT_FEED);
-  $('adLateral').innerHTML = anuncioHtml(C.ADSENSE_SLOT_LATERAL);
+  var AD_FEED = '';
+  function pintaAnuncios() {
+    AD_FEED = anuncioHtml(C.ADSENSE_SLOT_FEED, 'feed');
+    var lat = anuncioHtml(C.ADSENSE_SLOT_LATERAL, 'lateral');
+    $('adLateral').innerHTML = lat;
+    $('secAdLateral').style.display = lat ? '' : 'none';
+  }
+  pintaAnuncios();
+  if (configurado) get('anuncios?select=titulo,texto,botao,link,imagem,onde&ativo=eq.true&order=ordem.asc,id.desc')
+    .then(function (rows) { anuncios = rows || []; pintaAnuncios(); if (noticias.length) pintaFeed(); ativaAdsense(); })
+    .catch(function () {});
 
   /* ---------- histórico e estatísticas ---------- */
   var TEMAS = [

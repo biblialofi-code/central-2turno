@@ -178,7 +178,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--soft)}
   function painel() {
     app.innerHTML =
       '<div class="seg main-tabs" id="abas">' +
-      [['noticias', 'Notícias'], ['videos', 'Vídeos'], ['livros', 'Livros']].map(function (a) {
+      [['noticias', 'Notícias'], ['videos', 'Vídeos'], ['livros', 'Livros'], ['anuncios', 'Anúncios']].map(function (a) {
         return '<button data-aba="' + a[0] + '" aria-pressed="' + (st.aba === a[0]) + '">' + a[1] + '</button>';
       }).join('') + '</div><div id="corpo"></div>';
     $('abas').onclick = function (e) {
@@ -189,7 +189,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--soft)}
     };
     abrir();
   }
-  function abrir() { if (st.aba === 'noticias') noticias(); else if (st.aba === 'videos') videos(); else livros(); }
+  function abrir() { if (st.aba === 'noticias') noticias(); else tabela(st.aba); }
 
   // ---------- NOTÍCIAS ----------
   var STATUS = [['pendente', 'Pendentes'], ['aprovado', 'No ar'], ['descartado', 'Descartadas']];
@@ -334,6 +334,19 @@ input:focus,select:focus,textarea:focus{border-color:var(--soft)}
         { k: 'ativo', t: 'check', rot: 'Aparece no site', def: true }
       ]
     },
+    anuncios: {
+      nome: 'anúncio', ordem: ['ordem', true],
+      campos: [
+        { k: 'titulo', t: 'text', rot: 'Título', req: true, ph: 'Ex.: Mounólogo' },
+        { k: 'texto', t: 'area', rot: 'Texto', max: 160, ph: 'Uma frase' },
+        { k: 'botao', t: 'text', rot: 'Texto do botão', ph: 'Saiba mais' },
+        { k: 'link', t: 'url', rot: 'Link do botão', req: true, ph: 'https://…' },
+        { k: 'imagem', t: 'url', rot: 'Link da imagem', ph: 'opcional' },
+        { k: 'onde', t: 'select', rot: 'Onde aparece', op: ['todos', 'feed', 'lateral'], nomes: { todos: 'Nos dois lugares', feed: 'No meio das notícias (celular)', lateral: 'Na coluna do lado (computador)' }, def: 'todos' },
+        { k: 'ordem', t: 'number', rot: 'Ordem', def: 0 },
+        { k: 'ativo', t: 'check', rot: 'Aparece no site', def: true }
+      ]
+    },
     livros: {
       nome: 'livro', ordem: ['ordem', true],
       campos: [
@@ -420,11 +433,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--soft)}
     if (!r.data.length) { lista.innerHTML = '<p class="empty">Nenhum ainda. Adiciona o primeiro aí em cima.</p>'; return; }
     var porId = {}; r.data.forEach(function (x) { porId[x.id] = x; });
     lista.innerHTML = r.data.map(function (x) {
-      var img = nome === 'videos' ? (ytId(x.link) ? 'https://i.ytimg.com/vi/' + ytId(x.link) + '/mqdefault.jpg' : '') : url(x.capa_url);
+      var img = nome === 'videos' ? (ytId(x.link) ? 'https://i.ytimg.com/vi/' + ytId(x.link) + '/mqdefault.jpg' : '') : nome === 'anuncios' ? url(x.imagem) : url(x.capa_url);
       var meta = nome === 'videos'
         ? '<span class="chip l' + esc(x.lado) + '">' + esc(LADO[x.lado] || x.lado) + '</span><span>' + esc(CAT_NOME[x.categoria] || x.categoria) + (x.fonte ? ' · ' + esc(x.fonte) : '') + (x.momento ? ' · ⏱ ' + esc(x.momento) : '') + '</span>'
+        : nome === 'anuncios' ? '<span>' + esc({ todos: 'Nos dois lugares', feed: 'Meio das notícias', lateral: 'Coluna do lado' }[x.onde] || x.onde) + ' · botão: ' + esc(x.botao || 'Saiba mais') + ' · ordem ' + x.ordem + '</span>'
         : '<span>' + esc(x.autor) + ' · ordem ' + x.ordem + (x.afiliado ? ' · afiliado' : '') + '</span>';
-      var texto = nome === 'videos' ? x.analise : x.por_que;
+      var texto = nome === 'videos' ? x.analise : nome === 'anuncios' ? x.texto : x.por_que;
       return '<article class="card" data-tid="' + x.id + '"><div class="vrow">' +
         (img ? '<div class="thumb" style="background-image:url(\'' + esc(img) + '\')"></div>' : '') +
         '<div style="min-width:0;flex:1"><div class="meta">' + meta + (x.ativo ? '' : '<span class="chip off">Escondido</span>') + '</div>' +
