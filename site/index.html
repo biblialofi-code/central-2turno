@@ -6,6 +6,8 @@
 <title>Central 2º Turno · por Mounólogo</title>
 <meta name="description" content="As notícias do Lula e do Flávio num lugar só.">
 <meta name="theme-color" content="#0C0C10">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Central 2º Turno">
 <meta property="og:description" content="As notícias do Lula e do Flávio num lugar só.">
@@ -74,14 +76,14 @@ img{max-width:100%;display:block}
 
 /* topo */
 .topbar{position:sticky;top:0;z-index:20;background:var(--bg);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}
-.brand{font-size:20px}
-.brand span{color:var(--mute);font-weight:600}
+.brand{display:flex;align-items:center}
+.brand img{height:34px;width:auto;display:block}
 .pill{background:#1C1C24;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700;white-space:nowrap}
 
 .hero{padding:28px 16px 18px}
 .hero .bar{display:flex;height:6px;border-radius:3px;overflow:hidden;width:72px;margin-bottom:18px}
 .hero .bar i{flex:1}
-.hero h1{font-size:44px;line-height:.98;margin:0}
+.hero h1{font-size:34px;line-height:1.04;margin:0;max-width:16ch}
 .hero p{font-size:18px;margin:14px 0 0;color:var(--soft)}
 
 /* filtro */
@@ -261,7 +263,8 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   .topbar{grid-column:1/-1;margin:0 -32px;padding:14px 32px}
   .top-cta a{min-height:44px;padding:0 18px;border-radius:12px;background:var(--green);color:var(--bg);text-decoration:none;display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px}
   .hero{grid-column:1/-1;padding:44px 0 24px;display:flex;align-items:flex-end;justify-content:space-between;gap:32px}
-  .hero h1{font-size:72px}
+  .hero h1{font-size:56px;max-width:18ch}
+  .brand img{height:42px}
   .hero p{max-width:520px;margin:0}
   .col-main{display:block;grid-column:1;min-width:0}
   .col-side{display:flex;flex-direction:column;grid-column:2;position:sticky;top:72px;max-height:calc(100vh - 72px);overflow:auto;scrollbar-width:none;padding-bottom:24px}
@@ -287,7 +290,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
 <div class="wrap">
 
   <header class="topbar">
-    <div class="display brand">central<span> 2º turno</span></div>
+    <a class="brand" href="/" data-voltar aria-label="Central 2º Turno, página inicial"><img src="/logo.png" alt="Central 2º Turno" width="720" height="264"></a>
     <div class="top-cta">
       <div class="pill" id="dias">—</div>
       <button class="btn-perfil" id="btnPerfil" aria-label="Meu 2º turno: meu histórico de leitura">
@@ -299,11 +302,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   </header>
 
   <div class="hero">
-    <div>
-    <div class="bar"><i style="background:var(--red)"></i><i style="background:var(--blue)"></i></div>
-    <h1 class="display">Central 2º turno</h1>
-    </div>
-    <p>As notícias do 2º turno pra te ajudar a decidir.</p>
+    <h1 class="display">As notícias do 2º turno pra te ajudar a decidir.</h1>
   </div>
 
   <main class="col-main">
@@ -557,8 +556,9 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   }
   function desenhaCard(o) {
     // o = { kicker, kickerCor, titulo, corpo, faixa, foto, rodape }
-    return Promise.all([document.fonts.ready, carregaImg(o.foto)]).then(function (r) {
-      if (r[1]) return desenhaCardFoto(o, r[1]);
+    return Promise.all([document.fonts.ready, carregaImg(o.foto), carregaImg(ORIGEM ? '/logo.png' : null, 2000)]).then(function (r) {
+      var logo = r[2];
+      if (r[1]) return desenhaCardFoto(o, r[1], logo);
       var W = 1080, H = 1920, cv = document.createElement('canvas');
       cv.width = W; cv.height = H;
       var c = cv.getContext('2d');
@@ -569,12 +569,15 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       if (o.faixa) { c.fillStyle = RED; c.fillRect(0, 0, W / 2, H); c.fillStyle = BLUE; c.fillRect(W / 2, 0, W / 2, H); c.fillStyle = 'rgba(12,12,16,.18)'; c.fillRect(0, 0, W, H); }
       var x = 96, larg = W - 2 * x;
       // marca no topo
-      c.fillStyle = '#F2F2F5';
-      c.font = '800 54px "Bricolage Grotesque", sans-serif';
-      c.fillText('central', x, 170);
-      var wc = c.measureText('central ').width;
-      c.fillStyle = o.faixa ? 'rgba(255,255,255,.75)' : '#8A8A99'; c.font = '600 54px "Bricolage Grotesque", sans-serif';
-      c.fillText('2º turno', x + wc, 170);
+      if (logo) { var lh = 120; c.drawImage(logo, x, 80, Math.round(logo.width * lh / logo.height), lh); }
+      else {
+        c.fillStyle = '#F2F2F5';
+        c.font = '800 54px "Bricolage Grotesque", sans-serif';
+        c.fillText('central', x, 170);
+        var wc = c.measureText('central ').width;
+        c.fillStyle = o.faixa ? 'rgba(255,255,255,.75)' : '#8A8A99'; c.font = '600 54px "Bricolage Grotesque", sans-serif';
+        c.fillText('2º turno', x + wc, 170);
+      }
 
       // mede o miolo pra centralizar na altura
       c.font = '800 92px "Bricolage Grotesque", sans-serif';
@@ -609,17 +612,20 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     });
   }
   // versão com a foto da matéria em cima
-  function desenhaCardFoto(o, im) {
+  function desenhaCardFoto(o, im, logo) {
     var W = 1080, H = 1920, cv = document.createElement('canvas');
     cv.width = W; cv.height = H;
     var c = cv.getContext('2d');
     c.fillStyle = '#0C0C10'; c.fillRect(0, 0, W, H);
     var x = 84, larg = W - 2 * x;
-    c.fillStyle = '#F2F2F5'; c.font = '800 54px "Bricolage Grotesque", sans-serif';
-    c.fillText('central', x, 140);
-    var wc = c.measureText('central ').width;
-    c.fillStyle = '#8A8A99'; c.font = '600 54px "Bricolage Grotesque", sans-serif';
-    c.fillText('2º turno', x + wc, 140);
+    if (logo) { c.drawImage(logo, x, 44, Math.round(logo.width * 128 / logo.height), 128); }
+    else {
+      c.fillStyle = '#F2F2F5'; c.font = '800 54px "Bricolage Grotesque", sans-serif';
+      c.fillText('central', x, 140);
+      var wc = c.measureText('central ').width;
+      c.fillStyle = '#8A8A99'; c.font = '600 54px "Bricolage Grotesque", sans-serif';
+      c.fillText('2º turno', x + wc, 140);
+    }
     // foto 1080x760, cortada pra preencher
     var fy = 200, fh = 760, esc = Math.max(W / im.width, fh / im.height);
     var sw = W / esc, sh = fh / esc, sx = (im.width - sw) / 2, sy = (im.height - sh) / 2;
@@ -871,6 +877,11 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     noticiaAberta = null; document.title = TITULO_HOME;
     pintaFeed(); window.scrollTo(0, 0);
   }
+  document.querySelector('.topbar .brand').addEventListener('click', function (e) {
+    if (e.metaKey || e.ctrlKey) return;
+    e.preventDefault();
+    if (document.body.classList.contains('modo-noticia')) fecharNoticia(true); else window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
   window.addEventListener('popstate', function () {
     var m = location.pathname.match(/^\/n\/(\d+)/);
     if (m) abrirNoticia(m[1], false); else if (noticiaAberta || document.body.classList.contains('modo-noticia')) fecharNoticia(false);
