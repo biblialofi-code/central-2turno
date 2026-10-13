@@ -2,12 +2,29 @@
   "outputDirectory": "site",
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/n/:id", "destination": "/api/n?id=:id" }
+    {
+      "source": "/n/:id",
+      "destination": "/api/n?id=:id"
+    }
   ],
   "functions": {
-    "api/foto.js": { "maxDuration": 60, "includeFiles": "lib/**" },
-    "api/card.js": { "maxDuration": 30, "includeFiles": "{site/index.html,lib/**}" },
-    "api/n.js": { "includeFiles": "site/index.html" },
-    "api/img.js": { "includeFiles": "site/index.html" }
+    "api/foto.js": {
+      "maxDuration": 60,
+      "includeFiles": "lib/**"
+    },
+    "api/card.js": {
+      "maxDuration": 30,
+      "includeFiles": "{site/index.html,lib/**}"
+    },
+    "api/n.js": {
+      "includeFiles": "site/index.html"
+    },
+    "api/img.js": {
+      "includeFiles": "site/index.html"
+    },
+    "api/aviso.js": {
+      "maxDuration": 60,
+      "includeFiles": "lib/**"
+    }
   }
 }
