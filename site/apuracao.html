@@ -78,7 +78,6 @@ h1{font-size:34px;line-height:1.05;margin:8px 0 6px}
 
   <h1 class="display">Apuração do 2º turno</h1>
   <p class="sub">Direto dos dados oficiais do TSE. A página atualiza sozinha.</p>
-  <div class="teste" id="aviso" hidden></div>
 
   <div id="app"><div class="card espera">Carregando…</div></div>
 
@@ -106,7 +105,7 @@ h1{font-size:34px;line-height:1.05;margin:8px 0 6px}
   function toast(m) { var t = document.getElementById('toast'); t.textContent = m; t.className = 'on'; setTimeout(function () { t.className = ''; }, 2200); }
   function vivo(on, txt) { var v = document.getElementById('vivo'); v.className = 'vivo' + (on ? ' on' : ''); document.getElementById('vivoTxt').textContent = txt; }
 
-  if (TESTE) { var av = document.getElementById('aviso'); av.hidden = false; av.textContent = 'Modo teste: mostrando os dados reais do 1º turno, só pra ver a página funcionando.'; }
+  if (TESTE) { document.querySelector('h1').textContent = 'Apuração do 1º turno'; }
 
   function espera() {
     var falta = FIM_VOTACAO - Date.now();
