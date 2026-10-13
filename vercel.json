@@ -1,1 +1,5 @@
-{ "outputDirectory": "site", "cleanUrls": true }
+{
+  "outputDirectory": "site",
+  "cleanUrls": true,
+  "functions": { "api/foto.js": { "maxDuration": 60 } }
+}
