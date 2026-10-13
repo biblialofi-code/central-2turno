@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin · Central 2º Turno</title>
+<meta name="theme-color" content="#0C0C10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+window.CONFIG = {
+  SUPABASE_URL: 'https://wzosdmigdqhpvarydmfs.supabase.co',
+  SUPABASE_KEY: 'sb_publishable_SuykHQL2DE0NG1LgneA6bw_bhhS_l6s'   // chave PÚBLICA. Quem protege é o Supabase (só admin altera).
+};
+</script>
+<style>
+:root{
+  --bg:#0C0C10; --card:#16161D; --card2:#1E1E27; --line:#22222A; --line2:#33333D;
+  --ink:#F2F2F5; --soft:#B5B5C2; --mute:#8A8A99;
+  --red:#E5243B; --blue:#2B6CEB; --green:#1FA855; --neutral:#4A4A57; --danger:#FF5C6C;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Figtree',system-ui,sans-serif;line-height:1.4}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px 120px}
+.display{font-family:'Bricolage Grotesque','Figtree',sans-serif;font-weight:800;letter-spacing:-.02em}
+header{position:sticky;top:0;z-index:5;background:rgba(12,12,16,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);margin:0 -16px 16px;padding:12px 16px}
+.hrow{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:760px;margin:0 auto}
+.brand{font-size:20px}
+.brand span{color:var(--mute)}
+.who{font-size:13px;color:var(--mute);display:flex;gap:10px;align-items:center;min-width:0}
+.who b{color:var(--soft);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px}
+.seg{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px}
+.seg button{flex:1;min-height:44px;border:0;border-radius:10px;background:transparent;color:var(--soft);font-weight:700;cursor:pointer;padding:0 10px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.seg.lado button[data-v="13"][aria-pressed="true"]{background:var(--red);color:#fff}
+.seg.lado button[data-v="22"][aria-pressed="true"]{background:var(--blue);color:#fff}
+.seg.lado button[data-v="ambos"][aria-pressed="true"]{background:var(--neutral);color:#fff}
+.seg.small button{min-height:38px;font-size:14px}
+.main-tabs{margin-bottom:14px}
+.bar{display:flex;gap:8px;margin:12px 0}
+.bar .seg{flex:1}
+.count{display:inline-block;min-width:20px;padding:0 6px;margin-left:4px;border-radius:999px;background:var(--line2);font-size:12px;line-height:20px}
+.seg button[aria-pressed="true"] .count{background:rgba(0,0,0,.15)}
+input[type=text],input[type=email],input[type=url],input[type=number],select,textarea{width:100%;min-height:46px;border:1px solid var(--line2);background:var(--card2);border-radius:12px;padding:10px 12px;font-size:16px;outline:none}
+textarea{min-height:84px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--soft)}
+.search{margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
+.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--mute);margin-bottom:8px}
+.chip{display:inline-block;padding:3px 10px;border-radius:999px;font-size:13px;font-weight:800;color:#fff}
+.chip.l13{background:var(--red)} .chip.l22{background:var(--blue)} .chip.lambos{background:var(--neutral)}
+.chip.off{background:transparent;border:1px solid var(--line2);color:var(--mute)}
+.title{font-size:18px;font-weight:800;line-height:1.25;margin:0 0 6px;text-decoration:none;display:block}
+.title:hover{text-decoration:underline}
+.resumo{color:var(--soft);margin:0 0 12px;font-size:15px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn{min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line2);background:var(--card2);font-weight:700;cursor:pointer}
+.btn:hover{border-color:var(--soft)}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.ok{background:var(--green);border-color:var(--green);color:#fff}
+.btn.danger{color:var(--danger)}
+.btn.danger.armed{background:var(--danger);border-color:var(--danger);color:#fff}
+.btn:disabled{opacity:.5;cursor:default}
+.lbl{font-size:13px;color:var(--mute);font-weight:600;margin:12px 0 6px;display:block}
+.chk{display:flex;align-items:center;gap:10px;min-height:44px;font-weight:600}
+.chk input{width:22px;height:22px}
+.vrow{display:flex;gap:12px}
+.thumb{width:120px;flex:none;aspect-ratio:16/9;border-radius:10px;background:var(--card2) center/cover}
+.empty{color:var(--mute);text-align:center;padding:40px 0}
+.formcard{border-color:var(--line2)}
+.formcard h2{margin:0 0 4px;font-size:20px}
+.hint{font-size:13px;color:var(--mute);margin:4px 0 0}
+.login{max-width:420px;margin:12vh auto 0}
+.login h1{font-size:34px;margin:0 0 8px}
+.login p{color:var(--soft)}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);opacity:0;transition:.2s;background:var(--ink);color:var(--bg);font-weight:700;padding:12px 18px;border-radius:12px;z-index:20;max-width:90vw;text-align:center;pointer-events:none}
+#toast.on{opacity:1;transform:translateX(-50%)}
+#toast.err{background:var(--danger);color:#fff}
+.more{width:100%}
+@media (max-width:520px){
+  .who b{display:none}
+  .thumb{width:96px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><div class="hrow">
+    <div class="brand display">admin <span>2º turno</span></div>
+    <div class="who" id="who" hidden><b id="whoEmail"></b><button class="btn" id="btnSair" style="min-height:38px">Sair</button></div>
+  </div></header>
+  <div id="app"></div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+<script>
+(function () {
+  var C = window.CONFIG;
+  var sb = window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_KEY, {
+    auth: { flowType: 'implicit', storageKey: 'sb-admin-auth', detectSessionInUrl: true, persistSession: true }
+  });
+  var app = document.getElementById('app');
+  var st = { aba: 'noticias', status: 'pendente', busca: '', limite: 60, editando: null };
+  var LADO = { '13': '13', '22': '22', 'ambos': 'Geral' };
+  var CATS = ['debate', 'entrevista', 'proposta', 'checagem', 'analise'];
+  var CAT_NOME = { debate: 'Debate', entrevista: 'Entrevista', proposta: 'Proposta', checagem: 'Checagem', analise: 'Análise' };
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function url(s) { return /^https?:\/\//i.test(s || '') ? s : ''; }
+  function $(id) { return document.getElementById(id); }
+  var tTimer;
+  function toast(msg, erro) {
+    var t = $('toast'); t.textContent = msg; t.className = 'on' + (erro ? ' err' : '');
+    clearTimeout(tTimer); tTimer = setTimeout(function () { t.className = ''; }, erro ? 5000 : 2200);
+  }
+  function falhou(e) { console.error(e); toast('Deu erro: ' + ((e && (e.message || e.error_description)) || 'tenta de novo'), true); }
+  function ha(iso) {
+    if (!iso) return '';
+    var m = Math.round((Date.now() - new Date(iso)) / 60000);
+    if (m < 1) return 'agora'; if (m < 60) return 'há ' + m + ' min';
+    var h = Math.round(m / 60); if (h < 24) return 'há ' + h + ' h';
+    var d = Math.round(h / 24); return 'há ' + d + (d === 1 ? ' dia' : ' dias');
+  }
+  function ytId(link) { var m = String(link || '').match(/(?:youtu\.be\/|[?&]v=|embed\/|shorts\/|live\/)([\w-]{11})/); return m ? m[1] : ''; }
+  function segLado(nome, atual, extra) {
+    return '<div class="seg lado ' + (extra || '') + '" data-seg="' + nome + '">' + ['13', '22', 'ambos'].map(function (v) {
+      return '<button type="button" data-v="' + v + '" aria-pressed="' + (atual === v) + '">' + LADO[v] + '</button>';
+    }).join('') + '</div>';
+  }
+  // botão que precisa de 2 toques (apagar)
+  function armado(btn) {
+    if (btn.classList.contains('armed')) return true;
+    btn.classList.add('armed'); var txt = btn.textContent; btn.textContent = 'Toca de novo pra apagar';
+    setTimeout(function () { btn.classList.remove('armed'); btn.textContent = txt; }, 3500);
+    return false;
+  }
+
+  // ================= LOGIN =================
+  function telaLogin(msg) {
+    $('who').hidden = true;
+    app.innerHTML =
+      '<div class="login"><h1 class="display">Entrar</h1>' +
+      '<p>' + (msg || 'Coloca o seu e-mail de admin. Te mando um link pra entrar, sem senha.') + '</p>' +
+      '<form id="fLogin"><input type="email" id="lEmail" required placeholder="seu@email.com" autocomplete="email">' +
+      '<div class="row"><button class="btn primary" style="width:100%">Mandar link</button></div></form></div>';
+    $('fLogin').onsubmit = function (e) {
+      e.preventDefault();
+      var b = e.target.querySelector('button'); b.disabled = true; b.textContent = 'Enviando…';
+      sb.auth.signInWithOtp({ email: $('lEmail').value.trim(), options: { emailRedirectTo: location.origin + location.pathname } })
+        .then(function (r) {
+          if (r.error) throw r.error;
+          app.innerHTML = '<div class="login"><h1 class="display">Olha o e-mail.</h1><p>Mandei o link pra <b>' + esc($('lEmail') ? $('lEmail').value : '') + '</b>. Abre ele neste mesmo aparelho.</p><p class="hint">Não chegou em 1 minuto? Olha o spam.</p></div>';
+        })
+        .catch(function (e) { b.disabled = false; b.textContent = 'Mandar link'; falhou(e); });
+    };
+  }
+
+  async function entrar(sessao) {
+    if (!sessao) return telaLogin();
+    $('who').hidden = false; $('whoEmail').textContent = sessao.user.email;
+    var r = await sb.rpc('sou_admin');
+    if (r.error) return falhou(r.error);
+    if (!r.data) {
+      app.innerHTML = '<div class="login"><h1 class="display">Sem acesso.</h1><p><b>' + esc(sessao.user.email) + '</b> não é admin.</p><p class="hint">Se é você, roda no Supabase:<br><code>insert into admins (email) values (\'' + esc(sessao.user.email) + '\');</code></p></div>';
+      return;
+    }
+    painel();
+  }
+  $('btnSair').onclick = function () { sb.auth.signOut().then(function () { telaLogin('Saiu. Pra entrar de novo, coloca o e-mail.'); }); };
+
+  // ================= PAINEL =================
+  function painel() {
+    app.innerHTML =
+      '<div class="seg main-tabs" id="abas">' +
+      [['noticias', 'Notícias'], ['videos', 'Vídeos'], ['livros', 'Livros']].map(function (a) {
+        return '<button data-aba="' + a[0] + '" aria-pressed="' + (st.aba === a[0]) + '">' + a[1] + '</button>';
+      }).join('') + '</div><div id="corpo"></div>';
+    $('abas').onclick = function (e) {
+      var b = e.target.closest('[data-aba]'); if (!b) return;
+      st.aba = b.dataset.aba; st.editando = null; st.limite = 60;
+      [].forEach.call($('abas').children, function (x) { x.setAttribute('aria-pressed', x === b); });
+      abrir();
+    };
+    abrir();
+  }
+  function abrir() { if (st.aba === 'noticias') noticias(); else if (st.aba === 'videos') videos(); else livros(); }
+
+  // ---------- NOTÍCIAS ----------
+  var STATUS = [['pendente', 'Pendentes'], ['aprovado', 'No ar'], ['descartado', 'Descartadas']];
+  async function contar() {
+    var out = {};
+    await Promise.all(STATUS.map(async function (s) {
+      var r = await sb.from('noticias').select('id', { count: 'exact', head: true }).eq('status', s[0]);
+      out[s[0]] = r.count || 0;
+    }));
+    return out;
+  }
+  async function noticias() {
+    var corpo = $('corpo');
+    corpo.innerHTML =
+      '<div class="seg small" id="stTabs">' + STATUS.map(function (s) {
+        return '<button data-st="' + s[0] + '" aria-pressed="' + (st.status === s[0]) + '">' + s[1] + '<span class="count" data-c="' + s[0] + '">·</span></button>';
+      }).join('') + '</div>' +
+      '<div class="bar"><input type="text" class="search" id="busca" placeholder="Buscar na manchete…" value="' + esc(st.busca) + '" style="margin:0"></div>' +
+      '<div id="lista"><p class="empty">Carregando…</p></div>';
+    $('stTabs').onclick = function (e) {
+      var b = e.target.closest('[data-st]'); if (!b) return;
+      st.status = b.dataset.st; st.limite = 60;
+      [].forEach.call($('stTabs').children, function (x) { x.setAttribute('aria-pressed', x === b); });
+      listaNoticias();
+    };
+    var bt; $('busca').oninput = function (e) { clearTimeout(bt); bt = setTimeout(function () { st.busca = e.target.value.trim(); listaNoticias(); }, 300); };
+    atualizaContagem();
+    listaNoticias();
+  }
+  function atualizaContagem() {
+    contar().then(function (c) { Object.keys(c).forEach(function (k) { var el = document.querySelector('[data-c="' + k + '"]'); if (el) el.textContent = c[k]; }); });
+  }
+  async function listaNoticias() {
+    var lista = $('lista'); if (!lista) return;
+    var q = sb.from('noticias').select('id,lado,tipo,veiculo,manchete,resumo,link,status,criado_em,aprovado_em,cliques,instituto,registro_tse')
+      .eq('status', st.status)
+      .order(st.status === 'aprovado' ? 'aprovado_em' : 'criado_em', { ascending: false, nullsFirst: false })
+      .limit(st.limite);
+    if (st.busca) q = q.ilike('manchete', '%' + st.busca.replace(/[%_,()]/g, ' ') + '%');
+    var r = await q;
+    if (r.error) return falhou(r.error);
+    if (!r.data.length) { lista.innerHTML = '<p class="empty">' + (st.busca ? 'Nada com "' + esc(st.busca) + '".' : 'Nada aqui.') + '</p>'; return; }
+    lista.innerHTML = r.data.map(cardNoticia).join('') +
+      (r.data.length >= st.limite ? '<button class="btn more" id="maisN">Carregar mais</button>' : '');
+    if ($('maisN')) $('maisN').onclick = function () { st.limite += 60; listaNoticias(); };
+  }
+  function cardNoticia(n) {
+    var acoes = '';
+    if (n.status === 'pendente') acoes = '<button class="btn ok" data-acao="aprovar">Aprovar</button><button class="btn" data-acao="descartar">Descartar</button>';
+    if (n.status === 'aprovado') acoes = '<button class="btn" data-acao="descartar">Tirar do ar</button>';
+    if (n.status === 'descartado') acoes = '<button class="btn ok" data-acao="aprovar">Pôr no ar</button>';
+    return '<article class="card" data-id="' + n.id + '">' +
+      '<div class="meta"><span class="chip l' + esc(n.lado) + '">' + esc(LADO[n.lado] || n.lado) + '</span>' +
+      '<span>' + esc(n.veiculo) + ' · ' + esc(n.tipo) + ' · ' + ha(n.status === 'aprovado' ? n.aprovado_em : n.criado_em) +
+      (n.status === 'aprovado' ? ' · ' + (n.cliques || 0) + ' leituras' : '') + ' · #' + n.id + '</span></div>' +
+      '<a class="title" href="' + esc(url(n.link)) + '" target="_blank" rel="noopener">' + esc(n.manchete) + '</a>' +
+      '<p class="resumo" data-resumo>' + esc(n.resumo) + '</p>' +
+      segLado('lado', n.lado, 'small') +
+      '<div class="row">' + acoes + '<button class="btn" data-acao="editar">Editar resumo</button><button class="btn danger" data-acao="apagar">Apagar</button></div>' +
+      '</article>';
+  }
+  async function patchNoticia(id, dados) {
+    var r = await sb.from('noticias').update(dados).eq('id', id).select('id');
+    if (r.error) throw r.error;
+    if (!r.data || !r.data.length) throw new Error('não deixou alterar (você é admin?)');
+  }
+  document.addEventListener('click', async function (e) {
+    var card = e.target.closest('article[data-id]'); if (!card || st.aba !== 'noticias') return;
+    var id = card.dataset.id;
+    var segB = e.target.closest('[data-seg="lado"] button');
+    try {
+      if (segB) {
+        if (segB.getAttribute('aria-pressed') === 'true') return;
+        await patchNoticia(id, { lado: segB.dataset.v });
+        [].forEach.call(segB.parentNode.children, function (x) { x.setAttribute('aria-pressed', x === segB); });
+        var chip = card.querySelector('.chip'); chip.className = 'chip l' + segB.dataset.v; chip.textContent = LADO[segB.dataset.v];
+        toast('#' + id + ' agora é ' + LADO[segB.dataset.v]);
+        return;
+      }
+      var b = e.target.closest('[data-acao]'); if (!b) return;
+      var a = b.dataset.acao;
+      if (a === 'aprovar') { await patchNoticia(id, { status: 'aprovado', aprovado_em: new Date().toISOString() }); some(card); toast('#' + id + ' no ar'); atualizaContagem(); }
+      if (a === 'descartar') { await patchNoticia(id, { status: 'descartado' }); some(card); toast(st.status === 'aprovado' ? '#' + id + ' saiu do ar' : '#' + id + ' descartada'); atualizaContagem(); }
+      if (a === 'apagar') {
+        if (!armado(b)) return;
+        var r = await sb.from('noticias').delete().eq('id', id).select('id');
+        if (r.error) throw r.error; if (!r.data.length) throw new Error('não deixou apagar');
+        some(card); toast('#' + id + ' apagada'); atualizaContagem();
+      }
+      if (a === 'editar') {
+        var p = card.querySelector('[data-resumo]');
+        if (card.querySelector('textarea')) return;
+        var antigo = p.textContent;
+        p.outerHTML = '<div data-edit><textarea maxlength="240">' + esc(antigo) + '</textarea><div class="row"><button class="btn primary" data-acao="salvarResumo">Salvar</button><button class="btn" data-acao="cancelarResumo">Cancelar</button></div></div>';
+        card.querySelector('textarea').focus();
+        card.dataset.antigo = antigo;
+      }
+      if (a === 'salvarResumo') {
+        var novo = card.querySelector('textarea').value.trim();
+        if (!novo) return toast('Resumo não pode ficar vazio.', true);
+        await patchNoticia(id, { resumo: novo });
+        card.querySelector('[data-edit]').outerHTML = '<p class="resumo" data-resumo>' + esc(novo) + '</p>';
+        toast('Resumo salvo');
+      }
+      if (a === 'cancelarResumo') card.querySelector('[data-edit]').outerHTML = '<p class="resumo" data-resumo>' + esc(card.dataset.antigo) + '</p>';
+    } catch (err) { falhou(err); }
+  });
+  function some(card) { card.style.transition = '.2s'; card.style.opacity = '0'; setTimeout(function () { card.remove(); if ($('lista') && !$('lista').querySelector('article')) $('lista').innerHTML = '<p class="empty">Nada aqui.</p>'; }, 200); }
+
+  // ---------- VÍDEOS E LIVROS (formulário + lista) ----------
+  var TABELAS = {
+    videos: {
+      nome: 'vídeo', ordem: ['criado_em', false],
+      campos: [
+        { k: 'link', t: 'url', rot: 'Link do YouTube', req: true, ph: 'https://youtu.be/…' },
+        { k: 'lado', t: 'lado', rot: 'Lado', def: 'ambos' },
+        { k: 'categoria', t: 'select', rot: 'Tipo', op: CATS, nomes: CAT_NOME, def: 'entrevista' },
+        { k: 'titulo', t: 'text', rot: 'Título', req: true, ph: 'Preenche sozinho quando cola o link' },
+        { k: 'fonte', t: 'text', rot: 'Canal / fonte', ph: 'Ex.: GloboNews' },
+        { k: 'analise', t: 'area', rot: 'Por que ver (sua nota)', max: 280, ph: 'Até 280 caracteres' },
+        { k: 'momento', t: 'text', rot: 'Ponto-chave (minuto)', ph: '12:40' },
+        { k: 'ativo', t: 'check', rot: 'Aparece no site', def: true }
+      ]
+    },
+    livros: {
+      nome: 'livro', ordem: ['ordem', true],
+      campos: [
+        { k: 'titulo', t: 'text', rot: 'Título', req: true },
+        { k: 'autor', t: 'text', rot: 'Autor', req: true },
+        { k: 'por_que', t: 'area', rot: 'Por que ler agora (1 linha)', req: true, max: 200 },
+        { k: 'link', t: 'url', rot: 'Link (afiliado)', req: true, ph: 'https://…' },
+        { k: 'capa_url', t: 'url', rot: 'Link da imagem da capa', ph: 'opcional' },
+        { k: 'afiliado', t: 'check', rot: 'É link de afiliado', def: true },
+        { k: 'ordem', t: 'number', rot: 'Ordem (menor aparece primeiro)', def: 0 },
+        { k: 'ativo', t: 'check', rot: 'Aparece no site', def: true }
+      ]
+    }
+  };
+  function videos() { tabela('videos'); }
+  function livros() { tabela('livros'); }
+
+  function campoHtml(c, v) {
+    if (v === undefined || v === null) v = c.def !== undefined ? c.def : '';
+    var id = 'f_' + c.k, req = c.req ? ' required' : '', ph = c.ph ? ' placeholder="' + esc(c.ph) + '"' : '';
+    if (c.t === 'check') return '<label class="chk"><input type="checkbox" id="' + id + '"' + (v ? ' checked' : '') + '> ' + esc(c.rot) + '</label>';
+    var h = '<label class="lbl" for="' + id + '">' + esc(c.rot) + (c.req ? '' : ' <span style="font-weight:400">(opcional)</span>') + '</label>';
+    if (c.t === 'lado') return h.replace(' <span style="font-weight:400">(opcional)</span>', '') + segLado('form', v);
+    if (c.t === 'select') return h.replace(' <span style="font-weight:400">(opcional)</span>', '') + '<select id="' + id + '">' + c.op.map(function (o) { return '<option value="' + o + '"' + (o === v ? ' selected' : '') + '>' + esc(c.nomes[o] || o) + '</option>'; }).join('') + '</select>';
+    if (c.t === 'area') return h + '<textarea id="' + id + '"' + req + ph + (c.max ? ' maxlength="' + c.max + '"' : '') + '>' + esc(v) + '</textarea>';
+    return h + '<input type="' + (c.t === 'number' ? 'number' : c.t === 'url' ? 'url' : 'text') + '" id="' + id + '"' + req + ph + ' value="' + esc(v) + '">';
+  }
+  function lerForm(def) {
+    var o = {};
+    def.campos.forEach(function (c) {
+      if (c.t === 'check') o[c.k] = $('f_' + c.k).checked;
+      else if (c.t === 'lado') { var b = document.querySelector('[data-seg="form"] [aria-pressed="true"]'); o[c.k] = b ? b.dataset.v : 'ambos'; }
+      else if (c.t === 'number') o[c.k] = parseInt($('f_' + c.k).value, 10) || 0;
+      else { var v = $('f_' + c.k).value.trim(); o[c.k] = v === '' ? null : v; }
+    });
+    return o;
+  }
+
+  async function tabela(nome) {
+    var def = TABELAS[nome], ed = st.editando;
+    var corpo = $('corpo');
+    corpo.innerHTML =
+      '<form class="card formcard" id="form"><h2 class="display">' + (ed ? 'Editar ' + def.nome + ' #' + ed.id : 'Adicionar ' + def.nome) + '</h2>' +
+      def.campos.map(function (c) { return campoHtml(c, ed ? ed[c.k] : undefined); }).join('') +
+      '<div class="row"><button class="btn primary">' + (ed ? 'Salvar alterações' : 'Adicionar') + '</button>' + (ed ? '<button type="button" class="btn" id="cancelar">Cancelar</button>' : '') + '</div></form>' +
+      '<div id="lista"><p class="empty">Carregando…</p></div>';
+
+    var segF = document.querySelector('[data-seg="form"]');
+    if (segF) segF.onclick = function (e) { var b = e.target.closest('button'); if (!b) return; [].forEach.call(segF.children, function (x) { x.setAttribute('aria-pressed', x === b); }); };
+    if ($('cancelar')) $('cancelar').onclick = function () { st.editando = null; tabela(nome); };
+
+    // vídeo: puxa título e canal do YouTube quando cola o link
+    if (nome === 'videos') $('f_link').addEventListener('change', function () {
+      var link = this.value.trim(); if (!ytId(link)) return;
+      if ($('f_titulo').value && $('f_fonte').value) return;
+      fetch('https://www.youtube.com/oembed?format=json&url=' + encodeURIComponent(link))
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (o) { if (!o) return; if (!$('f_titulo').value) $('f_titulo').value = o.title || ''; if (!$('f_fonte').value) $('f_fonte').value = o.author_name || ''; })
+        .catch(function () {});
+    });
+
+    $('form').onsubmit = async function (e) {
+      e.preventDefault();
+      var dados = lerForm(def);
+      if (nome === 'videos' && dados.momento && !/^\d{1,2}:\d{2}(:\d{2})?$/.test(dados.momento)) return toast('Ponto-chave no formato 12:40', true);
+      if (nome === 'videos' && !ytId(dados.link)) toast('Esse link não parece do YouTube. Salvei mesmo assim, mas pode não tocar no site.', true);
+      var btn = e.target.querySelector('.btn.primary'); btn.disabled = true;
+      try {
+        var r = ed ? await sb.from(nome).update(dados).eq('id', ed.id).select('id') : await sb.from(nome).insert(dados).select('id');
+        if (r.error) throw r.error;
+        if (!r.data || !r.data.length) throw new Error('não deixou salvar (você é admin?)');
+        toast(ed ? 'Salvo' : def.nome[0].toUpperCase() + def.nome.slice(1) + ' adicionado');
+        st.editando = null; tabela(nome);
+      } catch (err) { btn.disabled = false; falhou(err); }
+    };
+    listaTabela(nome);
+  }
+
+  async function listaTabela(nome) {
+    var def = TABELAS[nome];
+    var r = await sb.from(nome).select('*').order(def.ordem[0], { ascending: def.ordem[1] }).limit(200);
+    if (r.error) return falhou(r.error);
+    var lista = $('lista');
+    if (!r.data.length) { lista.innerHTML = '<p class="empty">Nenhum ainda. Adiciona o primeiro aí em cima.</p>'; return; }
+    var porId = {}; r.data.forEach(function (x) { porId[x.id] = x; });
+    lista.innerHTML = r.data.map(function (x) {
+      var img = nome === 'videos' ? (ytId(x.link) ? 'https://i.ytimg.com/vi/' + ytId(x.link) + '/mqdefault.jpg' : '') : url(x.capa_url);
+      var meta = nome === 'videos'
+        ? '<span class="chip l' + esc(x.lado) + '">' + esc(LADO[x.lado] || x.lado) + '</span><span>' + esc(CAT_NOME[x.categoria] || x.categoria) + (x.fonte ? ' · ' + esc(x.fonte) : '') + (x.momento ? ' · ⏱ ' + esc(x.momento) : '') + '</span>'
+        : '<span>' + esc(x.autor) + ' · ordem ' + x.ordem + (x.afiliado ? ' · afiliado' : '') + '</span>';
+      var texto = nome === 'videos' ? x.analise : x.por_que;
+      return '<article class="card" data-tid="' + x.id + '"><div class="vrow">' +
+        (img ? '<div class="thumb" style="background-image:url(\'' + esc(img) + '\')"></div>' : '') +
+        '<div style="min-width:0;flex:1"><div class="meta">' + meta + (x.ativo ? '' : '<span class="chip off">Escondido</span>') + '</div>' +
+        '<a class="title" style="font-size:16px" href="' + esc(url(x.link)) + '" target="_blank" rel="noopener">' + esc(x.titulo) + '</a>' +
+        (texto ? '<p class="resumo" style="margin:0;font-size:14px">' + esc(texto) + '</p>' : (nome === 'videos' ? '<p class="hint" style="margin:0">Sem nota ainda.</p>' : '')) +
+        '</div></div><div class="row">' +
+        '<button class="btn" data-t="editar">Editar</button>' +
+        '<button class="btn" data-t="ativo">' + (x.ativo ? 'Esconder' : 'Mostrar no site') + '</button>' +
+        '<button class="btn danger" data-t="apagar">Apagar</button></div></article>';
+    }).join('');
+    lista.onclick = async function (e) {
+      var b = e.target.closest('[data-t]'); if (!b) return;
+      var card = b.closest('[data-tid]'), id = card.dataset.tid, x = porId[id];
+      try {
+        if (b.dataset.t === 'editar') { st.editando = x; tabela(nome); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        if (b.dataset.t === 'ativo') {
+          var r2 = await sb.from(nome).update({ ativo: !x.ativo }).eq('id', id).select('id');
+          if (r2.error) throw r2.error;
+          toast(x.ativo ? 'Escondido do site' : 'Aparecendo no site'); listaTabela(nome);
+        }
+        if (b.dataset.t === 'apagar') {
+          if (!armado(b)) return;
+          var r3 = await sb.from(nome).delete().eq('id', id).select('id');
+          if (r3.error) throw r3.error; if (!r3.data.length) throw new Error('não deixou apagar');
+          some(card); toast('Apagado');
+        }
+      } catch (err) { falhou(err); }
+    };
+  }
+
+  // ================= INÍCIO =================
+  var iniciou = false;
+  sb.auth.onAuthStateChange(function (ev, sessao) {
+    if (ev === 'SIGNED_OUT') return telaLogin('Saiu. Pra entrar de novo, coloca o e-mail.');
+    if ((ev === 'INITIAL_SESSION' || ev === 'SIGNED_IN') && !iniciou) { iniciou = !!sessao; setTimeout(function () { entrar(sessao); }, 0); }
+  });
+})();
+</script>
+</body>
+</html>
