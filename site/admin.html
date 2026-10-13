@@ -180,7 +180,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--soft)}
   function painel() {
     app.innerHTML =
       '<div class="seg main-tabs" id="abas">' +
-      [['noticias', 'Notícias'], ['videos', 'Vídeos'], ['livros', 'Livros'], ['anuncios', 'Anúncios'], ['comentarios', 'Comentários']].map(function (a) {
+      [['noticias', 'Notícias'], ['videos', 'Vídeos'], ['livros', 'Livros'], ['anuncios', 'Anúncios'], ['comentarios', 'Comentários'], ['numeros', 'Números']].map(function (a) {
         return '<button data-aba="' + a[0] + '" aria-pressed="' + (st.aba === a[0]) + '">' + a[1] + '</button>';
       }).join('') + '</div><div id="corpo"></div>';
     $('abas').onclick = function (e) {
@@ -191,7 +191,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--soft)}
     };
     abrir();
   }
-  function abrir() { if (st.aba === 'noticias') noticias(); else if (st.aba === 'comentarios') comentariosAdm(); else tabela(st.aba); }
+  function abrir() { if (st.aba === 'noticias') noticias(); else if (st.aba === 'comentarios') comentariosAdm(); else if (st.aba === 'numeros') numerosAdm(); else tabela(st.aba); }
 
   // ---------- NOTÍCIAS ----------
   var STATUS = [['pendente', 'Pendentes'], ['aprovado', 'No ar'], ['descartado', 'Descartadas']];
@@ -320,6 +320,44 @@ input:focus,select:focus,textarea:focus{border-color:var(--soft)}
     } catch (err) { falhou(err); }
   });
   function some(card) { card.style.transition = '.2s'; card.style.opacity = '0'; setTimeout(function () { card.remove(); if ($('lista') && !$('lista').querySelector('article')) $('lista').innerHTML = '<p class="empty">Nada aqui.</p>'; }, 200); }
+
+  // ---------- NÚMEROS (contagem por dia) ----------
+  var NOMES_EV = [
+    ['visita:home', 'Visitas na home'], ['visita:noticia', 'Visitas direto numa notícia'], ['visita:videos', 'Visitas em vídeos'], ['visita:dia25', 'Visitas no Dia 25'],
+    ['abriu_noticia', 'Notícias abertas'], ['ler_jornal', 'Foram pro jornal'],
+    ['seguir:home', 'Seguir canal (home)'], ['seguir:noticia', 'Seguir canal (notícia)'], ['seguir:videos', 'Seguir canal (vídeos)'], ['seguir:dia25', 'Seguir canal (Dia 25)'],
+    ['compartilhar:home', 'Compartilhou (home)'], ['compartilhar:noticia', 'Compartilhou (notícia)'], ['compartilhar:videos', 'Compartilhou (vídeos)'],
+    ['cadastro', 'Cadastros'], ['comentario', 'Comentários']
+  ];
+  async function numerosAdm() {
+    var corpo = $('corpo');
+    corpo.innerHTML = '<p class="empty">Carregando…</p>';
+    var desde = new Date(Date.now() - 13 * 86400000 - 3 * 3600000).toISOString().slice(0, 10);
+    var r = await sb.from('eventos_dia').select('dia,evento,n').gte('dia', desde).order('dia', { ascending: false });
+    if (r.error) { corpo.innerHTML = '<p class="empty">Ainda sem dados. Rodou o 09-eventos.sql no Supabase?</p>'; return; }
+    var dias = [], mapa = {}, tot = {};
+    r.data.forEach(function (x) {
+      if (dias.indexOf(x.dia) < 0) dias.push(x.dia);
+      mapa[x.dia + '|' + x.evento] = x.n; tot[x.evento] = (tot[x.evento] || 0) + x.n;
+    });
+    dias = dias.slice(0, 7);
+    var soma = function (pref) { return Object.keys(tot).filter(function (k) { return k.indexOf(pref) === 0; }).reduce(function (a, k) { return a + tot[k]; }, 0); };
+    var vis = soma('visita:'), seg = soma('seguir:'), comp = soma('compartilhar:');
+    var pct = function (a, b) { return b ? (Math.round(a / b * 1000) / 10).toLocaleString('pt-BR') + '%' : '–'; };
+    var cartao = function (n, t, sub) { return '<div class="card" style="margin:0;flex:1;min-width:140px"><div class="display" style="font-size:30px">' + n.toLocaleString('pt-BR') + '</div><div style="font-weight:700">' + t + '</div>' + (sub ? '<div class="hint">' + sub + '</div>' : '') + '</div>'; };
+    var dm = function (d) { var p = d.split('-'); return p[2] + '/' + p[1]; };
+    corpo.innerHTML =
+      '<p class="hint" style="margin:0 0 10px">Últimos 14 dias. Só contagem, sem saber quem é. Visita conta 1 por pessoa por sessão.</p>' +
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">' +
+      cartao(vis, 'Visitas') + cartao(seg, 'Cliques em seguir o canal', pct(seg, vis) + ' das visitas') + cartao(comp, 'Compartilhamentos', pct(comp, vis) + ' das visitas') + '</div>' +
+      '<div class="card" style="overflow-x:auto;padding:0"><table style="width:100%;border-collapse:collapse;font-size:14px">' +
+      '<thead><tr><th style="text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)">Evento</th>' + dias.map(function (d) { return '<th style="padding:10px 8px;border-bottom:1px solid var(--line);color:var(--mute)">' + dm(d) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      NOMES_EV.map(function (e) {
+        return '<tr><td style="padding:8px 12px;border-bottom:1px solid var(--line);white-space:nowrap">' + e[1] + '</td>' +
+          dias.map(function (d) { var v = mapa[d + '|' + e[0]] || 0; return '<td style="text-align:center;padding:8px;border-bottom:1px solid var(--line);' + (v ? 'font-weight:700' : 'color:var(--mute)') + '">' + v + '</td>'; }).join('') + '</tr>';
+      }).join('') + '</tbody></table></div>' +
+      '<p class="hint">Visitas, origem do tráfego e países também aparecem na Vercel, na aba Analytics.</p>';
+  }
 
   // ---------- COMENTÁRIOS (moderação) ----------
   var stc = { filtro: 'todos' };

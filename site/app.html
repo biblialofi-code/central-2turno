@@ -8,6 +8,7 @@
 <meta name="description" content="As notícias do 2º turno de Lula e Flávio Bolsonaro num lugar só: resumo de cada uma, link pro jornal que publicou e os dois lados lado a lado.">
 <meta name="google-site-verification" content="AUHu18AgkXHtZ-y3meVysfJxsu8CSAKMih9STn_mjQk">
 <meta name="theme-color" content="#0C0C10">
+<script defer src="/_vercel/insights/script.js"></script>
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:type" content="website">
@@ -545,6 +546,26 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
   }
 
+  /* ---------- medição: só conta, não guarda quem é ---------- */
+  function lugar() { var b = document.body.classList; return b.contains('modo-noticia') ? 'noticia' : b.contains('modo-videos') ? 'videos' : 'home'; }
+  function marca(ev) {
+    if (!configurado) return;
+    try {
+      fetch(C.SUPABASE_URL + '/rest/v1/rpc/registrar', { method: 'POST', keepalive: true,
+        headers: { apikey: C.SUPABASE_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ ev: ev }) }).catch(function () {});
+    } catch (e) {}
+  }
+  function marcaUmaVez(ev) {   // 1 por sessão do navegador
+    try { if (sessionStorage.getItem('ev-' + ev)) return; sessionStorage.setItem('ev-' + ev, '1'); } catch (e) {}
+    marca(ev);
+  }
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[href]'); if (!a) return;
+    var h = a.getAttribute('href') || '';
+    if (/whatsapp\.com\/channel/.test(h)) marca('seguir:' + lugar());
+    else if (a.closest('.artigo') && a.target === '_blank') marca('ler_jornal');
+  }, true);
+
   /* ---------- compartilhar (imagem 9:16 gerada no celular) ---------- */
   var ORIGEM = /^https?:$/.test(location.protocol) ? location.origin : '';
   var SITE = ORIGEM ? ORIGEM + '/' : location.href.split('#')[0].split('?')[0];
@@ -680,6 +701,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   }
   var pronto = null; // imagem já gerada, se o celular pedir um segundo toque
   function compartilhar(texto, cardOpts, semAssinatura) {
+    marca('compartilhar:' + lugar());
     var msg = semAssinatura ? texto : texto + assinatura();
     // todo compartilhamento leva o link pra seguir o canal
     if (C.CANAL_URL && msg.indexOf(C.CANAL_URL) < 0) msg += '\n\nSiga o canal no WhatsApp: ' + C.CANAL_URL;
@@ -865,6 +887,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
   }
   $('secArtigo').addEventListener('click', cliqueNoticia);
   function marcaLida(n) {
+    if (!lidas[n.id]) marca('abriu_noticia');
     registraLeitura(n);
     if (!lidas[n.id]) {
       lidas[n.id] = n.lado; ls(chaveLidas, lidas);
@@ -979,7 +1002,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       .then(function (r) {
         btn.disabled = false;
         if (r.error) { $('comErro').textContent = /segundos/.test(r.error.message) ? 'Espera uns segundos pra comentar de novo.' : /conta/.test(r.error.message) ? 'Termina seu cadastro pra comentar.' : 'Não deu pra comentar agora. Tenta de novo.'; return; }
-        comentarios.push(r.data); pintaComentarios();
+        marca('comentario'); comentarios.push(r.data); pintaComentarios();
       });
   });
   $('secArtigo').addEventListener('click', function (e) {
@@ -1419,7 +1442,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
       }).then(function (r) {
         if (r.error) throw r.error;
         if (!r.data.session) return telaEnviado(email);   // o Supabase ainda está pedindo confirmação por e-mail
-        fechaPerfil(); toast('Conta criada. Bem-vindo, ' + nome.split(' ')[0] + '.');
+        marca('cadastro'); fechaPerfil(); toast('Conta criada. Bem-vindo, ' + nome.split(' ')[0] + '.');
       }).catch(function (err) {
         $('cEnviar').disabled = false; $('cEnviar').textContent = 'Criar conta';
         $('cErro').textContent = erroAuth(err);
@@ -1552,6 +1575,7 @@ dialog::backdrop{background:rgba(0,0,0,.65)}
     if (id) abrirNoticia(id, false);
     else if (location.pathname === '/videos') abrirVideos(false);
   })();
+  marcaUmaVez('visita:' + lugar());
   carregaNoticias();
   carregaVideos();
   carregaLivros();

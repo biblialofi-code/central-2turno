@@ -7,6 +7,7 @@
 <meta name="description" content="2º turno no domingo, 25 de outubro de 2026, das 8h às 17h (horário de Brasília). O que levar, onde votar, como justificar, celular na cabine e quando sai o resultado.">
 <link rel="canonical" href="https://central-2turno.vercel.app/dia-25">
 <meta name="theme-color" content="#0C0C10">
+<script defer src="/_vercel/insights/script.js"></script>
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:type" content="article">
@@ -154,6 +155,9 @@ h1{font-size:36px;line-height:1.05;margin:10px 0 10px}
 <script>
 (function () {
   var d = Math.ceil((Date.parse('2026-10-25T08:00:00-03:00') - Date.now()) / 86400000);
+  var marca = function (ev) { try { fetch('https://wzosdmigdqhpvarydmfs.supabase.co/rest/v1/rpc/registrar', { method: 'POST', keepalive: true, headers: { apikey: 'sb_publishable_SuykHQL2DE0NG1LgneA6bw_bhhS_l6s', 'Content-Type': 'application/json' }, body: JSON.stringify({ ev: ev }) }).catch(function () {}); } catch (e) {} };
+  try { if (!sessionStorage.getItem('ev-visita:dia25')) { sessionStorage.setItem('ev-visita:dia25', '1'); marca('visita:dia25'); } } catch (e) { marca('visita:dia25'); }
+  document.addEventListener('click', function (e) { var a = e.target.closest('a[href*="whatsapp.com/channel"]'); if (a) marca('seguir:dia25'); }, true);
   document.getElementById('faltam').textContent = d > 1 ? 'faltam ' + d + ' dias' : d === 1 ? 'falta 1 dia' : d === 0 ? 'é hoje' : '';
 })();
 </script>
