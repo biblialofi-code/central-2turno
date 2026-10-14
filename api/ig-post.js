@@ -6,7 +6,7 @@ const SB = process.env.SUPABASE_URL, KEY = process.env.SUPABASE_SERVICE_KEY;
 const SITE = 'https://central-2turno.vercel.app';
 const NOME = { manha: 'Manhã', tarde: 'Tarde', noite: 'Noite' };
 const INICIO = { manha: -2, tarde: 12, noite: 18 };   // hora de Brasília em que a janela começa (-2 = 22h do dia anterior)
-const MAX = 9;
+const MAX = 8;   // capa + 8 notícias + slide final = 10, o máximo do Instagram
 
 function janela(turno, agora) {
   const brt = new Date(agora - 3 * 3600e3).toISOString().slice(0, 10);   // data de hoje em Brasília (sem horário de verão)
@@ -57,7 +57,7 @@ module.exports = async (req, res) => {
     const vez = (Number(j.dia.slice(0, 2)) + ['manha', 'tarde', 'noite'].indexOf(turno)) % 2 ? '22' : '13';   // quem abre o carrossel reveza
     const ns = alterna(await r.json(), vez);
     if (ns.length < 2) return res.status(200).json({ pulou: 'só ' + ns.length + ' notícia(s) no turno' });
-    const imagens = [SITE + '/ig/capa/' + turno + '-' + j.dia + '-' + ns.length + '.jpg'].concat(ns.map((n) => SITE + '/ig/feed/' + n.id + '.jpg'));
+    const imagens = [SITE + '/ig/capa/' + turno + '-' + j.dia + '-' + ns.length + '.jpg'].concat(ns.map((n) => SITE + '/ig/feed/' + n.id + '.jpg'), [SITE + '/ig/fim.jpg']);
     const post = await IG.carrossel(imagens, legenda(turno, j.dia, ns));
     return res.status(200).json({ postado: post, noticias: ns.map((n) => n.id) });
   } catch (e) {

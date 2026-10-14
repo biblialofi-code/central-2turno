@@ -27,6 +27,10 @@
       "destination": "/api/ig?tipo=feed&id=:id"
     },
     {
+      "source": "/ig/fim.jpg",
+      "destination": "/api/ig?tipo=fim"
+    },
+    {
       "source": "/ig/capa/:chave.jpg",
       "destination": "/api/ig?tipo=capa&chave=:chave"
     },

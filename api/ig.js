@@ -3,7 +3,7 @@
 //   /ig/feed/123.jpg   -> slide 1080x1350 da notícia 123
 //   /ig/capa/manha-14-10-5.jpg -> capa do carrossel (turno, dia, quantas notícias)
 const fs = require('fs'), path = require('path');
-const { desenhaStory, desenhaFeed, desenhaCapa, baixaFoto } = require('../lib/card.js');
+const { desenhaStory, desenhaFeed, desenhaCapa, desenhaFim, baixaFoto } = require('../lib/card.js');
 let CFG = null;
 function cfg() {
   if (!CFG) {
@@ -14,6 +14,7 @@ function cfg() {
   return CFG;
 }
 const TURNO = { manha: 'Manhã', tarde: 'Tarde', noite: 'Noite' };
+const FAIXA = { manha: 'Tudo que saiu desde ontem à noite.', tarde: 'Tudo que saiu entre 12h e 18h.', noite: 'Tudo que saiu entre 18h e 22h.' };
 module.exports = async (req, res) => {
   const tipo = String(req.query.tipo || '');
   try {
@@ -21,7 +22,9 @@ module.exports = async (req, res) => {
     if (tipo === 'capa') {
       const m = String(req.query.chave || '').match(/^(manha|tarde|noite)-(\d\d)-(\d\d)-(\d)$/);
       if (!m) return res.status(400).end();
-      jpg = await desenhaCapa(TURNO[m[1]], m[2] + '/' + m[3], Number(m[4]));
+      jpg = await desenhaCapa(TURNO[m[1]], m[2] + '/' + m[3], Number(m[4]), FAIXA[m[1]]);
+    } else if (tipo === 'fim') {
+      jpg = await desenhaFim();
     } else {
       const id = parseInt(req.query.id, 10);
       if (!id || (tipo !== 'story' && tipo !== 'feed')) return res.status(400).end();
