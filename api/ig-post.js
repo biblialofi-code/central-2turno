@@ -4,6 +4,7 @@
 const IG = require('../lib/instagram.js');
 const { desenhaStory, desenhaCapa, desenhaFim, vertical, baixaFoto } = require('../lib/card.js');
 const { montaVideo } = require('../lib/reel.js');
+const SERV = require('../lib/servico.js');
 const REEL_TURNOS = ['noite'];   // turnos que saem como Reels (os outros, carrossel)
 const REEL_MAX = 8;               // notícias no vídeo (até ~45 s)
 const SB = process.env.SUPABASE_URL, KEY = process.env.SUPABASE_SERVICE_KEY;
@@ -61,6 +62,28 @@ async function fazReel(turno, j, ns) {
 }
 const FAIXA_CAPA = { manha: 'Tudo que saiu desde ontem à noite.', tarde: 'Tudo que saiu entre 12h e 18h.', noite: 'Tudo que saiu entre 18h e 22h.' };
 
+// Reels de serviço do dia 25: um por dia, tema pela agenda (ou { tema } pra forçar)
+async function servico(corpo, res) {
+  const j = janela('tarde', Date.now());
+  const tema = SERV.TEMAS[corpo.tema] ? corpo.tema : SERV.AGENDA[j.dia];
+  if (!tema) return res.status(200).json({ pulou: 'sem tema pra hoje' });
+  const chave = 'servico' + (corpo.tema ? '-' + tema : '');
+  const H = { apikey: KEY, Authorization: 'Bearer ' + KEY, 'Content-Type': 'application/json' };
+  const trava = await fetch(SB + '/rest/v1/ig_posts', { method: 'POST', headers: { ...H, Prefer: 'return=minimal' }, body: JSON.stringify({ dia: j.dia, turno: chave }) });
+  if (trava.status === 409) return res.status(200).json({ pulou: 'já postou o serviço de hoje' });
+  try {
+    const mp4 = await montaVideo(await SERV.quadros(tema));
+    const nome = j.dia + '-servico-' + tema + '-' + Date.now() + '.mp4';
+    const up = await fetch(SB + '/storage/v1/object/reels/' + nome, { method: 'POST', body: mp4, headers: { apikey: KEY, Authorization: 'Bearer ' + KEY, 'Content-Type': 'video/mp4', 'x-upsert': 'true' } });
+    if (!up.ok) throw new Error('upload do vídeo: ' + up.status + ' ' + (await up.text()).slice(0, 150));
+    const id = await IG.reel(SB + '/storage/v1/object/public/reels/' + nome, SERV.legenda(tema));
+    return res.status(200).json({ reel: id, tema });
+  } catch (e) {
+    await fetch(SB + '/rest/v1/ig_posts?dia=eq.' + j.dia + '&turno=eq.' + chave, { method: 'DELETE', headers: H }).catch(() => {});
+    return res.status(500).json({ erro: String(e.message || e) });
+  }
+}
+
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   if (!process.env.FOTO_SEGREDO || req.headers['x-segredo'] !== process.env.FOTO_SEGREDO) return res.status(401).json({ erro: 'segredo errado' });
@@ -68,7 +91,8 @@ module.exports = async (req, res) => {
   let corpo = req.body || {};
   if (typeof corpo === 'string') { try { corpo = JSON.parse(corpo); } catch (e) { corpo = {}; } }
   const turno = String(corpo.turno || req.query.turno || '');
-  if (!NOME[turno]) return res.status(400).json({ erro: 'turno: manha, tarde ou noite' });
+  if (turno === 'servico') return servico(corpo, res);
+  if (!NOME[turno]) return res.status(400).json({ erro: 'turno: manha, tarde, noite ou servico' });
   try {
     const j = janela(turno, Date.now());
     const querReel = corpo.reel === true || (REEL_TURNOS.includes(turno) && !corpo.carrossel);
