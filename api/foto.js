@@ -176,6 +176,22 @@ async function mandarProTelegram(id) {
   return 'enviada';
 }
 
+// ---------- 5) story no Instagram, uma vez só por notícia (coluna ig_em) ----------
+const IG = require('../lib/instagram.js');
+async function storyNoInstagram(id) {
+  if (!IG.ligado()) return 'instagram não configurado';
+  const marcou = await sb('noticias?id=eq.' + id + '&status=eq.aprovado&tipo=eq.noticia&ig_em=is.null', {
+    method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify({ ig_em: new Date().toISOString() })
+  });
+  if (!marcou || !marcou.length) return 'já postado ou não é notícia';
+  const site = (process.env.SITE_URL || 'https://central-2turno.vercel.app').replace(/\/$/, '');
+  try { return 'story ' + (await IG.story(site + '/ig/story/' + id + '.jpg')); }
+  catch (e) {
+    await sb('noticias?id=eq.' + id, { method: 'PATCH', body: JSON.stringify({ ig_em: null }) }).catch(() => {});
+    return 'erro: ' + String(e.message || e);
+  }
+}
+
 async function souAdmin(token) {
   if (!token) return false;
   const r = await fetch(SB + '/rest/v1/rpc/sou_admin', {
@@ -203,7 +219,9 @@ module.exports = async (req, res) => {
       try { canal = await postarNoCanal(id); } catch (e) { canal = 'erro: ' + String(e.message || e); }
       let telegram;
       try { telegram = await mandarProTelegram(id); } catch (e) { telegram = 'erro: ' + String(e.message || e); }
-      return res.status(200).json({ ...feito, canal, telegram });
+      let instagram;
+      try { instagram = await storyNoInstagram(id); } catch (e) { instagram = 'erro: ' + String(e.message || e); }
+      return res.status(200).json({ ...feito, canal, telegram, instagram });
     }
 
     // 2) botão do admin: até 8 por vez, das mais novas pras mais velhas

@@ -19,6 +19,18 @@
       "destination": "/propostas.html"
     },
     {
+      "source": "/ig/story/:id.jpg",
+      "destination": "/api/ig?tipo=story&id=:id"
+    },
+    {
+      "source": "/ig/feed/:id.jpg",
+      "destination": "/api/ig?tipo=feed&id=:id"
+    },
+    {
+      "source": "/ig/capa/:chave.jpg",
+      "destination": "/api/ig?tipo=capa&chave=:chave"
+    },
+    {
       "source": "/",
       "destination": "/api/home"
     },
@@ -59,6 +71,14 @@
     },
     "api/sitemap.js": {
       "includeFiles": "{site/app.html,lib/**}"
+    },
+    "api/ig.js": {
+      "maxDuration": 30,
+      "includeFiles": "{site/app.html,lib/**}"
+    },
+    "api/ig-post.js": {
+      "maxDuration": 120,
+      "includeFiles": "lib/**"
     }
   },
   "redirects": [
