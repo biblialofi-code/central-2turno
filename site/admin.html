@@ -180,7 +180,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--soft)}
   function painel() {
     app.innerHTML =
       '<div class="seg main-tabs" id="abas">' +
-      [['noticias', 'Notícias'], ['videos', 'Vídeos'], ['livros', 'Livros'], ['anuncios', 'Anúncios'], ['comentarios', 'Comentários'], ['numeros', 'Números']].map(function (a) {
+      [['noticias', 'Notícias'], ['videos', 'Vídeos'], ['livros', 'Livros'], ['anuncios', 'Anúncios'], ['comentarios', 'Comentários'], ['promessas', 'Promessas'], ['numeros', 'Números']].map(function (a) {
         return '<button data-aba="' + a[0] + '" aria-pressed="' + (st.aba === a[0]) + '">' + a[1] + '</button>';
       }).join('') + '</div><div id="corpo"></div>';
     $('abas').onclick = function (e) {
@@ -191,7 +191,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--soft)}
     };
     abrir();
   }
-  function abrir() { if (st.aba === 'noticias') noticias(); else if (st.aba === 'comentarios') comentariosAdm(); else if (st.aba === 'numeros') numerosAdm(); else tabela(st.aba); }
+  function abrir() { if (st.aba === 'noticias') noticias(); else if (st.aba === 'comentarios') comentariosAdm(); else if (st.aba === 'numeros') numerosAdm(); else if (st.aba === 'promessas') promessasAdm(); else tabela(st.aba); }
 
   // ---------- NOTÍCIAS ----------
   var STATUS = [['pendente', 'Pendentes'], ['aprovado', 'No ar'], ['descartado', 'Descartadas']];
@@ -400,6 +400,66 @@ input:focus,select:focus,textarea:focus{border-color:var(--soft)}
           if (r3.error) throw r3.error; if (!r3.data.length) throw new Error('não deixou apagar');
           some(card); toast('Apagado');
         }
+      } catch (err) { falhou(err); }
+    };
+  }
+
+
+  // ---------- PROMESSAS (Acompanha) ----------
+  var P_STATUS = [['pendente', 'Pra revisar'], ['aprovado', 'No ar'], ['descartado', 'Descartadas']];
+  async function promessasAdm() {
+    st.pst = st.pst || 'pendente';
+    var corpo = $('corpo');
+    var pols = await sb.from('politicos').select('id,nome,partido,uf,campo').order('campo').order('ordem');
+    if (pols.error) return falhou(pols.error);
+    var porId = {}; pols.data.forEach(function (x) { porId[x.id] = x; });
+    corpo.innerHTML =
+      '<p class="hint">A busca roda 3x por dia e traz o que parece promessa. <b>Nada vai pro ar sem você aprovar.</b> Na dúvida, descarta. Confere a fonte antes.</p>' +
+      '<div class="seg" id="pseg">' + P_STATUS.map(function (x) { return '<button data-v="' + x[0] + '" aria-pressed="' + (st.pst === x[0]) + '">' + x[1] + '</button>'; }).join('') + '</div>' +
+      '<details class="card formcard"><summary style="cursor:pointer;font-weight:800">Adicionar promessa na mão</summary><form id="pform">' +
+      '<label class="lbl" for="p_pol">Político</label><select id="p_pol">' + pols.data.map(function (x) { return '<option value="' + x.id + '">' + esc(x.nome + ' (' + x.partido + '-' + x.uf + ')') + '</option>'; }).join('') + '</select>' +
+      '<label class="lbl" for="p_texto">Promessa (começa com verbo: "Votar contra…")</label><textarea id="p_texto" required maxlength="300"></textarea>' +
+      '<label class="lbl" for="p_cit">O que ele disse (trecho) <span style="font-weight:400">(opcional)</span></label><textarea id="p_cit" maxlength="600"></textarea>' +
+      '<label class="lbl" for="p_url">Link da fonte</label><input type="url" id="p_url" required placeholder="https://…">' +
+      '<label class="lbl" for="p_fnome">Nome da fonte <span style="font-weight:400">(opcional)</span></label><input type="text" id="p_fnome" placeholder="Ex.: Folha, vídeo no Instagram">' +
+      '<label class="lbl" for="p_data">Data</label><input type="date" id="p_data">' +
+      '<div class="row"><button class="btn primary">Adicionar e publicar</button></div></form></details>' +
+      '<div id="plista"><p class="empty">Carregando…</p></div>';
+    $('pseg').onclick = function (e) { var b = e.target.closest('button'); if (!b) return; st.pst = b.dataset.v; promessasAdm(); };
+    $('pform').onsubmit = async function (e) {
+      e.preventDefault();
+      var dados = { politico_id: parseInt($('p_pol').value, 10), texto: $('p_texto').value.trim(), citacao: $('p_cit').value.trim() || null,
+        fonte_url: $('p_url').value.trim(), fonte_nome: $('p_fnome').value.trim() || null, data: $('p_data').value || null, status: 'aprovado' };
+      var r = await sb.from('promessas').insert(dados).select('id');
+      if (r.error) return falhou(r.error);
+      toast('Promessa publicada'); promessasAdm();
+    };
+    var r = await sb.from('promessas').select('*').eq('status', st.pst).order('criado_em', { ascending: false }).limit(100);
+    if (r.error) return falhou(r.error);
+    var lista = $('plista');
+    if (!r.data.length) { lista.innerHTML = '<p class="empty">' + (st.pst === 'pendente' ? 'Nada pra revisar agora.' : 'Nenhuma.') + '</p>'; return; }
+    var porP = {}; r.data.forEach(function (x) { porP[x.id] = x; });
+    lista.innerHTML = r.data.map(function (x) {
+      var pol = porId[x.politico_id] || { nome: '?', partido: '', uf: '', campo: '' };
+      var lado = pol.campo === 'neutro' ? 'ambos' : pol.campo;
+      return '<article class="card" data-pid="' + x.id + '"><div class="meta"><span class="chip l' + esc(lado) + '">' + esc(pol.nome) + '</span><span>' + esc(pol.partido + '-' + pol.uf) + (x.data ? ' · ' + esc(x.data.split('-').reverse().join('/')) : '') + '</span></div>' +
+        '<textarea class="ptexto" maxlength="300" style="width:100%;font-weight:700">' + esc(x.texto) + '</textarea>' +
+        (x.citacao ? '<p class="resumo" style="font-size:14px">“' + esc(x.citacao) + '”</p>' : '') +
+        (x.fonte_url ? '<a class="title" style="font-size:14px" href="' + esc(url(x.fonte_url)) + '" target="_blank" rel="noopener">Abrir a fonte' + (x.fonte_nome ? ' (' + esc(x.fonte_nome) + ')' : '') + ' ↗</a>' : '') +
+        '<div class="row">' + (x.status !== 'aprovado' ? '<button class="btn primary" data-p="aprovado">Aprovar</button>' : '') +
+        (x.status !== 'descartado' ? '<button class="btn" data-p="descartado">' + (x.status === 'aprovado' ? 'Tirar do ar' : 'Descartar') + '</button>' : '') +
+        '<button class="btn" data-p="salvar">Salvar texto</button><button class="btn danger" data-p="apagar">Apagar</button></div></article>';
+    }).join('');
+    lista.onclick = async function (e) {
+      var b = e.target.closest('[data-p]'); if (!b) return;
+      var card = b.closest('[data-pid]'), id = card.dataset.pid, acao = b.dataset.p, texto = card.querySelector('.ptexto').value.trim();
+      try {
+        if (acao === 'apagar') { if (!armado(b)) return; var r3 = await sb.from('promessas').delete().eq('id', id).select('id'); if (r3.error) throw r3.error; some(card); return toast('Apagada'); }
+        var mud = acao === 'salvar' ? { texto: texto } : { status: acao, texto: texto };
+        var r2 = await sb.from('promessas').update(mud).eq('id', id).select('id');
+        if (r2.error) throw r2.error; if (!r2.data.length) throw new Error('não deixou salvar');
+        if (acao === 'salvar') return toast('Texto salvo');
+        some(card); toast(acao === 'aprovado' ? 'No ar' : 'Saiu da lista');
       } catch (err) { falhou(err); }
     };
   }
