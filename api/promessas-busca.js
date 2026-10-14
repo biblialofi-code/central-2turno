@@ -2,7 +2,7 @@
 // Cada rodada pega os 7 que estão há mais tempo sem busca, lê as notícias recentes do Google News
 // e pede pra IA separar só promessas que dá pra conferir. Tudo entra como "pendente": você aprova no admin.
 // Variáveis: SUPABASE_URL, SUPABASE_SERVICE_KEY, FOTO_SEGREDO, ANTHROPIC_API_KEY, ANTHROPIC_MODEL (opcional), TELEGRAM_*
-const { linkReal, textoMateria } = require('../lib/gnews.js');
+const { linkReal, textoMateria, textoSite } = require('../lib/gnews.js');
 const SB = process.env.SUPABASE_URL, KEY = process.env.SUPABASE_SERVICE_KEY;
 const POR_RODADA = 7;
 
@@ -69,7 +69,40 @@ async function fotoCamara(p) {
   return null;
 }
 
+const PROMPT_SITE = (p, paginas) => `Você ajuda um site de notícias NEUTRO a registrar promessas de políticos.
+Político: ${p.nome} (${p.partido}-${p.uf}), deputado federal eleito em 2026. O texto abaixo é do SITE DE CAMPANHA dele.
+
+Extraia as propostas e compromissos que ele assume, que dê pra conferir no mandato de deputado federal.
+Escreva cada uma como AÇÃO checável (votar, apresentar projeto, defender na Câmara, destinar emenda, não usar algo). Junte itens repetidos.
+NÃO vale: biografia, slogan, crítica a adversário, coisa vaga sem ação ("cuidar das pessoas").
+Lembre: deputado vota na Câmara; não executa obra nem cria programa sozinho, então "construir hospital" vira "destinar emendas para hospital em X".
+Na dúvida, deixe de fora. Não invente. No máximo 12.
+
+Responda só com JSON: {"promessas":[{"pagina":<número>,"promessa":"<verbo no infinitivo, curta e neutra>","citacao":"<trecho do site, copiado igual>","como_conferir":"<onde dá pra ver se cumpriu, curto>"}]}
+
+${paginas.map((pg, i) => '[' + i + '] ' + pg.url + '\n' + pg.texto).join('\n\n')}`;
+
+async function lerSite(p) {
+  if (!p.site_url) return 0;
+  if (p.site_lido_em && Date.now() - Date.parse(p.site_lido_em) < 7 * 864e5) return 0;   // relê uma vez por semana
+  const paginas = await textoSite(p.site_url);
+  await sb('politicos?id=eq.' + p.id, { method: 'PATCH', body: JSON.stringify({ site_lido_em: new Date().toISOString() }) });
+  if (!paginas.length) return 0;
+  const lista = await ia(PROMPT_SITE(p, paginas));
+  const ja = await sb('promessas?select=texto&politico_id=eq.' + p.id);
+  const txt = new Set(ja.map((x) => x.texto.trim().toLowerCase()));
+  const hoje = new Date().toISOString().slice(0, 10);
+  const linhas = lista.filter((x) => x.promessa && paginas[x.pagina] && !txt.has(String(x.promessa).trim().toLowerCase())).map((x) => ({
+    politico_id: p.id, texto: String(x.promessa).slice(0, 300), citacao: String(x.citacao || '').slice(0, 600) || null,
+    como_conferir: x.como_conferir ? String(x.como_conferir).slice(0, 200) : null,
+    fonte_url: paginas[x.pagina].url, fonte_nome: 'Site de campanha', data: hoje }));
+  if (linhas.length) await sb('promessas', { method: 'POST', body: JSON.stringify(linhas) });
+  return linhas.length;
+}
+
 async function processa(p) {
+  let doSite = 0;
+  try { doSite = await lerSite(p); } catch (e) { /* site fora do ar: segue com as notícias */ }
   if (!p.foto_url) {
     try { const f = await fotoCamara(p); if (f) await sb('politicos?id=eq.' + p.id, { method: 'PATCH', body: JSON.stringify({ foto_url: f }) }); } catch (e) { /* sem foto, segue */ }
   }
@@ -111,7 +144,7 @@ async function processa(p) {
     await sb('promessas_vistas', { method: 'POST', headers: { Prefer: 'resolution=ignore-duplicates' }, body: JSON.stringify(novas.map((n) => ({ url: n.link }))) });
   }
   await sb('politicos?id=eq.' + p.id, { method: 'PATCH', body: JSON.stringify({ ultima_busca: new Date().toISOString() }) });
-  return { nome: p.nome, noticias: novas.length, promessas: achou };
+  return { nome: p.nome, noticias: novas.length, promessas: achou + doSite, do_site: doSite };
 }
 
 module.exports = async (req, res) => {
@@ -122,7 +155,7 @@ module.exports = async (req, res) => {
   if (corpo.acao === 'tse') return require('../lib/tse.js')(req, res);   // fotos e votos oficiais do TSE
   if (!process.env.ANTHROPIC_API_KEY) return res.status(200).json({ pulou: 'falta ANTHROPIC_API_KEY na Vercel' });
   try {
-    const fila = await sb('politicos?select=id,nome,partido,uf,ultima_busca,foto_url&ativo=eq.true&order=ultima_busca.asc.nullsfirst&limit=' + POR_RODADA);
+    const fila = await sb('politicos?select=id,nome,partido,uf,ultima_busca,foto_url,site_url,site_lido_em&ativo=eq.true&order=ultima_busca.asc.nullsfirst&limit=' + POR_RODADA);
     const feitos = [];
     for (const p of fila) { try { feitos.push(await processa(p)); } catch (e) { feitos.push({ nome: p.nome, erro: String(e.message || e) }); } }
     const total = feitos.reduce((s, f) => s + (f.promessas || 0), 0);

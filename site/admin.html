@@ -409,7 +409,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--soft)}
   // ---------- DEPUTADOS (foto do Acompanha) ----------
   async function deputadosAdm() {
     var corpo = $('corpo');
-    var r = await sb.from('politicos').select('id,slug,nome,partido,uf,campo,foto_url').order('campo').order('ordem');
+    var r = await sb.from('politicos').select('id,slug,nome,partido,uf,campo,foto_url,site_url,site_lido_em').order('campo').order('ordem');
     if (r.error) return falhou(r.error);
     var sg = await sb.from('sugestoes_nomes').select('nome,motivo,criado_em').order('criado_em', { ascending: false }).limit(500);
     var cont = {}, mot = {};
@@ -417,21 +417,23 @@ input:focus,select:focus,textarea:focus{border-color:var(--soft)}
     var top = Object.keys(cont).sort(function (a, b) { return cont[b] - cont[a]; }).slice(0, 20);
     var htmlSug = '<article class="card"><h2 class="display" style="font-size:20px;margin:0 0 8px">Nomes sugeridos pelo público</h2>' +
       (top.length ? top.map(function (k) { return '<div class="meta"><span class="chip">' + cont[k] + 'x</span><span>' + esc(mot[k]) + '</span></div>'; }).join('') : '<p class="hint" style="margin:0">Nenhuma sugestão ainda.</p>') + '</article>';
-    corpo.innerHTML = htmlSug + '<p class="hint">Quem já é deputado federal ganha a foto oficial da Câmara sozinho. Pros outros, cola o link de uma foto (site oficial, Wikipédia ou o perfil dele) e salva. Use foto oficial, de rosto, do mesmo jeito pra todos.</p>' +
+    corpo.innerHTML = htmlSug + '<p class="hint">Quem já é deputado federal ganha a foto oficial da Câmara sozinho. Embaixo da foto, cola o <b>site de campanha</b>: a busca lê as propostas de lá e manda pra você aprovar em Promessas.</p>' +
       r.data.map(function (x) {
         return '<article class="card" data-did="' + x.id + '"><div class="vrow">' +
           '<div class="thumb" style="width:64px;height:64px;border-radius:32px;background-size:cover;background-position:center 20%;background-color:#1E1E27' + (url(x.foto_url) ? ';background-image:url(\'' + esc(x.foto_url) + '\')' : '') + '"></div>' +
           '<div style="min-width:0;flex:1"><a class="title" style="font-size:16px" href="/deputado/' + esc(x.slug) + '" target="_blank" rel="noopener">' + esc(x.nome) + '</a><div class="meta"><span>' + esc(x.partido + '-' + x.uf) + '</span>' + (x.foto_url ? '' : '<span class="chip off">Sem foto</span>') + '</div>' +
-          '<input type="url" class="dfoto" placeholder="https://… (link da foto)" value="' + esc(x.foto_url || '') + '"></div></div>' +
-          '<div class="row"><button class="btn" data-d="salvar">Salvar foto</button></div></article>';
+          '<input type="url" class="dfoto" placeholder="https://… (link da foto)" value="' + esc(x.foto_url || '') + '">' +
+          '<input type="url" class="dsite" style="margin-top:6px" placeholder="https://… (site de campanha, com as propostas)" value="' + esc(x.site_url || '') + '">' +
+          (x.site_lido_em ? '<p class="hint" style="margin:4px 0 0">Site lido em ' + esc(new Date(x.site_lido_em).toLocaleDateString('pt-BR')) + '</p>' : '') + '</div></div>' +
+          '<div class="row"><button class="btn" data-d="salvar">Salvar</button></div></article>';
       }).join('');
     corpo.onclick = async function (e) {
       var b = e.target.closest('[data-d]'); if (!b) return;
-      var card = b.closest('[data-did]'), v = card.querySelector('.dfoto').value.trim();
-      if (v && !/^https:\/\//.test(v)) return toast('O link tem que começar com https://', true);
-      var r2 = await sb.from('politicos').update({ foto_url: v || null }).eq('id', card.dataset.did).select('id');
+      var card = b.closest('[data-did]'), v = card.querySelector('.dfoto').value.trim(), st2 = card.querySelector('.dsite').value.trim();
+      if ((v && !/^https:\/\//.test(v)) || (st2 && !/^https?:\/\//.test(st2))) return toast('Os links têm que começar com https://', true);
+      var r2 = await sb.from('politicos').update({ foto_url: v || null, site_url: st2 || null, site_lido_em: null }).eq('id', card.dataset.did).select('id');
       if (r2.error) return falhou(r2.error);
-      toast('Foto salva'); deputadosAdm();
+      toast('Salvo. O site é lido na próxima busca.'); deputadosAdm();
     };
   }
 
