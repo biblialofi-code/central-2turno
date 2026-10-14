@@ -180,7 +180,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--soft)}
   function painel() {
     app.innerHTML =
       '<div class="seg main-tabs" id="abas">' +
-      [['noticias', 'Notícias'], ['videos', 'Vídeos'], ['livros', 'Livros'], ['anuncios', 'Anúncios'], ['comentarios', 'Comentários'], ['promessas', 'Promessas'], ['numeros', 'Números']].map(function (a) {
+      [['noticias', 'Notícias'], ['videos', 'Vídeos'], ['livros', 'Livros'], ['anuncios', 'Anúncios'], ['comentarios', 'Comentários'], ['promessas', 'Promessas'], ['deputados', 'Deputados'], ['numeros', 'Números']].map(function (a) {
         return '<button data-aba="' + a[0] + '" aria-pressed="' + (st.aba === a[0]) + '">' + a[1] + '</button>';
       }).join('') + '</div><div id="corpo"></div>';
     $('abas').onclick = function (e) {
@@ -191,7 +191,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--soft)}
     };
     abrir();
   }
-  function abrir() { if (st.aba === 'noticias') noticias(); else if (st.aba === 'comentarios') comentariosAdm(); else if (st.aba === 'numeros') numerosAdm(); else if (st.aba === 'promessas') promessasAdm(); else tabela(st.aba); }
+  function abrir() { if (st.aba === 'noticias') noticias(); else if (st.aba === 'comentarios') comentariosAdm(); else if (st.aba === 'numeros') numerosAdm(); else if (st.aba === 'promessas') promessasAdm(); else if (st.aba === 'deputados') deputadosAdm(); else tabela(st.aba); }
 
   // ---------- NOTÍCIAS ----------
   var STATUS = [['pendente', 'Pendentes'], ['aprovado', 'No ar'], ['descartado', 'Descartadas']];
@@ -404,6 +404,30 @@ input:focus,select:focus,textarea:focus{border-color:var(--soft)}
     };
   }
 
+
+
+  // ---------- DEPUTADOS (foto do Acompanha) ----------
+  async function deputadosAdm() {
+    var corpo = $('corpo');
+    var r = await sb.from('politicos').select('id,slug,nome,partido,uf,campo,foto_url').order('campo').order('ordem');
+    if (r.error) return falhou(r.error);
+    corpo.innerHTML = '<p class="hint">Quem já é deputado federal ganha a foto oficial da Câmara sozinho. Pros outros, cola o link de uma foto (site oficial, Wikipédia ou o perfil dele) e salva. Use foto oficial, de rosto, do mesmo jeito pra todos.</p>' +
+      r.data.map(function (x) {
+        return '<article class="card" data-did="' + x.id + '"><div class="vrow">' +
+          '<div class="thumb" style="width:64px;height:64px;border-radius:32px;background-size:cover;background-position:center 20%;background-color:#1E1E27' + (url(x.foto_url) ? ';background-image:url(\'' + esc(x.foto_url) + '\')' : '') + '"></div>' +
+          '<div style="min-width:0;flex:1"><a class="title" style="font-size:16px" href="/deputado/' + esc(x.slug) + '" target="_blank" rel="noopener">' + esc(x.nome) + '</a><div class="meta"><span>' + esc(x.partido + '-' + x.uf) + '</span>' + (x.foto_url ? '' : '<span class="chip off">Sem foto</span>') + '</div>' +
+          '<input type="url" class="dfoto" placeholder="https://… (link da foto)" value="' + esc(x.foto_url || '') + '"></div></div>' +
+          '<div class="row"><button class="btn" data-d="salvar">Salvar foto</button></div></article>';
+      }).join('');
+    corpo.onclick = async function (e) {
+      var b = e.target.closest('[data-d]'); if (!b) return;
+      var card = b.closest('[data-did]'), v = card.querySelector('.dfoto').value.trim();
+      if (v && !/^https:\/\//.test(v)) return toast('O link tem que começar com https://', true);
+      var r2 = await sb.from('politicos').update({ foto_url: v || null }).eq('id', card.dataset.did).select('id');
+      if (r2.error) return falhou(r2.error);
+      toast('Foto salva'); deputadosAdm();
+    };
+  }
 
   // ---------- PROMESSAS (Acompanha) ----------
   var P_STATUS = [['pendente', 'Pra revisar'], ['aprovado', 'No ar'], ['descartado', 'Descartadas']];
