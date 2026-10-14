@@ -64,6 +64,12 @@ async function processa(p) {
     novas = todas.filter((n) => !ja.has(n.link));
   }
   let achou = 0;
+  // guarda as manchetes no perfil (as já salvas são ignoradas)
+  if (todas.length) {
+    const tira = (t, f) => f && t.endsWith(' - ' + f) ? t.slice(0, -(f.length + 3)) : t;
+    await sb('politico_noticias?on_conflict=politico_id,link', { method: 'POST', headers: { Prefer: 'resolution=ignore-duplicates' },
+      body: JSON.stringify(todas.map((n) => { const d = new Date(n.data); return { politico_id: p.id, titulo: tira(n.titulo, n.fonte).slice(0, 300), link: n.link, fonte: n.fonte || null, data: isNaN(d) ? null : d.toISOString() }; })) }).catch(() => {});
+  }
   // lê a matéria de verdade (5 por vez); se não der, fica só com a manchete
   for (let i = 0; i < novas.length; i += 5) {
     await Promise.all(novas.slice(i, i + 5).map(async (n) => {

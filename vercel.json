@@ -15,7 +15,7 @@
       "destination": "/api/acompanha"
     },
     {
-      "source": "/p/:slug",
+      "source": "/deputado/:slug",
       "destination": "/api/acompanha?slug=:slug"
     },
     {
@@ -114,6 +114,11 @@
     {
       "source": "/index.html",
       "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/p/:slug",
+      "destination": "/deputado/:slug",
       "permanent": true
     }
   ]

@@ -28,10 +28,10 @@ h2.sec i{width:12px;height:12px;border-radius:6px;background:var(--c);display:in
 .vazio{color:var(--soft);background:var(--card);border:1px dashed var(--line2);border-radius:16px;padding:18px}
 @media (min-width:760px){.grade{grid-template-columns:1fr 1fr}.ficha{grid-template-columns:repeat(4,1fr)}}`;
 
-function pagina({ titulo, desc, canon, corpo }) {
+function pagina({ titulo, desc, canon, corpo, indexa, ld }) {
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>${e(titulo)}</title><meta name="description" content="${e(desc)}"><meta name="robots" content="noindex">
+<title>${e(titulo)}</title><meta name="description" content="${e(desc)}">${indexa ? '' : '<meta name="robots" content="noindex">'}${ld ? P.jsonLd(ld) : ''}
 <link rel="canonical" href="${e(canon)}"><meta name="theme-color" content="#0C0C10">
 <link rel="icon" type="image/png" href="/favicon.png"><meta property="og:title" content="${e(titulo)}"><meta property="og:description" content="${e(desc)}">
 <meta property="og:image" content="${SITE}/og.png"><meta name="twitter:card" content="summary_large_image">
@@ -47,7 +47,7 @@ ${corpo}
 <div class="dock"><a class="zap" href="${CANAL}" target="_blank" rel="noopener">Seguir no WhatsApp</a></div></body></html>`;
 }
 function item(p) {
-  return `<a class="pol" style="--c:${COR[p.campo]}" href="/p/${e(p.slug)}"><span class="av">${e(iniciais(p.nome))}</span>
+  return `<a class="pol" style="--c:${COR[p.campo]}" href="/deputado/${e(p.slug)}"><span class="av">${e(iniciais(p.nome))}</span>
 <span><b>${e(p.nome)}</b><small>${e(p.partido)}-${e(p.uf)}</small></span><span class="n">${fmt(p.votos)} votos<br>${p.n || 0} promessa${p.n === 1 ? '' : 's'}</span></a>`;
 }
 
@@ -69,7 +69,11 @@ ${bloco('13')}${bloco('22')}${bloco('neutro')}`;
     }
     const p = (await P.supabase('politicos?select=id,slug,nome,partido,uf,cargo,campo,votos,votos_fonte&slug=eq.' + slug))[0];
     if (!p) { res.setHeader('Cache-Control', 'no-store'); return res.status(404).send(pagina({ titulo: 'Não achei · Central 2º Turno', desc: '', canon: SITE + '/acompanha', corpo: '<h1 class="display">Não achei esse nome.</h1><p class="lead"><a href="/acompanha">Ver os 21</a></p>' })); }
-    const proms = await P.supabase('promessas?select=texto,citacao,como_conferir,fonte_url,fonte_nome,data&politico_id=eq.' + p.id + '&order=data.desc.nullslast');
+    const [proms, nots] = await Promise.all([
+      P.supabase('promessas?select=texto,citacao,como_conferir,fonte_url,fonte_nome,data&politico_id=eq.' + p.id + '&order=data.desc.nullslast'),
+      P.supabase('politico_noticias?select=titulo,link,fonte,data&politico_id=eq.' + p.id + '&order=data.desc.nullslast&limit=12').catch(() => [])]);
+    const listaNots = nots.length ? nots.map((n) => `<a class="pol" style="--c:var(--line2);display:block" href="${e(n.link)}" target="_blank" rel="noopener nofollow"><b style="font-size:16px">${e(n.titulo)}</b><small>${e(n.fonte || '')}${n.data ? ' · ' + dataBr(n.data.slice(0, 10)) : ''}</small></a>`).join('')
+      : '<p class="vazio">Sem notícias recentes ainda.</p>';
     const lista = proms.length ? proms.map((x) => `<div class="prom"><p>${e(x.texto)}</p>${x.citacao ? '<blockquote>' + e(x.citacao) + '</blockquote>' : ''}${x.como_conferir ? '<small style="display:block;margin-bottom:6px"><b>Como conferir:</b> ' + e(x.como_conferir) + '</small>' : ''}
 <small>${x.data ? dataBr(x.data) + ' · ' : ''}${x.fonte_url ? '<a href="' + e(x.fonte_url) + '" target="_blank" rel="noopener">' + e(x.fonte_nome || 'Fonte') + '</a>' : e(x.fonte_nome || '')}</small></div>`).join('')
       : '<p class="vazio">Ainda não registramos nenhuma promessa. A gente busca todo dia e só publica o que tem fonte.</p>';
@@ -77,10 +81,14 @@ ${bloco('13')}${bloco('22')}${bloco('neutro')}`;
 <p class="lead" style="margin:4px 0 0">${e(p.cargo)} eleito · ${e(p.partido)}-${e(p.uf)}</p></div></div>
 <div class="ficha"><div><b>Votos</b><span>${fmt(p.votos)}</span></div><div><b>Partido</b><span>${e(p.partido)}</span></div><div><b>Estado</b><span>${e(p.uf)}</span></div><div><b>Campo</b><span>${CAMPO[p.campo]}</span></div></div>
 <h2 class="display" style="font-size:24px;margin:0 0 12px">O que prometeu</h2>${lista}
+<h2 class="display" style="font-size:24px;margin:26px 0 12px">Saiu na imprensa</h2><div class="grade">${listaNots}</div>
 <div class="cta"><h2 class="display">E o mandato?</h2><p>A posse é em 1º de fevereiro de 2027. A partir daí entram aqui os votos, os gastos da cota e a presença, direto dos dados da Câmara.</p></div>
 <p class="fontes">Votos: ${e(p.votos_fonte || '')}. Campo: partido que apoiou formalmente o 13 ou o 22 no 2º turno.</p>`;
     res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
-    return res.status(200).send(pagina({ titulo: p.nome + ': o que prometeu · Central 2º Turno', desc: 'As promessas de campanha de ' + p.nome + ' (' + p.partido + '-' + p.uf + '), com fonte.', canon: SITE + '/p/' + p.slug, corpo }));
+    const canon = SITE + '/deputado/' + p.slug;
+    const ld = { '@context': 'https://schema.org', '@type': 'ProfilePage', url: canon, mainEntity: { '@type': 'Person', name: p.nome, jobTitle: 'Deputado federal eleito', affiliation: { '@type': 'Organization', name: p.partido }, address: { '@type': 'PostalAddress', addressRegion: p.uf, addressCountry: 'BR' } } };
+    return res.status(200).send(pagina({ titulo: p.nome + ' (' + p.partido + '-' + p.uf + '): promessas, notícias e mandato · Central 2º Turno',
+      desc: 'O que ' + p.nome + ', deputado federal eleito pelo ' + p.partido + '-' + p.uf + ', prometeu na campanha, o que saiu na imprensa e, a partir de 2027, como vota e quanto gasta.', canon, corpo, indexa: proms.length > 0, ld }));
   } catch (err) {
     res.setHeader('Cache-Control', 'no-store');
     return res.status(500).send('Erro: ' + e(String(err.message || err)));

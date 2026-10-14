@@ -4,11 +4,15 @@ module.exports = async (req, res) => {
   const origem = 'https://' + (req.headers['x-forwarded-host'] || req.headers.host);
   let rows = [];
   try { rows = await P.supabase('noticias?select=id,aprovado_em&status=eq.aprovado&order=aprovado_em.desc&limit=5000'); } catch (e) { rows = []; }
+  let perfis = [];   // só perfis com promessa aprovada (os outros estão como noindex)
+  try { const pr = await P.supabase('promessas?select=politico_id'); const ids = [...new Set(pr.map((x) => x.politico_id))];
+    if (ids.length) perfis = await P.supabase('politicos?select=slug&id=in.(' + ids.join(',') + ')'); } catch (e) { perfis = []; }
   const agora = new Date().toISOString();
   const url = (loc, mod, freq, pri) => '<url><loc>' + loc + '</loc>' + (mod ? '<lastmod>' + mod + '</lastmod>' : '') +
     '<changefreq>' + freq + '</changefreq><priority>' + pri + '</priority></url>';
   const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' +
     url(origem + '/', agora, 'hourly', '1.0') + url(origem + '/dia-25', agora, 'daily', '0.9') + url(origem + '/apuracao', agora, 'hourly', '0.9') + url(origem + '/videos', agora, 'daily', '0.6') +
+    perfis.map((p) => url(origem + '/deputado/' + p.slug, agora, 'daily', '0.8')).join('') +
     rows.map((n) => url(origem + '/n/' + n.id, n.aprovado_em ? new Date(n.aprovado_em).toISOString() : '', 'weekly', '0.7')).join('') +
     '</urlset>';
   res.setHeader('Content-Type', 'application/xml; charset=utf-8');
