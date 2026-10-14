@@ -57,10 +57,16 @@ async function ia(texto) {
 
 // foto oficial da Câmara (só existe pra quem já é deputado federal; depois da posse, vale pra todos)
 async function fotoCamara(p) {
-  const r = await fetch('https://dadosabertos.camara.leg.br/api/v2/deputados?nome=' + encodeURIComponent(p.nome) + '&siglaUf=' + p.uf, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) });
-  if (!r.ok) return null;
-  const d = ((await r.json()).dados || []);
-  return d.length === 1 && d[0].urlFoto ? d[0].urlFoto : null;
+  // tenta o nome completo, depois sem "Professora/Delegado/Sargento" e por fim só o sobrenome (sempre no mesmo estado)
+  const sem = p.nome.replace(/^(Professora?|Delegad[oa]|Sargento|Dra?\.?|Pastor[a]?)\s+/i, '');
+  const tentativas = [...new Set([p.nome, sem, sem.split(/\s+/).pop()])];
+  for (const nome of tentativas) {
+    const r = await fetch('https://dadosabertos.camara.leg.br/api/v2/deputados?nome=' + encodeURIComponent(nome) + '&siglaUf=' + p.uf, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) });
+    if (!r.ok) continue;
+    const d = ((await r.json()).dados || []);
+    if (d.length === 1 && d[0].urlFoto) return d[0].urlFoto;
+  }
+  return null;
 }
 
 async function processa(p) {
