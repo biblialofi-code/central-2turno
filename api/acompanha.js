@@ -64,9 +64,23 @@ module.exports = async (req, res) => {
       pols.forEach((p) => { p.n = n[p.id] || 0; });
       const bloco = (c) => `<h2 class="sec display" style="--c:${COR[c]}"><i></i>${BLOCO[c]}</h2><div class="grade">${pols.filter((p) => p.campo === c).map(item).join('')}</div>`;
       const corpo = `<h1 class="display">Acompanha: os 21 mais votados</h1>
-<p class="lead">O que cada deputado prometeu na campanha. Depois da posse, em fevereiro, entra o que ele fez: votos, gastos e presença.</p>
+<p class="lead">O que cada um prometeu. A partir de fevereiro, o que fez.</p>
 <p class="regra"><b>Como escolhemos:</b> os 10 deputados federais mais votados de partidos que apoiaram formalmente o Lula no 2º turno, os 10 mais votados de partidos que apoiaram o Flávio e o mais votado dos partidos que ficaram neutros. Ninguém foi escolhido a dedo.</p>
-${bloco('13')}${bloco('22')}${bloco('neutro')}`;
+${bloco('13')}${bloco('22')}${bloco('neutro')}
+<div class="cta" id="sugerir"><h2 class="display">Quer que a gente acompanhe outro nome?</h2>
+<form id="fsug" style="display:flex;flex-direction:column;gap:10px">
+<input id="snome" required maxlength="80" placeholder="Nome do deputado ou senador" style="min-height:48px;border-radius:12px;border:1px solid var(--line2);background:var(--card2);color:var(--ink);padding:0 14px;font:inherit">
+<input id="smot" maxlength="300" placeholder="Por quê? (opcional)" style="min-height:48px;border-radius:12px;border:1px solid var(--line2);background:var(--card2);color:var(--ink);padding:0 14px;font:inherit">
+<button style="min-height:48px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);font:inherit;font-weight:800">Sugerir</button><p id="sok" style="margin:0" hidden></p></form></div>
+<script>
+document.getElementById('fsug').onsubmit = function (ev) {
+  ev.preventDefault(); var b = ev.target.querySelector('button'), ok = document.getElementById('sok'); b.disabled = true;
+  fetch('${P.cfg('SUPABASE_URL')}/rest/v1/rpc/sugerir_nome', { method: 'POST', headers: { apikey: '${P.cfg('SUPABASE_KEY')}', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nome: document.getElementById('snome').value, motivo: document.getElementById('smot').value }) })
+  .then(function (r) { ok.hidden = false; if (r.ok) { ok.textContent = 'Valeu! Os nomes mais pedidos entram na lista.'; ev.target.reset(); } else { ok.textContent = 'Não deu pra enviar agora. Tenta de novo.'; b.disabled = false; } })
+  .catch(function () { ok.hidden = false; ok.textContent = 'Não deu pra enviar agora. Tenta de novo.'; b.disabled = false; });
+};
+</script>`;
       res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
       return res.status(200).send(pagina({ titulo: 'Acompanha: o que os 21 deputados mais votados prometeram · Central 2º Turno', desc: 'As promessas de campanha dos deputados federais mais votados de 2026, dos dois lados, com fonte.', canon: SITE + '/acompanha', corpo }));
     }
@@ -86,7 +100,7 @@ ${bloco('13')}${bloco('22')}${bloco('neutro')}`;
 <h2 class="display" style="font-size:24px;margin:0 0 12px">O que prometeu</h2>${lista}
 <h2 class="display" style="font-size:24px;margin:26px 0 12px">Saiu na imprensa</h2><div class="grade">${listaNots}</div>
 <div class="cta"><h2 class="display">E o mandato?</h2><p>A posse é em 1º de fevereiro de 2027. A partir daí entram aqui os votos, os gastos da cota e a presença, direto dos dados da Câmara.</p></div>
-<p class="fontes">Votos: ${e(p.votos_fonte || '')}. "No 2º turno" mostra o apoio formal do partido, não a posição pessoal do deputado.</p>`;
+<p class="fontes">Votos: ${e(p.votos_fonte || '')}.</p><div class="links" style="margin-top:8px"><a href="/acompanha#sugerir">Sugerir outro nome</a></div>`;
     res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
     const canon = SITE + '/deputado/' + p.slug;
     const ld = { '@context': 'https://schema.org', '@type': 'ProfilePage', url: canon, mainEntity: { '@type': 'Person', name: p.nome, ...(p.foto_url ? { image: p.foto_url } : {}), jobTitle: 'Deputado federal eleito', affiliation: { '@type': 'Organization', name: p.partido }, address: { '@type': 'PostalAddress', addressRegion: p.uf, addressCountry: 'BR' } } };

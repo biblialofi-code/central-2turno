@@ -411,7 +411,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--soft)}
     var corpo = $('corpo');
     var r = await sb.from('politicos').select('id,slug,nome,partido,uf,campo,foto_url').order('campo').order('ordem');
     if (r.error) return falhou(r.error);
-    corpo.innerHTML = '<p class="hint">Quem já é deputado federal ganha a foto oficial da Câmara sozinho. Pros outros, cola o link de uma foto (site oficial, Wikipédia ou o perfil dele) e salva. Use foto oficial, de rosto, do mesmo jeito pra todos.</p>' +
+    var sg = await sb.from('sugestoes_nomes').select('nome,motivo,criado_em').order('criado_em', { ascending: false }).limit(500);
+    var cont = {}, mot = {};
+    (sg.data || []).forEach(function (x) { var k = x.nome.trim().toLowerCase(); cont[k] = (cont[k] || 0) + 1; mot[k] = mot[k] || x.nome; });
+    var top = Object.keys(cont).sort(function (a, b) { return cont[b] - cont[a]; }).slice(0, 20);
+    var htmlSug = '<article class="card"><h2 class="display" style="font-size:20px;margin:0 0 8px">Nomes sugeridos pelo público</h2>' +
+      (top.length ? top.map(function (k) { return '<div class="meta"><span class="chip">' + cont[k] + 'x</span><span>' + esc(mot[k]) + '</span></div>'; }).join('') : '<p class="hint" style="margin:0">Nenhuma sugestão ainda.</p>') + '</article>';
+    corpo.innerHTML = htmlSug + '<p class="hint">Quem já é deputado federal ganha a foto oficial da Câmara sozinho. Pros outros, cola o link de uma foto (site oficial, Wikipédia ou o perfil dele) e salva. Use foto oficial, de rosto, do mesmo jeito pra todos.</p>' +
       r.data.map(function (x) {
         return '<article class="card" data-did="' + x.id + '"><div class="vrow">' +
           '<div class="thumb" style="width:64px;height:64px;border-radius:32px;background-size:cover;background-position:center 20%;background-color:#1E1E27' + (url(x.foto_url) ? ';background-image:url(\'' + esc(x.foto_url) + '\')' : '') + '"></div>' +
