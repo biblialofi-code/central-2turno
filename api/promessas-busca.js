@@ -14,9 +14,12 @@ async function sb(caminho, opcoes = {}) {
 const des = (s) => String(s || '').replace(/<!\[CDATA\[|\]\]>/g, '').replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/\s+/g, ' ').trim();
 async function noticias(nome, primeira) {
   // primeira busca de cada um olha a campanha inteira (60 dias); depois, só a última semana
-  const q = encodeURIComponent('"' + nome + '" ' + (primeira ? 'when:60d' : 'when:7d'));
-  const r = await fetch('https://news.google.com/rss/search?q=' + q + '&hl=pt-BR&gl=BR&ceid=BR:pt-419', { signal: AbortSignal.timeout(10000) });
+  const q = encodeURIComponent('"' + nome + '" ' + (primeira ? 'after:2026-08-15' : 'when:7d'));
+  const r = await fetch('https://news.google.com/rss/search?q=' + q + '&hl=pt-BR&gl=BR&ceid=BR:pt-419', {
+    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36', Accept: 'application/rss+xml,text/xml,*/*' },
+    signal: AbortSignal.timeout(10000) });
   const xml = await r.text();
+  if (!r.ok || !/<rss|<feed/.test(xml)) throw new Error('Google News ' + r.status + ': ' + xml.slice(0, 120).replace(/\s+/g, ' '));
   return (xml.match(/<item>[\s\S]*?<\/item>/g) || []).slice(0, 25).map((it) => {
     const tag = (t) => des((it.match(new RegExp('<' + t + '[^>]*>([\\s\\S]*?)</' + t + '>')) || [])[1]);
     return { titulo: tag('title'), link: tag('link'), data: tag('pubDate'), fonte: tag('source'), texto: tag('description') };
