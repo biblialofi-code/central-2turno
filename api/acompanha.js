@@ -47,7 +47,7 @@ function pagina({ titulo, desc, canon, corpo, indexa, ld }) {
 <a href="/acompanha" style="font-size:14px;font-weight:700;color:var(--soft);text-decoration:none">Os 21 ›</a></header>
 ${corpo}
 <p class="fontes">Central 2º Turno, por Mounólogo. Sem vínculo com partido ou candidato. Viu algo errado? Avisa a gente pelo canal.</p></div>
-<div class="dock"><a class="zap" href="${CANAL}" target="_blank" rel="noopener">Seguir no WhatsApp</a></div></body></html>`;
+<div class="dock"><a class="zap" href="https://www.instagram.com/central2turno/" target="_blank" rel="noopener" style="background:linear-gradient(90deg,#F58529,#DD2A7B,#8134AF);color:#fff">Seguir no Instagram</a></div></body></html>`;
 }
 function item(p) {
   return `<a class="pol" style="--c:${COR[p.campo]}" href="/deputado/${e(p.slug)}">${avatar(p)}
