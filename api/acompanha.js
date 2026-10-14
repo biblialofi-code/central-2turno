@@ -65,7 +65,7 @@ module.exports = async (req, res) => {
       const bloco = (c) => `<h2 class="sec display" style="--c:${COR[c]}"><i></i>${BLOCO[c]}</h2><div class="grade">${pols.filter((p) => p.campo === c).map(item).join('')}</div>`;
       const corpo = `<h1 class="display">Radar de Promessas</h1>
 <p class="lead">Acompanhe as notícias dos deputados mais votados, o que cada um prometeu na campanha e, a partir de fevereiro, votos, gastos e presença.</p>
-<p class="regra"><b>Como escolhemos:</b> os 10 deputados federais mais votados de partidos que apoiaram formalmente o Lula no 2º turno, os 10 mais votados de partidos que apoiaram o Flávio e o mais votado dos partidos que ficaram neutros. Ninguém foi escolhido a dedo.</p>
+<p class="regra">Os 10 deputados federais mais votados de cada espectro e o Kim Kataguiri.</p>
 ${bloco('13')}${bloco('22')}${bloco('neutro')}
 <div class="cta" id="sugerir"><h2 class="display">Quer que a gente acompanhe outro nome?</h2>
 <form id="fsug" style="display:flex;flex-direction:column;gap:10px">
