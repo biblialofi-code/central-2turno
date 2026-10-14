@@ -2,8 +2,8 @@
 const P = require('../lib/pagina.js');
 const SITE = 'https://central-2turno.vercel.app';
 const CANAL = 'https://whatsapp.com/channel/0029VbE4MzWGE56inhQOZq0u';
-const CAMPO = { '13': 'Partido com Lula', '22': 'Partido com Flávio', neutro: 'Partido neutro' };
-const BLOCO = { '13': 'Partidos que apoiaram Lula (13)', '22': 'Partidos que apoiaram Flávio (22)', neutro: 'Partidos neutros' };
+const CAMPO = { '13': 'Esquerda', '22': 'Direita', neutro: 'Neutro' };
+const BLOCO = { '13': 'Esquerda', '22': 'Direita', neutro: 'Neutro' };
 const COR = { '13': 'var(--red)', '22': 'var(--blue)', neutro: 'var(--neutral)' };
 const e = P.attr;
 const fmt = (n) => n == null ? '' : Number(n).toLocaleString('pt-BR');
@@ -96,7 +96,7 @@ document.getElementById('fsug').onsubmit = function (ev) {
       : '<p class="vazio">Ainda não registramos nenhuma promessa. A gente busca todo dia e só publica o que tem fonte.</p>';
     const corpo = `<div class="topo" style="--c:${COR[p.campo]}">${avatar(p)}<div><h1 class="display" style="margin:0;font-size:34px">${e(p.nome)}</h1>
 <p class="lead" style="margin:4px 0 0">${e(p.cargo)} eleito · ${e(p.partido)}-${e(p.uf)}</p></div></div>
-<div class="ficha"><div><b>Votos</b><span>${fmt(p.votos)}</span></div><div><b>Partido</b><span>${e(p.partido)}</span></div><div><b>Estado</b><span>${e(p.uf)}</span></div><div><b>No 2º turno</b><span>${CAMPO[p.campo]}</span></div></div>
+<div class="ficha"><div><b>Votos</b><span>${fmt(p.votos)}</span></div><div><b>Partido</b><span>${e(p.partido)}</span></div><div><b>Estado</b><span>${e(p.uf)}</span></div><div><b>Espectro</b><span>${CAMPO[p.campo]}</span></div></div>
 <h2 class="display" style="font-size:24px;margin:0 0 12px">O que prometeu</h2>${lista}
 <h2 class="display" style="font-size:24px;margin:26px 0 12px">Saiu na imprensa</h2><div class="grade">${listaNots}</div>
 <div class="cta"><h2 class="display">E o mandato?</h2><p>A posse é em 1º de fevereiro de 2027. A partir daí entram aqui os votos, os gastos da cota e a presença, direto dos dados da Câmara.</p></div>
