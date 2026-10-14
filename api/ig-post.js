@@ -5,7 +5,7 @@ const IG = require('../lib/instagram.js');
 const { desenhaStory, desenhaCapa, desenhaFim, vertical, baixaFoto } = require('../lib/card.js');
 const { montaVideo } = require('../lib/reel.js');
 const REEL_TURNOS = ['noite'];   // turnos que saem como Reels (os outros, carrossel)
-const REEL_MAX = 6;               // notícias no vídeo (~25 s)
+const REEL_MAX = 8;               // notícias no vídeo (até ~45 s)
 const SB = process.env.SUPABASE_URL, KEY = process.env.SUPABASE_SERVICE_KEY;
 const SITE = 'https://central-2turno.vercel.app';
 const NOME = { manha: 'Manhã', tarde: 'Tarde', noite: 'Noite' };
@@ -49,9 +49,9 @@ async function fazReel(turno, j, ns) {
     { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } })).json();
   const porId = {}; linhas.forEach((n) => { porId[n.id] = n; });
   const dia = j.dia.replace('-', '/');
-  const quadros = [{ jpg: Buffer.from(await vertical(await desenhaCapa(NOME[turno], dia, ns.length, FAIXA_CAPA[turno]), 'O 2º TURNO HOJE', 'Siga @central2turno')), dur: 2.5 }];
-  for (const n of ns) { const x = porId[n.id]; if (!x) continue; quadros.push({ jpg: Buffer.from(await desenhaStory(x, await baixaFoto(x.imagem), 'central-2turno.vercel.app', NOME[turno].toUpperCase() + ' · ' + dia)), dur: 3.5 }); }
-  quadros.push({ jpg: Buffer.from(await vertical(await desenhaFim(), '', 'Siga @central2turno')), dur: 3 });
+  const quadros = [{ jpg: Buffer.from(await vertical(await desenhaCapa(NOME[turno], dia, ns.length, FAIXA_CAPA[turno]), 'O 2º TURNO HOJE', 'Siga @central2turno')), dur: 3 }];
+  for (const n of ns) { const x = porId[n.id]; if (!x) continue; quadros.push({ jpg: Buffer.from(await desenhaStory(x, await baixaFoto(x.imagem), 'central-2turno.vercel.app', NOME[turno].toUpperCase() + ' · ' + dia)), dur: 5 }); }
+  quadros.push({ jpg: Buffer.from(await vertical(await desenhaFim(), '', 'Siga @central2turno')), dur: 4 });
   const mp4 = await montaVideo(quadros);
   const nome = j.dia + '-' + turno + '-' + Date.now() + '.mp4';
   const up = await fetch(SB + '/storage/v1/object/reels/' + nome, { method: 'POST', body: mp4,
