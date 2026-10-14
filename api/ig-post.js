@@ -71,13 +71,18 @@ module.exports = async (req, res) => {
   if (!NOME[turno]) return res.status(400).json({ erro: 'turno: manha, tarde ou noite' });
   try {
     const j = janela(turno, Date.now());
+    // trava: um post por turno por dia (se dispararem duas vezes, o segundo não posta)
+    const trava = await fetch(SB + '/rest/v1/ig_posts', { method: 'POST', headers: { apikey: KEY, Authorization: 'Bearer ' + KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify({ dia: j.dia, turno }) });
+    if (trava.status === 409) return res.status(200).json({ pulou: 'já postou o ' + turno + ' de hoje' });
+    const liberaTrava = () => fetch(SB + '/rest/v1/ig_posts?dia=eq.' + j.dia + '&turno=eq.' + turno, { method: 'DELETE', headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } }).catch(() => {});
     const r = await fetch(SB + '/rest/v1/noticias?select=id,lado,veiculo,manchete&status=eq.aprovado&tipo=eq.noticia' +
       '&aprovado_em=gte.' + encodeURIComponent(j.de) + '&aprovado_em=lt.' + encodeURIComponent(j.ate) + '&order=aprovado_em.desc&limit=60',
       { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } });
     if (!r.ok) throw new Error('Supabase ' + r.status);
     const vez = (Number(j.dia.slice(0, 2)) + ['manha', 'tarde', 'noite'].indexOf(turno)) % 2 ? '22' : '13';   // quem abre o carrossel reveza
     const ns = alterna(await r.json(), vez);
-    if (ns.length < 2) return res.status(200).json({ pulou: 'só ' + ns.length + ' notícia(s) no turno' });
+    if (ns.length < 2) { await liberaTrava(); return res.status(200).json({ pulou: 'só ' + ns.length + ' notícia(s) no turno' }); }
     if (REEL_TURNOS.includes(turno) && !corpo.carrossel) {
       try { return res.status(200).json({ reel: await fazReel(turno, j, ns.slice(0, REEL_MAX)), noticias: ns.slice(0, REEL_MAX).map((n) => n.id) }); }
       catch (e) { console.error('reel falhou, vai carrossel', e); }   // se o vídeo falhar, sai o carrossel
@@ -86,6 +91,7 @@ module.exports = async (req, res) => {
     const post = await IG.carrossel(imagens, legenda(turno, j.dia, ns));
     return res.status(200).json({ postado: post, noticias: ns.map((n) => n.id) });
   } catch (e) {
+    try { const j = janela(turno, Date.now()); await fetch(SB + '/rest/v1/ig_posts?dia=eq.' + j.dia + '&turno=eq.' + turno, { method: 'DELETE', headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } }); } catch (e2) {}
     return res.status(500).json({ erro: String(e.message || e) });
   }
 };
