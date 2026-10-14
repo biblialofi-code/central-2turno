@@ -98,10 +98,6 @@
     "api/promessas-busca.js": {
       "maxDuration": 300,
       "includeFiles": "lib/**"
-    },
-    "api/tse-deputados.js": {
-      "maxDuration": 300,
-      "includeFiles": "lib/**"
     }
   },
   "redirects": [

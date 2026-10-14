@@ -117,6 +117,9 @@ async function processa(p) {
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   if (!process.env.FOTO_SEGREDO || req.headers['x-segredo'] !== process.env.FOTO_SEGREDO) return res.status(401).json({ erro: 'segredo errado' });
+  let corpo = req.body || {};
+  if (typeof corpo === 'string') { try { corpo = JSON.parse(corpo); } catch (e) { corpo = {}; } }
+  if (corpo.acao === 'tse') return require('../lib/tse.js')(req, res);   // fotos e votos oficiais do TSE
   if (!process.env.ANTHROPIC_API_KEY) return res.status(200).json({ pulou: 'falta ANTHROPIC_API_KEY na Vercel' });
   try {
     const fila = await sb('politicos?select=id,nome,partido,uf,ultima_busca,foto_url&ativo=eq.true&order=ultima_busca.asc.nullsfirst&limit=' + POR_RODADA);
