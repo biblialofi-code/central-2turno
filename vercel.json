@@ -89,8 +89,8 @@
       "includeFiles": "{site/app.html,lib/**}"
     },
     "api/ig-post.js": {
-      "maxDuration": 120,
-      "includeFiles": "lib/**"
+      "maxDuration": 300,
+      "includeFiles": "{lib/**,node_modules/ffmpeg-static/ffmpeg}"
     },
     "api/acompanha.js": {
       "includeFiles": "{site/app.html,lib/**}"
