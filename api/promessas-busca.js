@@ -55,7 +55,18 @@ async function ia(texto) {
   return m ? (JSON.parse(m[0]).promessas || []) : [];
 }
 
+// foto oficial da Câmara (só existe pra quem já é deputado federal; depois da posse, vale pra todos)
+async function fotoCamara(p) {
+  const r = await fetch('https://dadosabertos.camara.leg.br/api/v2/deputados?nome=' + encodeURIComponent(p.nome) + '&siglaUf=' + p.uf, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) });
+  if (!r.ok) return null;
+  const d = ((await r.json()).dados || []);
+  return d.length === 1 && d[0].urlFoto ? d[0].urlFoto : null;
+}
+
 async function processa(p) {
+  if (!p.foto_url) {
+    try { const f = await fotoCamara(p); if (f) await sb('politicos?id=eq.' + p.id, { method: 'PATCH', body: JSON.stringify({ foto_url: f }) }); } catch (e) { /* sem foto, segue */ }
+  }
   const todas = await noticias(p.nome, !p.ultima_busca);
   let novas = todas;
   if (todas.length) {
@@ -102,7 +113,7 @@ module.exports = async (req, res) => {
   if (!process.env.FOTO_SEGREDO || req.headers['x-segredo'] !== process.env.FOTO_SEGREDO) return res.status(401).json({ erro: 'segredo errado' });
   if (!process.env.ANTHROPIC_API_KEY) return res.status(200).json({ pulou: 'falta ANTHROPIC_API_KEY na Vercel' });
   try {
-    const fila = await sb('politicos?select=id,nome,partido,uf,ultima_busca&ativo=eq.true&order=ultima_busca.asc.nullsfirst&limit=' + POR_RODADA);
+    const fila = await sb('politicos?select=id,nome,partido,uf,ultima_busca,foto_url&ativo=eq.true&order=ultima_busca.asc.nullsfirst&limit=' + POR_RODADA);
     const feitos = [];
     for (const p of fila) { try { feitos.push(await processa(p)); } catch (e) { feitos.push({ nome: p.nome, erro: String(e.message || e) }); } }
     const total = feitos.reduce((s, f) => s + (f.promessas || 0), 0);
