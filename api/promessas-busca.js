@@ -2,6 +2,7 @@
 // Cada rodada pega os 7 que estão há mais tempo sem busca, lê as notícias recentes do Google News
 // e pede pra IA separar só promessas que dá pra conferir. Tudo entra como "pendente": você aprova no admin.
 // Variáveis: SUPABASE_URL, SUPABASE_SERVICE_KEY, FOTO_SEGREDO, ANTHROPIC_API_KEY, ANTHROPIC_MODEL (opcional), TELEGRAM_*
+const { linkReal, textoMateria } = require('../lib/gnews.js');
 const SB = process.env.SUPABASE_URL, KEY = process.env.SUPABASE_SERVICE_KEY;
 const POR_RODADA = 7;
 
@@ -20,7 +21,7 @@ async function noticias(nome, primeira) {
     signal: AbortSignal.timeout(10000) });
   const xml = await r.text();
   if (!r.ok || !/<rss|<feed/.test(xml)) throw new Error('Google News ' + r.status + ': ' + xml.slice(0, 120).replace(/\s+/g, ' '));
-  return (xml.match(/<item>[\s\S]*?<\/item>/g) || []).slice(0, 25).map((it) => {
+  return (xml.match(/<item>[\s\S]*?<\/item>/g) || []).slice(0, 15).map((it) => {
     const tag = (t) => des((it.match(new RegExp('<' + t + '[^>]*>([\\s\\S]*?)</' + t + '>')) || [])[1]);
     return { titulo: tag('title'), link: tag('link'), data: tag('pubDate'), fonte: tag('source'), texto: tag('description') };
   }).filter((n) => n.link);
@@ -28,21 +29,24 @@ async function noticias(nome, primeira) {
 const PROMPT = (p, itens) => `Você ajuda um site de notícias NEUTRO a registrar promessas de políticos.
 Político: ${p.nome} (${p.partido}-${p.uf}), deputado federal eleito em 2026.
 
-Abaixo estão manchetes e trechos de notícias. Extraia SÓ promessas ou compromissos explícitos que o próprio ${p.nome} fez, e que dê pra conferir no futuro pelo que ele fizer no mandato.
+Abaixo estão notícias (manchete e, quando deu, trechos da matéria). Extraia SÓ promessas ou compromissos explícitos que o próprio ${p.nome} fez, e que dê pra conferir no futuro pelo que ele fizer no mandato.
 Vale: "vou votar contra X", "vou apresentar projeto de Y", "não vou usar Z", "prometo defender W na Câmara".
 NÃO vale: opinião, crítica a adversário, frase de efeito, promessa de outra pessoa, coisa vaga ("vou lutar pelo povo"), fato já acontecido.
 Na dúvida, deixe de fora. Não invente nada que não esteja no texto.
 
-Responda só com JSON: {"promessas":[{"item":<número>,"promessa":"<frase curta e neutra, começando com verbo no infinitivo, ex.: Votar contra o aumento do fundo eleitoral>","citacao":"<trecho do texto que sustenta, copiado>"}]}
+Escreva a promessa como uma AÇÃO que dê pra checar no mandato de deputado federal. Em vez de "lutar por X", use o que ele pode fazer de fato: votar, apresentar projeto, assinar pedido, não usar algo.
+Lembre: deputado vota na Câmara; impeachment de ministro do STF é julgado pelo Senado.
+
+Responda só com JSON: {"promessas":[{"item":<número>,"promessa":"<frase curta e neutra, começando com verbo no infinitivo, ex.: Votar contra o aumento do fundo eleitoral>","citacao":"<trecho do texto que sustenta, copiado igual>","como_conferir":"<onde dá pra ver se cumpriu, curto. Ex.: Voto dele na PEC do fim da escala 6x1>"}]}
 Se não tiver nenhuma, responda {"promessas":[]}.
 
-${itens.map((n, i) => '[' + i + '] ' + n.titulo + (n.texto && n.texto !== n.titulo ? ' — ' + n.texto : '')).join('\n')}`;
+${itens.map((n, i) => '[' + i + '] ' + n.titulo + (n.materia ? '\n' + n.materia : (n.texto && n.texto !== n.titulo ? ' — ' + n.texto : ''))).join('\n\n')}`;
 
 async function ia(texto) {
   const r = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST', signal: AbortSignal.timeout(40000),
     headers: { 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-    body: JSON.stringify({ model: process.env.ANTHROPIC_MODEL || 'claude-haiku-5-5', max_tokens: 1200, messages: [{ role: 'user', content: texto }] })
+    body: JSON.stringify({ model: process.env.ANTHROPIC_MODEL || 'claude-haiku-5-5', max_tokens: 2000, messages: [{ role: 'user', content: texto }] })
   });
   const j = await r.json();
   if (!r.ok) throw new Error('IA ' + r.status + ': ' + JSON.stringify(j).slice(0, 200));
@@ -60,15 +64,27 @@ async function processa(p) {
     novas = todas.filter((n) => !ja.has(n.link));
   }
   let achou = 0;
+  // lê a matéria de verdade (5 por vez); se não der, fica só com a manchete
+  for (let i = 0; i < novas.length; i += 5) {
+    await Promise.all(novas.slice(i, i + 5).map(async (n) => {
+      try { n.real = await linkReal(n.link); n.materia = await textoMateria(n.real, p.nome); } catch (e) { /* segue com a manchete */ }
+    }));
+  }
   if (novas.length) {
     const lista = await ia(PROMPT(p, novas));
     const linhas = lista.filter((x) => novas[x.item] && x.promessa).map((x) => {
       const n = novas[x.item];
       const d = new Date(n.data);
       return { politico_id: p.id, texto: String(x.promessa).slice(0, 300), citacao: String(x.citacao || n.titulo).slice(0, 600),
-        fonte_url: n.link, fonte_nome: n.fonte || null, data: isNaN(d) ? null : d.toISOString().slice(0, 10) };
+        como_conferir: x.como_conferir ? String(x.como_conferir).slice(0, 200) : null,
+        _gnews: n.link, fonte_url: n.real || n.link, fonte_nome: n.fonte || null, data: isNaN(d) ? null : d.toISOString().slice(0, 10) };
     });
-    if (linhas.length) { await sb('promessas', { method: 'POST', body: JSON.stringify(linhas) }); achou = linhas.length; }
+    // não repete promessa que já existe pra esse político (mesmo texto ou mesma fonte)
+    const ja = await sb('promessas?select=texto,fonte_url&politico_id=eq.' + p.id);
+    const txt = new Set(ja.map((x) => x.texto.trim().toLowerCase())), fontes = new Set(ja.map((x) => x.fonte_url));
+    const novasL = linhas.filter((l) => !txt.has(l.texto.trim().toLowerCase()) && !fontes.has(l.fonte_url) && !fontes.has(l._gnews));
+    novasL.forEach((l) => { delete l._gnews; });
+    if (novasL.length) { await sb('promessas', { method: 'POST', body: JSON.stringify(novasL) }); achou = novasL.length; }
     await sb('promessas_vistas', { method: 'POST', headers: { Prefer: 'resolution=ignore-duplicates' }, body: JSON.stringify(novas.map((n) => ({ url: n.link }))) });
   }
   await sb('politicos?id=eq.' + p.id, { method: 'PATCH', body: JSON.stringify({ ultima_busca: new Date().toISOString() }) });

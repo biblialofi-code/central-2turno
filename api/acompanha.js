@@ -69,8 +69,8 @@ ${bloco('13')}${bloco('22')}${bloco('neutro')}`;
     }
     const p = (await P.supabase('politicos?select=id,slug,nome,partido,uf,cargo,campo,votos,votos_fonte&slug=eq.' + slug))[0];
     if (!p) { res.setHeader('Cache-Control', 'no-store'); return res.status(404).send(pagina({ titulo: 'Não achei · Central 2º Turno', desc: '', canon: SITE + '/acompanha', corpo: '<h1 class="display">Não achei esse nome.</h1><p class="lead"><a href="/acompanha">Ver os 21</a></p>' })); }
-    const proms = await P.supabase('promessas?select=texto,citacao,fonte_url,fonte_nome,data&politico_id=eq.' + p.id + '&order=data.desc.nullslast');
-    const lista = proms.length ? proms.map((x) => `<div class="prom"><p>${e(x.texto)}</p>${x.citacao ? '<blockquote>' + e(x.citacao) + '</blockquote>' : ''}
+    const proms = await P.supabase('promessas?select=texto,citacao,como_conferir,fonte_url,fonte_nome,data&politico_id=eq.' + p.id + '&order=data.desc.nullslast');
+    const lista = proms.length ? proms.map((x) => `<div class="prom"><p>${e(x.texto)}</p>${x.citacao ? '<blockquote>' + e(x.citacao) + '</blockquote>' : ''}${x.como_conferir ? '<small style="display:block;margin-bottom:6px"><b>Como conferir:</b> ' + e(x.como_conferir) + '</small>' : ''}
 <small>${x.data ? dataBr(x.data) + ' · ' : ''}${x.fonte_url ? '<a href="' + e(x.fonte_url) + '" target="_blank" rel="noopener">' + e(x.fonte_nome || 'Fonte') + '</a>' : e(x.fonte_nome || '')}</small></div>`).join('')
       : '<p class="vazio">Ainda não registramos nenhuma promessa. A gente busca todo dia e só publica o que tem fonte.</p>';
     const corpo = `<div class="topo" style="--c:${COR[p.campo]}"><span class="av">${e(iniciais(p.nome))}</span><div><h1 class="display" style="margin:0;font-size:34px">${e(p.nome)}</h1>
