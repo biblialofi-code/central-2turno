@@ -61,7 +61,7 @@
   ],
   "functions": {
     "api/foto.js": {
-      "maxDuration": 60,
+      "maxDuration": 300,
       "includeFiles": "lib/**"
     },
     "api/card.js": {

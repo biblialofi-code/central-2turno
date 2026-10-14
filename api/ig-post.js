@@ -92,6 +92,13 @@ module.exports = async (req, res) => {
   if (typeof corpo === 'string') { try { corpo = JSON.parse(corpo); } catch (e) { corpo = {}; } }
   const turno = String(corpo.turno || req.query.turno || '');
   if (turno === 'servico') return servico(corpo, res);
+  if (turno === 'stories') {   // refaz o story de notícias que ficaram sem: { ids: [..] }
+    const feitos = {};
+    for (const id of (corpo.ids || []).slice(0, 15)) {
+      try { feitos[id] = 'story ' + (await IG.story(SITE + '/ig/story/' + parseInt(id, 10) + '.jpg')); } catch (e) { feitos[id] = 'erro: ' + String(e.message || e); }
+    }
+    return res.status(200).json({ stories: feitos });
+  }
   if (!NOME[turno]) return res.status(400).json({ erro: 'turno: manha, tarde, noite ou servico' });
   try {
     const j = janela(turno, Date.now());
