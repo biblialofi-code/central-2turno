@@ -97,7 +97,10 @@
     },
     "api/promessas-busca.js": {
       "maxDuration": 300,
-      "includeFiles": "lib/**"
+      "includeFiles": "lib/**",
+      "regions": [
+        "gru1"
+      ]
     }
   },
   "redirects": [
