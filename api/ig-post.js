@@ -14,24 +14,30 @@ function janela(turno, agora) {
   return { de: new Date(zero + INICIO[turno] * 3600e3).toISOString(), ate: new Date(agora).toISOString(), dia: brt.slice(8, 10) + '-' + brt.slice(5, 7) };
 }
 // alterna 13, 22, Geral, mais novas primeiro em cada lado
-function alterna(lista) {
+function alterna(lista, primeiro) {
   const g = { '13': [], '22': [], ambos: [] };
   lista.forEach((n) => (g[n.lado] || g.ambos).push(n));
   const out = [];
   while (out.length < MAX && (g['13'].length || g['22'].length || g.ambos.length)) {
-    for (const k of ['13', '22', 'ambos']) if (g[k].length && out.length < MAX) out.push(g[k].shift());
+    for (const k of (primeiro === '22' ? ['22', '13', 'ambos'] : ['13', '22', 'ambos'])) if (g[k].length && out.length < MAX) out.push(g[k].shift());
   }
   return out;
 }
 const MARCA = { '13': '🔴 13', '22': '🔵 22' };
+const FAIXA = { manha: 'desde ontem à noite', tarde: 'entre 12h e 18h', noite: 'entre 18h e 22h' };
+const QUANDO = { manha: 'hoje de manhã', tarde: 'hoje à tarde', noite: 'hoje à noite' };
 function legenda(turno, dia, ns) {
-  let t = NOME[turno] + ' do 2º turno · ' + dia.replace('-', '/') + '\n\n';
+  // 1ª linha é o que aparece antes do "mais": número + curiosidade
+  let t = ns.length + ' notícias que mexeram no 2º turno ' + QUANDO[turno] + ' 👇\n\n';
   for (const n of ns) {
     const linha = (MARCA[n.lado] || '⚪ Geral') + ' · ' + n.manchete + (n.veiculo ? ' (' + n.veiculo + ')' : '') + '\n';
-    if (t.length + linha.length > 1700) break;
+    if (t.length + linha.length > 1500) break;
     t += linha;
   }
-  return t + '\nResumo de cada uma no link da bio. Notícias dos dois lados, sem torcida.\n\n#segundoturno #eleicoes2026 #lula #flaviobolsonaro';
+  return t + '\nArrasta pro lado: tem o resumo de cada uma.\n\n' +
+    '📌 Salva pra ler com calma.\n📲 Manda pra quem ainda não decidiu o voto.\n💬 Qual dessas pesa mais pra você?\n\n' +
+    'Notícia dos dois lados, sem torcida. Receba no WhatsApp: link na bio.\n' + NOME[turno] + ' · ' + dia.replace('-', '/') + '\n\n' +
+    '#segundoturno #eleicoes2026 #lula #flaviobolsonaro #politica';
 }
 
 module.exports = async (req, res) => {
@@ -48,7 +54,8 @@ module.exports = async (req, res) => {
       '&aprovado_em=gte.' + encodeURIComponent(j.de) + '&aprovado_em=lt.' + encodeURIComponent(j.ate) + '&order=aprovado_em.desc&limit=60',
       { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } });
     if (!r.ok) throw new Error('Supabase ' + r.status);
-    const ns = alterna(await r.json());
+    const vez = (Number(j.dia.slice(0, 2)) + ['manha', 'tarde', 'noite'].indexOf(turno)) % 2 ? '22' : '13';   // quem abre o carrossel reveza
+    const ns = alterna(await r.json(), vez);
     if (ns.length < 2) return res.status(200).json({ pulou: 'só ' + ns.length + ' notícia(s) no turno' });
     const imagens = [SITE + '/ig/capa/' + turno + '-' + j.dia + '-' + ns.length + '.jpg'].concat(ns.map((n) => SITE + '/ig/feed/' + n.id + '.jpg'));
     const post = await IG.carrossel(imagens, legenda(turno, j.dia, ns));
