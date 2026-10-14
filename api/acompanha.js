@@ -44,7 +44,7 @@ function pagina({ titulo, desc, canon, corpo, indexa, ld }) {
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>${CSS}</style></head><body><div class="wrap">
 <header><a href="/" aria-label="Central 2º Turno, página inicial"><img src="/logo.png" alt="Central 2º Turno" width="720" height="264"></a>
-<a href="/acompanha" style="font-size:14px;font-weight:700;color:var(--soft);text-decoration:none">Os 21 ›</a></header>
+<a href="/acompanha" style="font-size:14px;font-weight:700;color:var(--soft);text-decoration:none">Radar de Promessas ›</a></header>
 ${corpo}
 <p class="fontes">Central 2º Turno, por Mounólogo. Sem vínculo com partido ou candidato. Viu algo errado? Avisa a gente pelo canal.</p></div>
 <div class="dock"><a class="zap" href="https://www.instagram.com/central2turno/" target="_blank" rel="noopener" style="background:linear-gradient(90deg,#F58529,#DD2A7B,#8134AF);color:#fff">Seguir no Instagram</a></div></body></html>`;
@@ -63,8 +63,8 @@ module.exports = async (req, res) => {
       const n = {}; proms.forEach((x) => { n[x.politico_id] = (n[x.politico_id] || 0) + 1; });
       pols.forEach((p) => { p.n = n[p.id] || 0; });
       const bloco = (c) => `<h2 class="sec display" style="--c:${COR[c]}"><i></i>${BLOCO[c]}</h2><div class="grade">${pols.filter((p) => p.campo === c).map(item).join('')}</div>`;
-      const corpo = `<h1 class="display">Acompanha: os 21 mais votados</h1>
-<p class="lead">O que cada um prometeu. A partir de fevereiro, o que fez.</p>
+      const corpo = `<h1 class="display">Radar de Promessas</h1>
+<p class="lead">Acompanhe as notícias dos deputados mais votados, o que cada um prometeu na campanha e, a partir de fevereiro, votos, gastos e presença.</p>
 <p class="regra"><b>Como escolhemos:</b> os 10 deputados federais mais votados de partidos que apoiaram formalmente o Lula no 2º turno, os 10 mais votados de partidos que apoiaram o Flávio e o mais votado dos partidos que ficaram neutros. Ninguém foi escolhido a dedo.</p>
 ${bloco('13')}${bloco('22')}${bloco('neutro')}
 <div class="cta" id="sugerir"><h2 class="display">Quer que a gente acompanhe outro nome?</h2>
@@ -82,7 +82,7 @@ document.getElementById('fsug').onsubmit = function (ev) {
 };
 </script>`;
       res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
-      return res.status(200).send(pagina({ titulo: 'Acompanha: o que os 21 deputados mais votados prometeram · Central 2º Turno', desc: 'As promessas de campanha dos deputados federais mais votados de 2026, dos dois lados, com fonte.', canon: SITE + '/acompanha', corpo }));
+      return res.status(200).send(pagina({ titulo: 'Radar de Promessas: os deputados mais votados de 2026 · Central 2º Turno', desc: 'As promessas de campanha dos deputados federais mais votados de 2026, dos dois lados, com fonte.', canon: SITE + '/acompanha', corpo }));
     }
     const p = (await P.supabase('politicos?select=id,slug,nome,partido,uf,cargo,campo,votos,votos_fonte,foto_url&slug=eq.' + slug))[0];
     if (!p) { res.setHeader('Cache-Control', 'no-store'); return res.status(404).send(pagina({ titulo: 'Não achei · Central 2º Turno', desc: '', canon: SITE + '/acompanha', corpo: '<h1 class="display">Não achei esse nome.</h1><p class="lead"><a href="/acompanha">Ver os 21</a></p>' })); }
