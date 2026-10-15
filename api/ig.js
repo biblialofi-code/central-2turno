@@ -1,7 +1,7 @@
 // Imagens em JPG pro Instagram buscar:
 //   /ig/story/123.jpg  -> story 1080x1920 da notícia 123
 //   /ig/feed/123.jpg   -> slide 1080x1350 da notícia 123
-//   /ig/capa/manha-14-10-5.jpg -> capa do carrossel (turno, dia, quantas notícias)
+//   /ig/capa/tarde-14-10-5-123_456.jpg -> capa do carrossel (turno, dia, quantas notícias, ids das manchetes da capa)
 const fs = require('fs'), path = require('path');
 const { desenhaStory, desenhaFeed, desenhaCapa, desenhaFim, baixaFoto } = require('../lib/card.js');
 let CFG = null;
@@ -14,15 +14,22 @@ function cfg() {
   return CFG;
 }
 const TURNO = { cedo: 'Manhã', manha: 'Meio-dia', tarde: 'Tarde', noite: 'Noite' };
-const FAIXA = { cedo: 'Tudo que saiu desde ontem à noite.', manha: 'Tudo que saiu entre 8h e 12h.', tarde: 'Tudo que saiu entre 12h e 18h.', noite: 'Tudo que saiu entre 18h e 22h.' };
+const FAIXA = { cedo: 'Tudo que saiu desde ontem à noite.', manha: 'Tudo que saiu entre 8h e 12h.', tarde: 'Tudo que saiu entre 8h e 18h.', noite: 'Tudo que saiu entre 18h e 22h.' };
 module.exports = async (req, res) => {
   const tipo = String(req.query.tipo || '');
   try {
     let jpg;
     if (tipo === 'capa') {
-      const m = String(req.query.chave || '').match(/^(cedo|manha|tarde|noite)-(\d\d)-(\d\d)-(\d)$/);
+      const m = String(req.query.chave || '').match(/^(cedo|manha|tarde|noite)-(\d\d)-(\d\d)-(\d+)(?:-(\d+(?:_\d+)?))?$/);
       if (!m) return res.status(400).end();
-      jpg = await desenhaCapa(TURNO[m[1]], m[2] + '/' + m[3], Number(m[4]), FAIXA[m[1]]);
+      let destaques = [];
+      if (m[5]) {   // manchetes da capa, na ordem dos ids
+        const ids = m[5].split('_'), c = cfg();
+        const r = await fetch(c.url + '/rest/v1/noticias?select=id,lado,manchete&status=eq.aprovado&id=in.(' + ids.join(',') + ')', { headers: { apikey: c.key }, signal: AbortSignal.timeout(5000) });
+        const linhas = r.ok ? await r.json() : [];
+        destaques = ids.map((id) => linhas.find((n) => String(n.id) === id)).filter(Boolean);
+      }
+      jpg = await desenhaCapa(TURNO[m[1]], m[2] + '/' + m[3], Number(m[4]), FAIXA[m[1]], false, destaques);
     } else if (tipo === 'fim') {
       jpg = await desenhaFim();
     } else {

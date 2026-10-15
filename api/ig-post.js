@@ -1,16 +1,16 @@
-// Carrossel do Instagram: manhã (12h), tarde (18h) e noite (22h), horário de Brasília.
+// Instagram: carrossel às 8h e às 18h, Reels às 22h (horário de Brasília). O das 12h foi cortado (posts demais por dia).
 // Quem chama: o pg_cron do Supabase (10-instagram.sql), com { turno } e o header x-segredo = FOTO_SEGREDO.
 // Pega as notícias aprovadas na janela do turno, alterna 13 / 22 / Geral e posta capa + até 9 notícias.
 const IG = require('../lib/instagram.js');
 const { desenhaStory, desenhaCapa, desenhaFim, vertical, baixaFoto } = require('../lib/card.js');
 const { montaVideo } = require('../lib/reel.js');
 const SERV = require('../lib/servico.js');
-const REEL_TURNOS = ['manha', 'noite'];   // turnos que saem como Reels (os outros, carrossel)
+const REEL_TURNOS = ['noite'];   // turnos que saem como Reels (os outros, carrossel)
 const REEL_MAX = 8;               // notícias no vídeo (até ~45 s)
 const SB = process.env.SUPABASE_URL, KEY = process.env.SUPABASE_SERVICE_KEY;
 const SITE = 'https://central-2turno.vercel.app';
 const NOME = { cedo: 'Manhã', manha: 'Meio-dia', tarde: 'Tarde', noite: 'Noite' };
-const INICIO = { cedo: -2, manha: 8, tarde: 12, noite: 18 };   // hora de Brasília em que a janela começa (-2 = 22h do dia anterior)
+const INICIO = { cedo: -2, manha: 8, tarde: 8, noite: 18 };   // tarde começa às 8h porque o das 12h não sai mais   // hora de Brasília em que a janela começa (-2 = 22h do dia anterior)
 const MAX = 8;   // capa + 8 notícias + slide final = 10, o máximo do Instagram
 
 function janela(turno, agora) {
@@ -29,19 +29,29 @@ function alterna(lista, primeiro) {
   return out;
 }
 const MARCA = { '13': '🔴 13', '22': '🔵 22' };
-const FAIXA = { cedo: 'desde ontem à noite', manha: 'entre 8h e 12h', tarde: 'entre 12h e 18h', noite: 'entre 18h e 22h' };
-const QUANDO = { cedo: 'desde ontem à noite', manha: 'hoje de manhã', tarde: 'hoje à tarde', noite: 'hoje à noite' };
+const FAIXA = { cedo: 'desde ontem à noite', manha: 'entre 8h e 12h', tarde: 'entre 8h e 18h', noite: 'entre 18h e 22h' };
+const QUANDO = { cedo: 'desde ontem à noite', manha: 'hoje de manhã', tarde: 'hoje', noite: 'hoje à noite' };
+// as duas manchetes da capa: a primeira de cada lado (a ordem já vem revezada)
+function destaques(ns) {
+  const out = [];
+  for (const lado of [ns[0] && ns[0].lado, '13', '22']) { const n = ns.find((x) => x.lado === lado && !out.includes(x)); if (n && out.length < 2) out.push(n); }
+  return out.length ? out : ns.slice(0, 1);
+}
 function legenda(turno, dia, ns, video) {
-  // 1ª linha é o que aparece antes do "mais": número + curiosidade
-  let t = ns.length + ' notícias que mexeram no 2º turno ' + QUANDO[turno] + ' 👇\n\n';
-  for (const n of ns) {
-    const linha = (MARCA[n.lado] || '⚪ Geral') + ' · ' + n.manchete + (n.veiculo ? ' (' + n.veiculo + ')' : '') + '\n';
-    if (t.length + linha.length > 1500) break;
-    t += linha;
+  // o que aparece antes do "mais": as manchetes da capa. O resto vem em lista (os nomes na legenda ajudam na busca)
+  const ds = destaques(ns), resto = ns.filter((n) => !ds.includes(n));
+  let t = ds.map((n) => (MARCA[n.lado] || '⚪') + ' ' + n.manchete).join('\n') + '\n\n';
+  if (resto.length) {
+    t += '+ ' + resto.length + ' do 2º turno ' + QUANDO[turno] + ':\n';
+    for (const n of resto) {
+      const linha = (MARCA[n.lado] || '⚪ Geral') + ' · ' + n.manchete + (n.veiculo ? ' (' + n.veiculo + ')' : '') + '\n';
+      if (t.length + linha.length > 1500) break;
+      t += linha;
+    }
+    t += '\n';
   }
-  return t + (video ? '\nO resumo de cada uma tá no vídeo e no link da bio.\n\n' : '\nArrasta pro lado: tem o resumo de cada uma.\n\n') +
-    '📌 Salva pra ler com calma.\n📲 Manda pra quem ainda não decidiu o voto.\n💬 Qual dessas pesa mais pra você?\n\n' +
-    'Notícia dos dois lados, sem torcida. Receba no WhatsApp: link na bio.\n' + NOME[turno] + ' · ' + dia.replace('-', '/') + '\n\n' +
+  return t + '📲 Manda pra quem só vê um lado.\n💬 Qual dessas pesa mais pra você?\n\n' +
+    'Notícia dos dois lados, sem torcida. ' + NOME[turno] + ' · ' + dia.replace('-', '/') + '\n\n' +
     '#segundoturno #eleicoes2026 #lula #flaviobolsonaro #politica';
 }
 
@@ -50,7 +60,7 @@ async function fazReel(turno, j, ns) {
     { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } })).json();
   const porId = {}; linhas.forEach((n) => { porId[n.id] = n; });
   const dia = j.dia.replace('-', '/');
-  const quadros = [{ jpg: Buffer.from(await vertical(await desenhaCapa(NOME[turno], dia, ns.length, FAIXA_CAPA[turno], true), 'O 2º TURNO HOJE', 'Siga @central2turno')), dur: 3 }];
+  const quadros = [{ jpg: Buffer.from(await vertical(await desenhaCapa(NOME[turno], dia, ns.length, FAIXA_CAPA[turno], true, destaques(ns)), 'O 2º TURNO HOJE', 'Siga @central2turno')), dur: 3 }];
   for (const n of ns) { const x = porId[n.id]; if (!x) continue; quadros.push({ jpg: Buffer.from(await desenhaStory(x, await baixaFoto(x.imagem), 'central-2turno.vercel.app', NOME[turno].toUpperCase() + ' · ' + dia)), dur: 5 }); }
   quadros.push({ jpg: Buffer.from(await vertical(await desenhaFim(), '', 'Siga @central2turno')), dur: 4 });
   const mp4 = await montaVideo(quadros);
@@ -60,7 +70,7 @@ async function fazReel(turno, j, ns) {
   if (!up.ok) throw new Error('upload do vídeo: ' + up.status + ' ' + (await up.text()).slice(0, 150));
   return IG.reel(SB + '/storage/v1/object/public/reels/' + nome, legenda(turno, j.dia, ns, true));
 }
-const FAIXA_CAPA = { cedo: 'Tudo que saiu desde ontem à noite.', manha: 'Tudo que saiu entre 8h e 12h.', tarde: 'Tudo que saiu entre 12h e 18h.', noite: 'Tudo que saiu entre 18h e 22h.' };
+const FAIXA_CAPA = { cedo: 'Tudo que saiu desde ontem à noite.', manha: 'Tudo que saiu entre 8h e 12h.', tarde: 'Tudo que saiu entre 8h e 18h.', noite: 'Tudo que saiu entre 18h e 22h.' };
 
 // Reels de serviço do dia 25: um por dia, tema pela agenda (ou { tema } pra forçar)
 async function servico(corpo, res) {
@@ -131,6 +141,7 @@ module.exports = async (req, res) => {
     return res.status(200).json({ stories: feitos });
   }
   if (!NOME[turno]) return res.status(400).json({ erro: 'turno: cedo, manha, tarde, noite ou servico' });
+  if (turno === 'manha' && !corpo.forcar) return res.status(200).json({ pulou: 'o post das 12h foi cortado (manda forcar:true pra postar mesmo assim)' });
   try {
     const j = janela(turno, Date.now());
     const querReel = corpo.reel === true || (REEL_TURNOS.includes(turno) && !corpo.carrossel);
@@ -151,7 +162,7 @@ module.exports = async (req, res) => {
       try { return res.status(200).json({ reel: await fazReel(turno, j, ns.slice(0, REEL_MAX)), noticias: ns.slice(0, REEL_MAX).map((n) => n.id) }); }
       catch (e) { console.error('reel falhou, vai carrossel', e); }   // se o vídeo falhar, sai o carrossel
     }
-    const imagens = [SITE + '/ig/capa/' + turno + '-' + j.dia + '-' + ns.length + '.jpg'].concat(ns.map((n) => SITE + '/ig/feed/' + n.id + '.jpg'), [SITE + '/ig/fim.jpg']);
+    const imagens = [SITE + '/ig/capa/' + turno + '-' + j.dia + '-' + ns.length + '-' + destaques(ns).map((n) => n.id).join('_') + '.jpg'].concat(ns.map((n) => SITE + '/ig/feed/' + n.id + '.jpg'), [SITE + '/ig/fim.jpg']);
     const post = await IG.carrossel(imagens, legenda(turno, j.dia, ns));
     return res.status(200).json({ postado: post, noticias: ns.map((n) => n.id) });
   } catch (e) {
