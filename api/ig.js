@@ -13,14 +13,14 @@ function cfg() {
   }
   return CFG;
 }
-const TURNO = { manha: 'Manhã', tarde: 'Tarde', noite: 'Noite' };
-const FAIXA = { manha: 'Tudo que saiu desde ontem à noite.', tarde: 'Tudo que saiu entre 12h e 18h.', noite: 'Tudo que saiu entre 18h e 22h.' };
+const TURNO = { cedo: 'Manhã', manha: 'Meio-dia', tarde: 'Tarde', noite: 'Noite' };
+const FAIXA = { cedo: 'Tudo que saiu desde ontem à noite.', manha: 'Tudo que saiu entre 8h e 12h.', tarde: 'Tudo que saiu entre 12h e 18h.', noite: 'Tudo que saiu entre 18h e 22h.' };
 module.exports = async (req, res) => {
   const tipo = String(req.query.tipo || '');
   try {
     let jpg;
     if (tipo === 'capa') {
-      const m = String(req.query.chave || '').match(/^(manha|tarde|noite)-(\d\d)-(\d\d)-(\d)$/);
+      const m = String(req.query.chave || '').match(/^(cedo|manha|tarde|noite)-(\d\d)-(\d\d)-(\d)$/);
       if (!m) return res.status(400).end();
       jpg = await desenhaCapa(TURNO[m[1]], m[2] + '/' + m[3], Number(m[4]), FAIXA[m[1]]);
     } else if (tipo === 'fim') {

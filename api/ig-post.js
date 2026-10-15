@@ -9,8 +9,8 @@ const REEL_TURNOS = ['manha', 'noite'];   // turnos que saem como Reels (os outr
 const REEL_MAX = 8;               // notícias no vídeo (até ~45 s)
 const SB = process.env.SUPABASE_URL, KEY = process.env.SUPABASE_SERVICE_KEY;
 const SITE = 'https://central-2turno.vercel.app';
-const NOME = { manha: 'Manhã', tarde: 'Tarde', noite: 'Noite' };
-const INICIO = { manha: -2, tarde: 12, noite: 18 };   // hora de Brasília em que a janela começa (-2 = 22h do dia anterior)
+const NOME = { cedo: 'Manhã', manha: 'Meio-dia', tarde: 'Tarde', noite: 'Noite' };
+const INICIO = { cedo: -2, manha: 8, tarde: 12, noite: 18 };   // hora de Brasília em que a janela começa (-2 = 22h do dia anterior)
 const MAX = 8;   // capa + 8 notícias + slide final = 10, o máximo do Instagram
 
 function janela(turno, agora) {
@@ -29,8 +29,8 @@ function alterna(lista, primeiro) {
   return out;
 }
 const MARCA = { '13': '🔴 13', '22': '🔵 22' };
-const FAIXA = { manha: 'desde ontem à noite', tarde: 'entre 12h e 18h', noite: 'entre 18h e 22h' };
-const QUANDO = { manha: 'hoje de manhã', tarde: 'hoje à tarde', noite: 'hoje à noite' };
+const FAIXA = { cedo: 'desde ontem à noite', manha: 'entre 8h e 12h', tarde: 'entre 12h e 18h', noite: 'entre 18h e 22h' };
+const QUANDO = { cedo: 'desde ontem à noite', manha: 'hoje de manhã', tarde: 'hoje à tarde', noite: 'hoje à noite' };
 function legenda(turno, dia, ns, video) {
   // 1ª linha é o que aparece antes do "mais": número + curiosidade
   let t = ns.length + ' notícias que mexeram no 2º turno ' + QUANDO[turno] + ' 👇\n\n';
@@ -60,7 +60,7 @@ async function fazReel(turno, j, ns) {
   if (!up.ok) throw new Error('upload do vídeo: ' + up.status + ' ' + (await up.text()).slice(0, 150));
   return IG.reel(SB + '/storage/v1/object/public/reels/' + nome, legenda(turno, j.dia, ns, true));
 }
-const FAIXA_CAPA = { manha: 'Tudo que saiu desde ontem à noite.', tarde: 'Tudo que saiu entre 12h e 18h.', noite: 'Tudo que saiu entre 18h e 22h.' };
+const FAIXA_CAPA = { cedo: 'Tudo que saiu desde ontem à noite.', manha: 'Tudo que saiu entre 8h e 12h.', tarde: 'Tudo que saiu entre 12h e 18h.', noite: 'Tudo que saiu entre 18h e 22h.' };
 
 // Reels de serviço do dia 25: um por dia, tema pela agenda (ou { tema } pra forçar)
 async function servico(corpo, res) {
@@ -130,7 +130,7 @@ module.exports = async (req, res) => {
     }
     return res.status(200).json({ stories: feitos });
   }
-  if (!NOME[turno]) return res.status(400).json({ erro: 'turno: manha, tarde, noite ou servico' });
+  if (!NOME[turno]) return res.status(400).json({ erro: 'turno: cedo, manha, tarde, noite ou servico' });
   try {
     const j = janela(turno, Date.now());
     const querReel = corpo.reel === true || (REEL_TURNOS.includes(turno) && !corpo.carrossel);
@@ -144,7 +144,7 @@ module.exports = async (req, res) => {
       '&aprovado_em=gte.' + encodeURIComponent(j.de) + '&aprovado_em=lt.' + encodeURIComponent(j.ate) + '&order=aprovado_em.desc&limit=60',
       { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } });
     if (!r.ok) throw new Error('Supabase ' + r.status);
-    const vez = (Number(j.dia.slice(0, 2)) + ['manha', 'tarde', 'noite'].indexOf(turno)) % 2 ? '22' : '13';   // quem abre o carrossel reveza
+    const vez = (Number(j.dia.slice(0, 2)) + ['cedo', 'manha', 'tarde', 'noite'].indexOf(turno)) % 2 ? '22' : '13';   // quem abre o carrossel reveza
     const ns = alterna(await r.json(), vez);
     if (ns.length < 2) { await liberaTrava(); return res.status(200).json({ pulou: 'só ' + ns.length + ' notícia(s) no turno' }); }
     if (querReel) {
