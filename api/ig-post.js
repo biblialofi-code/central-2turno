@@ -91,11 +91,13 @@ async function roteiro() {
   const ns = alterna(await r.json(), '13').slice(0, 6);
   if (ns.length < 2) throw new Error('poucas notícias nas últimas 24h');
   const LADO = { '13': 'sobre Lula (13)', '22': 'sobre Flávio (22)' };
-  const prompt = `Você escreve o roteiro falado de uma repórter virtual (feita com IA) da Central 2º Turno, um canal NEUTRO de notícias do 2º turno entre Lula (13) e Flávio Bolsonaro (22).
-Escreva um boletim de 40 a 50 segundos (110 a 130 palavras), em português do Brasil falado, frases curtas, tom de telejornal leve.
-Regras: use SÓ os fatos abaixo, sem opinião, sem adjetivo que favoreça lado, sem prever resultado. Dê o mesmo espaço pros dois lados, na ordem da lista.
-Comece com um gancho de uma frase (sem "olá pessoal"). Termine com: "Eu sou a repórter virtual da Central, feita com IA. O resumo completo tá no link da bio."
-Responda só o texto falado, sem títulos nem marcações.
+  const prompt = `Escreve o que uma repórter vai falar num vídeo de uns 45 segundos sobre o dia no 2º turno (Lula, 13, contra Flávio Bolsonaro, 22).
+Ela fala como gente: como alguém contando pra um amigo o que rolou hoje. Frase curta, ritmo solto, pode começar frase com "e" ou "mas".
+Nada de cara de telejornal, nada de "olá pessoal", "fique por dentro", "confira", "é isso aí", "não perca". Nada de explicar o óbvio.
+Não se apresenta, não diz que é IA, não explica o que é a Central (isso vai na legenda).
+Usa só os fatos abaixo. Sem opinião, sem adjetivo que puxe pra um lado, sem prever quem ganha. Os dois lados com o mesmo peso, na ordem da lista.
+Começa direto no assunto mais forte. Termina curto, tipo "o resto tá no link da bio".
+Entre 100 e 125 palavras. Só o texto falado, sem título, sem marcação.
 
 ${ns.map((n, i) => (i + 1) + '. [' + (LADO[n.lado] || 'geral') + ', ' + n.veiculo + '] ' + n.manchete + (n.resumo ? ' — ' + n.resumo : '')).join('\n')}`;
   const ia = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', signal: AbortSignal.timeout(40000),
