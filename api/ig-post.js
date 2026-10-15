@@ -5,7 +5,7 @@ const IG = require('../lib/instagram.js');
 const { desenhaStory, desenhaCapa, desenhaFim, vertical, baixaFoto } = require('../lib/card.js');
 const { montaVideo } = require('../lib/reel.js');
 const SERV = require('../lib/servico.js');
-const REEL_TURNOS = ['noite'];   // turnos que saem como Reels (os outros, carrossel)
+const REEL_TURNOS = ['manha', 'noite'];   // turnos que saem como Reels (os outros, carrossel)
 const REEL_MAX = 8;               // notícias no vídeo (até ~45 s)
 const SB = process.env.SUPABASE_URL, KEY = process.env.SUPABASE_SERVICE_KEY;
 const SITE = 'https://central-2turno.vercel.app';
